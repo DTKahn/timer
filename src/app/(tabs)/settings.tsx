@@ -1,0 +1,168 @@
+import { Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { useState } from 'react';
+
+import { ColorSwatches } from '@/components/color-swatches';
+import { Icon } from '@/components/icon';
+import { Screen } from '@/components/screen';
+import { ThemedText } from '@/components/themed-text';
+import { Fonts, Spacing } from '@/constants/theme';
+import { isHexColor } from '@/constants/timer-colors';
+import { useTheme } from '@/hooks/use-theme';
+import { useFavorites } from '@/store/favorites';
+import { useSettings } from '@/store/settings';
+import { formatShort } from '@/timer/engine';
+
+export default function SettingsScreen() {
+  const theme = useTheme();
+  const settings = useSettings();
+  const [hex, setHex] = useState(settings.color);
+
+  return (
+    <Screen>
+      <ScrollView contentContainerStyle={styles.container}>
+        <ThemedText type="subtitle">Settings</ThemedText>
+
+        <Section title="Timer color">
+          <ColorSwatches
+            value={settings.color}
+            onChange={(c) => {
+              settings.setColor(c);
+              setHex(c);
+            }}
+          />
+          <View style={styles.hexRow}>
+            <View style={[styles.hexPreview, { backgroundColor: isHexColor(hex) ? hex : 'transparent', borderColor: theme.backgroundSelected }]} />
+            <TextInput
+              value={hex}
+              onChangeText={(text) => {
+                const next = text.startsWith('#') ? text : `#${text}`;
+                setHex(next);
+                if (isHexColor(next)) settings.setColor(next);
+              }}
+              autoCapitalize="none"
+              autoCorrect={false}
+              maxLength={7}
+              accessibilityLabel="Custom color hex code"
+              style={[styles.hexInput, { color: theme.text, backgroundColor: theme.face }]}
+            />
+            <ThemedText type="small" themeColor="textSecondary">
+              Custom color
+            </ThemedText>
+          </View>
+        </Section>
+
+        <Section title="When time is up">
+          {Platform.OS !== 'web' && (
+            <Toggle label="Vibrate" value={settings.haptics} onChange={() => settings.toggle('haptics')} />
+          )}
+          <Toggle
+            label="Keep the screen on while running"
+            value={settings.keepAwake}
+            onChange={() => settings.toggle('keepAwake')}
+          />
+        </Section>
+
+        <FavoritesSection />
+      </ScrollView>
+    </Screen>
+  );
+}
+
+function FavoritesSection() {
+  const theme = useTheme();
+  const { favorites, remove, restoreDefaults } = useFavorites();
+  return (
+    <Section title="Favorites">
+      {favorites.length === 0 && (
+        <ThemedText type="small" themeColor="textSecondary">
+          Add favorites with the ☆ button on the timer screen.
+        </ThemedText>
+      )}
+      {favorites.map((f) => (
+        <View key={f.id} style={styles.favRow}>
+          <ThemedText style={styles.favLabel}>{formatShort(f.durationMs)}</ThemedText>
+          <IconButton
+            label={`Remove ${formatShort(f.durationMs)}`}
+            onPress={() => remove(f.id)}
+            icon={{ ios: 'minus.circle', web: 'remove' }}
+          />
+        </View>
+      ))}
+      <Pressable onPress={restoreDefaults} accessibilityRole="button" style={styles.restore}>
+        <ThemedText type="small" style={{ color: theme.textSecondary }}>
+          Restore default favorites
+        </ThemedText>
+      </Pressable>
+    </Section>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <View style={styles.section}>
+      <ThemedText type="smallBold">{title}</ThemedText>
+      {children}
+    </View>
+  );
+}
+
+function Toggle({ label, value, onChange }: { label: string; value: boolean; onChange: () => void }) {
+  const color = useSettings((s) => s.color);
+  const theme = useTheme();
+  return (
+    <View style={styles.toggle}>
+      <ThemedText>{label}</ThemedText>
+      <Switch
+        value={value}
+        onValueChange={onChange}
+        accessibilityLabel={label}
+        trackColor={{ true: color, false: theme.backgroundSelected }}
+        thumbColor="#FFFFFF"
+        // react-native-web colors the "on" thumb separately; not in RN's types.
+        {...{ activeThumbColor: '#FFFFFF' }}
+      />
+    </View>
+  );
+}
+
+function IconButton({
+  label,
+  icon,
+  onPress,
+}: {
+  label: string;
+  icon: React.ComponentProps<typeof Icon>['name'];
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      hitSlop={4}
+      style={({ pressed }) => [styles.iconButton, pressed && { opacity: 0.6 }]}>
+      <Icon name={icon} size={20} color={theme.textSecondary} />
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { padding: Spacing.four, gap: Spacing.five },
+  section: { gap: Spacing.three },
+  hexRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  hexPreview: { width: 28, height: 28, borderRadius: 14, borderWidth: 1 },
+  hexInput: {
+    width: 110,
+    height: 40,
+    borderRadius: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    fontSize: 16,
+    fontFamily: Fonts.regular,
+  },
+  toggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.three },
+  favRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
+  favLabel: { flex: 1, fontFamily: Fonts.bold },
+  iconButton: { padding: Spacing.two },
+  restore: { alignSelf: 'flex-start', paddingVertical: Spacing.one },
+});

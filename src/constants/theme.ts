@@ -1,55 +1,41 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * App palette. The only accent is the user's timer color; everything else is
+ * a quiet neutral so the dial carries the design.
  */
-
-import '@/global.css';
 
 import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#16181C',
+    textSecondary: '#5A5F68',
+    background: '#E9ECEF',
+    backgroundElement: '#C4CAD1',
+    backgroundSelected: '#A9B1BA',
+    face: '#FFFFFF',
+    tick: '#16181C',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#EEF0F2',
+    textSecondary: '#9AA0A8',
+    background: '#141619',
+    backgroundElement: '#373C43',
+    backgroundSelected: '#4B525A',
+    face: '#1F2226',
+    tick: '#EEF0F2',
   },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
-});
+/**
+ * Font families, loaded in the root layout. Custom fonts need one family per
+ * weight, so set `fontFamily` to one of these instead of `fontWeight`.
+ */
+export const Fonts = {
+  regular: 'Lato_400Regular',
+  bold: 'Lato_700Bold',
+} as const;
 
 export const Spacing = {
   half: 2,
@@ -63,3 +49,5 @@ export const Spacing = {
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
+/** Room for the floating tab bar that sits at the top of the page on web. */
+export const TopBarInset = Platform.select({ web: 80 }) ?? 0;
