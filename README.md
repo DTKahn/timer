@@ -10,7 +10,7 @@ Built with Expo (React Native + react-native-web) from one TypeScript codebase.
 
 ```bash
 npm install
-npm run web        # browser at http://localhost:8081
+npm run web        # browser at http://localhost:8081/timer/
 npm run ios        # needs Xcode + a development build (see below)
 npm test           # unit tests (timer engine, stores, dial geometry)
 npm run typecheck
@@ -20,6 +20,13 @@ npx expo lint
 The app uses native modules (notifications, audio, haptics), so on iOS it runs in
 a [development build](https://docs.expo.dev/develop/development-builds/introduction/),
 not Expo Go: `npx expo run:ios` locally, or `npx eas-cli@latest build --profile development`.
+
+## Web deployment
+
+Every push to `main` deploys the web app to GitHub Pages at
+https://dtkahn.github.io/timer/ (see `.github/workflows/deploy-pages.yml`).
+Because the site lives under `/timer`, `app.json` sets `experiments.baseUrl`,
+so the local dev server also serves the app at http://localhost:8081/timer/.
 
 ## How it works
 
@@ -35,6 +42,6 @@ not Expo Go: `npx expo run:ios` locally, or `npx eas-cli@latest build --profile 
 
 ## Roadmap
 
-- Deploy web (static export → Vercel) and ship iOS through TestFlight via EAS.
+- Ship iOS through TestFlight via EAS.
 - Live Activity (Dynamic Island + Lock Screen) and home-screen widget via a Swift
   WidgetKit target added with `@bacons/apple-targets`.
