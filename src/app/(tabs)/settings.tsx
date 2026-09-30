@@ -1,8 +1,8 @@
+import { CircleMinus, type LucideIcon } from 'lucide-react-native';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { useState } from 'react';
 
 import { ColorSwatches } from '@/components/color-swatches';
-import { Icon } from '@/components/icon';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
@@ -84,7 +84,7 @@ function FavoritesSection() {
           <IconButton
             label={`Remove ${formatShort(f.durationMs)}`}
             onPress={() => remove(f.id)}
-            icon={{ ios: 'minus.circle', web: 'remove' }}
+            icon={CircleMinus}
           />
         </View>
       ))}
@@ -127,11 +127,11 @@ function Toggle({ label, value, onChange }: { label: string; value: boolean; onC
 
 function IconButton({
   label,
-  icon,
+  icon: Glyph,
   onPress,
 }: {
   label: string;
-  icon: React.ComponentProps<typeof Icon>['name'];
+  icon: LucideIcon;
   onPress: () => void;
 }) {
   const theme = useTheme();
@@ -142,7 +142,7 @@ function IconButton({
       accessibilityLabel={label}
       hitSlop={4}
       style={({ pressed }) => [styles.iconButton, pressed && { opacity: 0.6 }]}>
-      <Icon name={icon} size={20} color={theme.textSecondary} />
+      <Glyph size={20} color={theme.textSecondary} />
     </Pressable>
   );
 }

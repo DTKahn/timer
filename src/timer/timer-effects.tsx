@@ -9,7 +9,7 @@ import { useSettings } from '@/store/settings';
 import { useTimer } from '@/store/timer';
 import { formatDuration, formatShort } from '@/timer/engine';
 
-/** How late a finish can be noticed and still count as "just now" for the chime. */
+/** How late a finish can be noticed and still count as "just now" for the sound. */
 const FRESH_FINISH_MS = 3000;
 
 /**

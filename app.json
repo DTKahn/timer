@@ -39,11 +39,9 @@
         "expo-notifications",
         {
           "sounds": [
-            "./assets/sounds/chime.wav",
             "./assets/sounds/bell.wav",
-            "./assets/sounds/marimba.wav",
-            "./assets/sounds/beeps.wav",
-            "./assets/sounds/soft.wav"
+            "./assets/sounds/bird.wav",
+            "./assets/sounds/guitar.wav"
           ]
         }
       ]

@@ -1,6 +1,6 @@
+import { Check } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Icon } from '@/components/icon';
 import { Spacing } from '@/constants/theme';
 import { contentColorOn, TIMER_COLORS } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
@@ -18,7 +18,7 @@ export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
             key={c.value}
             onPress={() => onChange(c.value)}
             accessibilityRole="radio"
-            accessibilityState={{ checked: selected }}
+            aria-checked={selected}
             accessibilityLabel={c.name}
             style={({ pressed }) => [
               styles.swatch,
@@ -26,7 +26,7 @@ export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
               pressed && styles.pressed,
             ]}>
             {selected && (
-              <Icon name={{ ios: 'checkmark', web: 'check' }} size={18} color={contentColorOn(c.value)} />
+              <Check size={20} strokeWidth={3} color={contentColorOn(c.value)} />
             )}
           </Pressable>
         );

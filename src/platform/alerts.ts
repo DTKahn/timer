@@ -2,7 +2,7 @@ import * as Notifications from 'expo-notifications';
 
 import type { SoundId } from '@/constants/sounds';
 
-// In the foreground the app plays its own chime, so only log to Notification Center.
+// In the foreground the app plays its own sound, so only log to Notification Center.
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: false,

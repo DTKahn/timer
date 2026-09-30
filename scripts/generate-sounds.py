@@ -5,6 +5,7 @@ Output is 16-bit mono WAV, which works on web and as an iOS notification sound.
 """
 
 import math
+import random
 import struct
 import wave
 from pathlib import Path
@@ -41,23 +42,6 @@ def sine(freq, t):
     return math.sin(2 * math.pi * freq * t)
 
 
-def bell_note(freq, amp, length, decay=3.2):
-    # Fundamental plus a quiet inharmonic partial that fades faster.
-    return lambda t: 0.0 if t >= length else amp * attack(t, 0.004) * math.exp(-t * decay) * (
-        sine(freq, t) + 0.25 * sine(freq * 2.76, t) * math.exp(-t * 6)
-    )
-
-
-def chime():
-    # Three soft strikes: E6, C6, then E6 + G6 together.
-    return render(2.2, [
-        (0.0, bell_note(1318.5, 0.35, 1.2)),
-        (0.28, bell_note(1046.5, 0.35, 1.2)),
-        (0.56, bell_note(1318.5, 0.25, 1.6)),
-        (0.56, bell_note(1568.0, 0.2, 1.6)),
-    ])
-
-
 def bell():
     # A deeper church-style bell struck twice, with rich inharmonic partials.
     def strike(t):
@@ -68,44 +52,80 @@ def bell():
     return render(4.0, [(0.0, strike), (1.6, strike)])
 
 
-def marimba():
-    # Quick woody arpeggio: C5 E5 G5 C6, twice.
-    def note(freq):
-        return lambda t: attack(t, 0.002) * math.exp(-t * 9) * (
-            sine(freq, t) + 0.3 * sine(freq * 4, t) * math.exp(-t * 30)
-        )
-
-    freqs = [523.25, 659.25, 783.99, 1046.5]
-    voices = [(i * 0.12, note(f)) for i, f in enumerate(freqs)]
-    voices += [(0.7 + i * 0.12, note(f)) for i, f in enumerate(freqs)]
-    return render(1.8, voices)
-
-
-def beeps():
-    # Classic digital alarm: two groups of four short beeps.
-    def beep(t):
-        if t > 0.09:
-            return 0.0
-        env = min(1.0, t / 0.005, (0.09 - t) / 0.005)
-        # Soft square-ish tone: odd harmonics only.
-        return env * (sine(2000, t) + 0.3 * sine(6000, t))
-
-    voices = [(g * 0.9 + i * 0.16, beep) for g in range(2) for i in range(4)]
-    return render(1.6, voices)
+def mix(duration, tracks):
+    """tracks: (start_s, [samples]) pairs, mixed and normalized."""
+    n = int(RATE * duration)
+    buf = [0.0] * n
+    for start, samples in tracks:
+        s0 = int(start * RATE)
+        for i, x in enumerate(samples[: n - s0]):
+            buf[s0 + i] += x
+    peak = max(abs(x) for x in buf) or 1
+    return [x / peak * 0.8 for x in buf]
 
 
-def soft():
-    # Gentle rising pad: two slow-swelling notes (A4, then E5).
-    def pad(freq):
-        return lambda t: min(1.0, t / 0.35) * math.exp(-max(0.0, t - 0.35) * 1.6) * (
-            sine(freq, t) + 0.5 * sine(freq * 2, t) + 0.2 * sine(freq * 3, t)
-        )
+def sweep(f0, f1, dur, amp=1.0):
+    """A sine that glides from f0 to f1 with a smooth rise and fall, like a chirp."""
+    n = int(dur * RATE)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        phase = 2 * math.pi * (f0 * t + (f1 - f0) * t * t / (2 * dur))
+        out.append(amp * math.sin(math.pi * t / dur) ** 2 * math.sin(phase))
+    return out
 
-    return render(3.0, [(0.0, pad(440.0)), (0.6, pad(659.25))])
+
+def bird():
+    # Two songbirds: quick rising chirps and a falling trill, then an answering call.
+    rnd = random.Random(7)
+    tracks = []
+    t = 0.0
+    for _ in range(3):  # three quick "tweet"s
+        tracks.append((t, sweep(3000, 4800, 0.07)))
+        t += 0.11
+    t += 0.12
+    for i in range(6):  # falling trill
+        f = 5200 - i * 300 + rnd.uniform(-80, 80)
+        tracks.append((t, sweep(f, f - 700, 0.05, 0.8)))
+        t += 0.07
+    t += 0.25
+    tracks.append((t, sweep(4600, 3900, 0.16, 0.7)))  # answering "tee-yoo"
+    tracks.append((t + 0.22, sweep(3300, 2600, 0.2, 0.7)))
+    t += 0.7
+    for _ in range(2):  # one more pair of chirps
+        tracks.append((t, sweep(3200, 5000, 0.06, 0.9)))
+        t += 0.1
+    return mix(t + 0.3, tracks)
+
+
+def pluck(freq, dur, rnd, amp=1.0, decay=0.996):
+    # Karplus-Strong plucked string; smoothing the initial noise softens the attack.
+    period = int(RATE / freq)
+    buf = [rnd.uniform(-1, 1) for _ in range(period)]
+    for _ in range(2):
+        buf = [(buf[i - 1] + buf[i] + buf[(i + 1) % period]) / 3 for i in range(period)]
+    out = []
+    for i in range(int(dur * RATE)):
+        j = i % period
+        x = buf[j]
+        buf[j] = decay * 0.5 * (x + buf[(j + 1) % period])
+        out.append(amp * x)
+    return out
+
+
+def guitar():
+    # Light fingerpicked Cmaj7 arpeggio, then a gentle C major strum left to ring.
+    rnd = random.Random(11)
+    notes = [130.81, 196.0, 329.63, 493.88, 392.0, 329.63]  # C3 G3 E4 B4 G4 E4
+    tracks = [(i * 0.18, pluck(f, 2.4, rnd, 0.7)) for i, f in enumerate(notes)]
+    strum_at = len(notes) * 0.18 + 0.15
+    chord = [130.81, 196.0, 261.63, 329.63, 392.0]  # C3 G3 C4 E4 G4
+    tracks += [(strum_at + i * 0.025, pluck(f, 2.6, rnd, 0.8, 0.9965)) for i, f in enumerate(chord)]
+    return mix(strum_at + 2.6, tracks)
 
 
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, fn in [("chime", chime), ("bell", bell), ("marimba", marimba), ("beeps", beeps), ("soft", soft)]:
+    for name, fn in [("bell", bell), ("bird", bird), ("guitar", guitar)]:
         write(name, fn())
         print(f"wrote {name}.wav")

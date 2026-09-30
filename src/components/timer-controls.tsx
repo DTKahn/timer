@@ -1,7 +1,7 @@
+import { Pause, Play, RotateCcw } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ColorButton } from '@/components/color-picker';
-import { Icon } from '@/components/icon';
 import { SoundButton } from '@/components/sound-picker';
 import { Spacing } from '@/constants/theme';
 import { contentColorOn } from '@/constants/timer-colors';
@@ -11,11 +11,11 @@ import { useSettings } from '@/store/settings';
 import { useTimer } from '@/store/timer';
 
 const PRIMARY = {
-  idle: { label: 'Start', icon: { ios: 'play.fill', web: 'play_arrow' } },
-  running: { label: 'Pause', icon: { ios: 'pause.fill', web: 'pause' } },
-  paused: { label: 'Resume', icon: { ios: 'play.fill', web: 'play_arrow' } },
-  finished: { label: 'Start again', icon: { ios: 'play.fill', web: 'play_arrow' } },
-} as const;
+  idle: { label: 'Start', Glyph: Play },
+  running: { label: 'Pause', Glyph: Pause },
+  paused: { label: 'Resume', Glyph: Play },
+  finished: { label: 'Start again', Glyph: Play },
+};
 
 /**
  * Color and sound on the left, start/pause in the center, reset on the right.
@@ -54,7 +54,7 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
           { backgroundColor: color, opacity: primaryDisabled ? 0.4 : 1 },
           pressed && styles.pressed,
         ]}>
-        <Icon name={primary.icon} size={34} color={contentColorOn(color)} />
+        <primary.Glyph size={32} color={contentColorOn(color)} fill={contentColorOn(color)} />
       </Pressable>
       <View style={styles.side}>
         <Pressable
@@ -67,7 +67,7 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
             { backgroundColor: theme.backgroundElement, opacity: canReset ? 1 : 0.35 },
             pressed && styles.pressed,
           ]}>
-          <Icon name={{ ios: 'arrow.counterclockwise', web: 'replay' }} size={22} color={theme.text} />
+          <RotateCcw size={22} color={theme.text} />
         </Pressable>
       </View>
     </View>

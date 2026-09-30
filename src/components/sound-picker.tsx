@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { Volume2, VolumeX } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Icon } from '@/components/icon';
 import { PickerOverlay } from '@/components/picker-overlay';
+import { SoundIcon } from '@/components/sound-icon';
 import { ThemedText } from '@/components/themed-text';
 import { SOUNDS } from '@/constants/sounds';
 import { Spacing } from '@/constants/theme';
@@ -33,19 +34,11 @@ export function SoundButton({ size = 52 }: { size?: number }) {
           { width: size, height: size, borderRadius: size / 2, backgroundColor: theme.backgroundElement },
           pressed && styles.pressed,
         ]}>
-        <Icon
-          name={
-            sound === 'silent'
-              ? { ios: 'speaker.slash.fill', web: 'volume_off' }
-              : { ios: 'speaker.wave.2.fill', web: 'volume_up' }
-          }
-          size={22}
-          color={theme.text}
-        />
+        {sound === 'silent' ? <VolumeX size={22} color={theme.text} /> : <Volume2 size={22} color={theme.text} />}
       </Pressable>
 
       <PickerOverlay visible={open} title="Sound when time is up" label="sound picker" onClose={close}>
-        <View accessibilityRole="radiogroup" style={styles.list}>
+        <View accessibilityRole="radiogroup" style={styles.grid}>
           {SOUNDS.map((s) => {
             const selected = s.id === sound;
             return (
@@ -56,19 +49,16 @@ export function SoundButton({ size = 52 }: { size?: number }) {
                   playSound(s.id); // Preview; the overlay stays open to try others.
                 }}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: selected }}
+                aria-checked={selected}
                 accessibilityLabel={s.name}
-                style={({ pressed }) => [
-                  styles.row,
-                  { backgroundColor: selected ? color : theme.backgroundElement },
-                  pressed && styles.pressed,
-                ]}>
-                <ThemedText type="smallBold" style={[styles.rowText, selected && { color: contentColorOn(color) }]}>
+                style={({ pressed }) => [styles.option, pressed && styles.pressed]}>
+                <View
+                  style={[styles.circle, { backgroundColor: selected ? color : theme.backgroundElement }]}>
+                  <SoundIcon id={s.id} size={26} color={selected ? contentColorOn(color) : theme.text} />
+                </View>
+                <ThemedText type="small" themeColor={selected ? 'text' : 'textSecondary'}>
                   {s.name}
                 </ThemedText>
-                {selected && (
-                  <Icon name={{ ios: 'checkmark', web: 'check' }} size={18} color={contentColorOn(color)} />
-                )}
               </Pressable>
             );
           })}
@@ -88,16 +78,9 @@ export function SoundButton({ size = 52 }: { size?: number }) {
 
 const styles = StyleSheet.create({
   button: { alignItems: 'center', justifyContent: 'center' },
-  list: { gap: Spacing.two },
-  row: {
-    height: 48,
-    borderRadius: 24,
-    paddingHorizontal: Spacing.four,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  rowText: { fontSize: 16 },
+  grid: { flexDirection: 'row', justifyContent: 'space-between' },
+  option: { alignItems: 'center', gap: Spacing.one },
+  circle: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   done: { alignSelf: 'center', paddingVertical: Spacing.two, paddingHorizontal: Spacing.four },
   pressed: { opacity: 0.7 },
 });

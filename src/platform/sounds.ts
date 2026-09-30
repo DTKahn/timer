@@ -3,11 +3,9 @@ import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-aud
 import type { SoundId } from '@/constants/sounds';
 
 const SOURCES: Record<Exclude<SoundId, 'silent'>, number> = {
-  chime: require('@/assets/sounds/chime.wav'),
   bell: require('@/assets/sounds/bell.wav'),
-  marimba: require('@/assets/sounds/marimba.wav'),
-  beeps: require('@/assets/sounds/beeps.wav'),
-  soft: require('@/assets/sounds/soft.wav'),
+  bird: require('@/assets/sounds/bird.wav'),
+  guitar: require('@/assets/sounds/guitar.wav'),
 };
 
 const players = new Map<SoundId, AudioPlayer>();

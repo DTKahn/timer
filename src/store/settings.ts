@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { DEFAULT_SOUND, type SoundId } from '@/constants/sounds';
+import { DEFAULT_SOUND, isSoundId, type SoundId } from '@/constants/sounds';
 import { TIMER_COLORS } from '@/constants/timer-colors';
 import { persistStorage } from '@/store/storage';
 
@@ -15,12 +15,16 @@ type SettingsState = {
   toggle: (key: 'haptics' | 'keepAwake') => void;
 };
 
-/** v0 stored `sound` as an on/off chime toggle; v1 stores which sound to play. */
+/**
+ * v0 stored `sound` as an on/off toggle; v1 stored a sound id; v2 retired
+ * chime, marimba, beeps, and soft. Anything unknown falls back to the default.
+ */
 export function migrateSettings(persisted: unknown, version: number) {
   const state = { ...(persisted as Record<string, unknown>) };
   if (version < 1 && typeof state.sound === 'boolean') {
     state.sound = state.sound ? DEFAULT_SOUND : 'silent';
   }
+  if ('sound' in state && !isSoundId(state.sound)) state.sound = DEFAULT_SOUND;
   return state;
 }
 
@@ -38,7 +42,7 @@ export const useSettings = create<SettingsState>()(
     {
       name: 'settings',
       storage: persistStorage,
-      version: 1,
+      version: 2,
       migrate: (persisted, version) => migrateSettings(persisted, version) as unknown as SettingsState,
     },
   ),

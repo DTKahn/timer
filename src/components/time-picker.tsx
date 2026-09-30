@@ -1,6 +1,6 @@
+import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -78,11 +78,7 @@ function StepButton({ label, onPress, up }: { label: string; onPress: () => void
       accessibilityLabel={label}
       hitSlop={8}
       style={({ pressed }) => [styles.step, pressed && { backgroundColor: theme.backgroundElement }]}>
-      <Icon
-        name={up ? { ios: 'chevron.up', web: 'keyboard_arrow_up' } : { ios: 'chevron.down', web: 'keyboard_arrow_down' }}
-        size={22}
-        color={theme.textSecondary}
-      />
+      {up ? <ChevronUp size={22} color={theme.textSecondary} /> : <ChevronDown size={22} color={theme.textSecondary} />}
     </Pressable>
   );
 }

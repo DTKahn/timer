@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Star } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { StarIcon } from '@/components/star-icon';
 import { TimePicker } from '@/components/time-picker';
 import { useTheme } from '@/hooks/use-theme';
 import { useFavorites } from '@/store/favorites';
@@ -64,7 +64,7 @@ function FavoriteStar({ durationMs, disabled }: { durationMs: number; disabled: 
       accessibilityState={{ selected: !!favorite, disabled }}
       hitSlop={8}
       style={({ pressed }) => [styles.star, { opacity: disabled ? 0.3 : pressed ? 0.6 : 1 }]}>
-      <StarIcon filled={!!favorite} size={28} color={favorite ? color : theme.textSecondary} />
+      <Star size={28} color={favorite ? color : theme.textSecondary} fill={favorite ? color : 'none'} />
     </Pressable>
   );
 }

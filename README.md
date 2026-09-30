@@ -10,7 +10,7 @@ Built with Expo (React Native + react-native-web) from one TypeScript codebase.
 
 ```bash
 npm install
-npm run web        # browser at http://localhost:8081/timer/
+npm run web        # browser at http://localhost:8081
 npm run ios        # needs Xcode + a development build (see below)
 npm test           # unit tests (timer engine, stores, dial geometry)
 npm run typecheck
@@ -25,8 +25,9 @@ not Expo Go: `npx expo run:ios` locally, or `npx eas-cli@latest build --profile 
 
 Every push to `main` deploys the web app to GitHub Pages at
 https://dtkahn.github.io/timer/ (see `.github/workflows/deploy-pages.yml`).
-Because the site lives under `/timer`, `app.json` sets `experiments.baseUrl`,
-so the local dev server also serves the app at http://localhost:8081/timer/.
+Because the site lives under `/timer`, `app.json` sets `experiments.baseUrl`.
+That only affects the exported build; the dev server still serves the app at
+http://localhost:8081/.
 
 ## How it works
 
@@ -36,7 +37,7 @@ so the local dev server also serves the app at http://localhost:8081/timer/.
 - **Stores** (`src/store/`): Zustand, persisted to AsyncStorage (localStorage on
   web). Timer, settings, favorites, and history are all local to the device.
 - **Side effects** (`src/timer/timer-effects.tsx`): finishing on time, the
-  "time's up" notification, chime, haptics, keep-awake, and the browser tab title.
+  "time's up" notification, completion sound, haptics, keep-awake, and the browser tab title.
   Platform-specific alerts live in `src/platform/alerts.ts` / `alerts.web.ts`.
 - **Dial** (`src/components/pie-dial.tsx`): SVG wedge from `src/timer/dial-geometry.ts`.
 
