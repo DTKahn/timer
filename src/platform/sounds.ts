@@ -12,6 +12,8 @@ const SOURCES: Record<Exclude<SoundId, 'silent'>, number> = {
 
 const players = new Map<SoundId, AudioPlayer>();
 let audioModeSet = false;
+let lastPrepared: SoundId | undefined;
+let watchingReturn = false;
 
 function getPlayer(id: Exclude<SoundId, 'silent'>): AudioPlayer {
   if (!audioModeSet) {
@@ -35,10 +37,33 @@ function getPlayer(id: Exclude<SoundId, 'silent'>): AudioPlayer {
 export function prepareSound(id: SoundId) {
   if (id === 'silent') return;
   const player = getPlayer(id);
-  if (Platform.OS === 'web' && !player.playing) {
+  if (Platform.OS !== 'web') return;
+  lastPrepared = id;
+  watchForReturn();
+  if (!player.playing) {
     player.muted = true;
     player.play();
   }
+}
+
+/**
+ * iOS home screen web apps can forget that a tap allowed audio once they've
+ * been in the background, so the finish sound would be blocked. Ready it
+ * again when the app comes back, and on the next tap after that.
+ */
+function watchForReturn() {
+  if (watchingReturn) return;
+  watchingReturn = true;
+  const gestures = ['touchend', 'click', 'keydown'] as const;
+  const onGesture = () => {
+    for (const g of gestures) document.removeEventListener(g, onGesture, true);
+    if (lastPrepared) prepareSound(lastPrepared);
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden || !lastPrepared) return;
+    prepareSound(lastPrepared);
+    for (const g of gestures) document.addEventListener(g, onGesture, true);
+  });
 }
 
 /** Plays a completion sound from the start, stopping any other one. */
