@@ -6,6 +6,7 @@ import { SoundButton } from '@/components/sound-picker';
 import { Spacing } from '@/constants/theme';
 import { contentColorOn } from '@/constants/timer-colors';
 import { requestAlertPermission } from '@/platform/alerts';
+import { prepareSound } from '@/platform/sounds';
 import { useTheme } from '@/hooks/use-theme';
 import { useSettings } from '@/store/settings';
 import { useTimer } from '@/store/timer';
@@ -24,6 +25,7 @@ const PRIMARY = {
 export function TimerControls({ canStart }: { canStart: boolean }) {
   const theme = useTheme();
   const color = useSettings((s) => s.color);
+  const sound = useSettings((s) => s.sound);
   const { timer, start, pause, resume, reset } = useTimer();
   const primary = PRIMARY[timer.status];
   const canReset = timer.status !== 'idle';
@@ -32,9 +34,15 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
   const startWithAlerts = () => {
     // Ask on the first start, from the tap itself, so the prompt has context.
     requestAlertPermission().catch(() => {});
+    prepareSound(sound);
     start();
   };
-  const onPrimary = { idle: startWithAlerts, running: pause, paused: resume, finished: startWithAlerts }[
+  // Resume can be the first tap after a reload, so the sound needs readying here too.
+  const resumeWithSound = () => {
+    prepareSound(sound);
+    resume();
+  };
+  const onPrimary = { idle: startWithAlerts, running: pause, paused: resumeWithSound, finished: startWithAlerts }[
     timer.status
   ];
 
