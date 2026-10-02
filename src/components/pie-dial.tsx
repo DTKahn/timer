@@ -1,29 +1,35 @@
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 import { useTheme } from '@/hooks/use-theme';
-import { polar, wedgePath } from '@/timer/dial-geometry';
+import { polar, ringBands, ringPath } from '@/timer/dial-geometry';
 
 type PieDialProps = {
   /** Fraction of time remaining, 1 → 0. */
   fraction: number;
-  color: string;
+  /** One color fills the wedge; several split it into rings, outermost first. */
+  colors: string[];
   size: number;
 };
 
 const TICKS = Array.from({ length: 60 }, (_, i) => i);
 
-export function PieDial({ fraction, color, size }: PieDialProps) {
+export function PieDial({ fraction, colors, size }: PieDialProps) {
   const theme = useTheme();
   const c = size / 2;
   const face = c - 1;
   const wedge = c * 0.8;
+  const rings = ringBands(wedge, colors.length, c * 0.015).map((band, i) => ({ ...band, color: colors[i] }));
 
   return (
     <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
       <Circle cx={c} cy={c} r={face} fill={theme.face} />
-      {/* Faint full-size ghost of the wedge so an empty dial still shows its color. */}
-      <Circle cx={c} cy={c} r={wedge} fill={color} opacity={0.12} />
-      <Path d={wedgePath(c, c, wedge, fraction)} fill={color} />
+      {/* Faint full-size ghost of the wedge so an empty dial still shows its colors. */}
+      {rings.map((ring) => (
+        <Path key={`ghost-${ring.outer}`} d={ringPath(c, c, ring.inner, ring.outer, 1)} fill={ring.color} opacity={0.12} />
+      ))}
+      {rings.map((ring) => (
+        <Path key={ring.outer} d={ringPath(c, c, ring.inner, ring.outer, fraction)} fill={ring.color} />
+      ))}
       {TICKS.map((i) => {
         const major = i % 5 === 0;
         const angle = (i / 60) * 2 * Math.PI;
@@ -43,8 +49,6 @@ export function PieDial({ fraction, color, size }: PieDialProps) {
           />
         );
       })}
-      <Circle cx={c} cy={c} r={c * 0.075} fill={theme.face} />
-      <Circle cx={c} cy={c} r={c * 0.035} fill={color} />
     </Svg>
   );
 }

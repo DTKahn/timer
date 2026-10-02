@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useShallow } from 'zustand/react/shallow';
 
 import { DurationEditor } from '@/components/duration-editor';
 import { PieDial } from '@/components/pie-dial';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
-import { useSettings } from '@/store/settings';
+import { dialColors, useSettings } from '@/store/settings';
 import { useTimer } from '@/store/timer';
 import { formatDuration, progress, remainingMs, splitDuration } from '@/timer/engine';
 import { finishFlash } from '@/timer/finish-flash';
@@ -26,7 +27,7 @@ type TimerFaceProps = {
 
 export function TimerFace({ size, onDraftEmptyChange, editingExtras }: TimerFaceProps) {
   const timer = useTimer((s) => s.timer);
-  const color = useSettings((s) => s.color);
+  const colors = useSettings(useShallow(dialColors));
   // Frame-by-frame clock while counting down and during the completion flash.
   const [flashClockOn, setFlashClockOn] = useState(false);
   const now = useNow(timer.status === 'running' || flashClockOn);
@@ -46,7 +47,7 @@ export function TimerFace({ size, onDraftEmptyChange, editingExtras }: TimerFace
   return (
     <View style={styles.container}>
       <View accessible accessibilityRole="timer" accessibilityLabel={`${spoken} remaining`}>
-        <PieDial fraction={fraction} color={color} size={size} />
+        <PieDial fraction={fraction} colors={colors} size={size} />
       </View>
       <View style={styles.readout}>
         {editable ? (
