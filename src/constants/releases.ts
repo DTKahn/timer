@@ -12,7 +12,7 @@ export type Release = {
 export const RELEASES: Release[] = [
   {
     version: '0.5.0',
-    date: 'Oct 2, 2026, 09:58',
+    date: 'Oct 2, 2026, 10:14',
     name: 'Version history',
     changes: [
       'You can see which version you’re using at the bottom of Settings.',
