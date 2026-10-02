@@ -2,7 +2,7 @@ import { CircleMinus, type LucideIcon } from 'lucide-react-native';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { useState } from 'react';
 
-import { ColorSwatches } from '@/components/color-swatches';
+import { ColorModeSwitch, ColorSwatches } from '@/components/color-swatches';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
@@ -23,32 +23,49 @@ export default function SettingsScreen() {
         <ThemedText type="subtitle">Settings</ThemedText>
 
         <Section title="Timer color">
+          <ColorModeSwitch
+            multi={settings.multiColor}
+            accent={settings.color}
+            onChange={(multi) => {
+              settings.setMultiColor(multi);
+              // Leaving multi mode keeps the first ring as the single color.
+              if (!multi) setHex(settings.colors[0]);
+            }}
+          />
           <ColorSwatches
-            value={settings.color}
-            onChange={(c) => {
+            value={settings.multiColor ? settings.colors : [settings.color]}
+            multi={settings.multiColor}
+            onPress={(c) => {
+              if (settings.multiColor) return settings.toggleColor(c);
               settings.setColor(c);
               setHex(c);
             }}
           />
-          <View style={styles.hexRow}>
-            <View style={[styles.hexPreview, { backgroundColor: isHexColor(hex) ? hex : 'transparent', borderColor: theme.backgroundSelected }]} />
-            <TextInput
-              value={hex}
-              onChangeText={(text) => {
-                const next = text.startsWith('#') ? text : `#${text}`;
-                setHex(next);
-                if (isHexColor(next)) settings.setColor(next);
-              }}
-              autoCapitalize="none"
-              autoCorrect={false}
-              maxLength={7}
-              accessibilityLabel="Custom color hex code"
-              style={[styles.hexInput, { color: theme.text, backgroundColor: theme.face }]}
-            />
+          {settings.multiColor ? (
             <ThemedText type="small" themeColor="textSecondary">
-              Custom color
+              Each color is a ring on the dial, in the order picked from the outside in.
             </ThemedText>
-          </View>
+            ) : (
+            <View style={styles.hexRow}>
+              <View style={[styles.hexPreview, { backgroundColor: isHexColor(hex) ? hex : 'transparent', borderColor: theme.backgroundSelected }]} />
+              <TextInput
+                value={hex}
+                onChangeText={(text) => {
+                  const next = text.startsWith('#') ? text : `#${text}`;
+                  setHex(next);
+                  if (isHexColor(next)) settings.setColor(next);
+                }}
+                autoCapitalize="none"
+                autoCorrect={false}
+                maxLength={7}
+                accessibilityLabel="Custom color hex code"
+                style={[styles.hexInput, { color: theme.text, backgroundColor: theme.face }]}
+              />
+              <ThemedText type="small" themeColor="textSecondary">
+                Custom color
+              </ThemedText>
+            </View>
+          )}
         </Section>
 
         <Section title="When time is up">

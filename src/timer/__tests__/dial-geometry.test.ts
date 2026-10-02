@@ -1,4 +1,4 @@
-import { polar, sectorPath, wedgePath } from '../dial-geometry';
+import { polar, ringBands, ringPath, sectorPath, wedgePath } from '../dial-geometry';
 
 describe('dial geometry', () => {
   it('puts angle 0 at 12 o’clock and quarter turn at 3 o’clock', () => {
@@ -38,5 +38,40 @@ describe('dial geometry', () => {
 describe('sectorPath', () => {
   it('draws a slice between two angles', () => {
     expect(sectorPath(50, 50, 10, 0, Math.PI / 2)).toBe('M 50 50 L 50 40 A 10 10 0 0 1 60 50 Z');
+  });
+});
+
+describe('ringPath', () => {
+  it('is a plain wedge when the ring reaches the center', () => {
+    expect(ringPath(50, 50, 0, 10, 0.25)).toBe(wedgePath(50, 50, 10, 0.25));
+  });
+
+  it('draws nothing for an empty timer', () => {
+    expect(ringPath(50, 50, 5, 10, 0)).toBe('');
+  });
+
+  it('cuts a reversed inner circle out of a full ring', () => {
+    expect(ringPath(50, 50, 5, 10, 1)).toBe(
+      'M 50 40 A 10 10 0 1 1 50 60 A 10 10 0 1 1 50 40 Z M 50 45 A 5 5 0 1 0 50 55 A 5 5 0 1 0 50 45 Z',
+    );
+  });
+
+  it('runs out along the outer edge to 12 o’clock and back along the inner edge', () => {
+    expect(ringPath(50, 50, 5, 10, 0.25)).toBe('M 40 50 A 10 10 0 0 1 50 40 L 50 45 A 5 5 0 0 0 45 50 Z');
+    expect(ringPath(50, 50, 5, 10, 0.75)).toBe('M 60 50 A 10 10 0 1 1 50 40 L 50 45 A 5 5 0 1 0 55 50 Z');
+  });
+});
+
+describe('ringBands', () => {
+  it('is the whole disk for one color', () => {
+    expect(ringBands(80, 1, 2)).toEqual([{ inner: 0, outer: 80 }]);
+  });
+
+  it('splits into equal rings, outermost first, with gaps between', () => {
+    expect(ringBands(80, 3, 4)).toEqual([
+      { inner: 56, outer: 80 },
+      { inner: 28, outer: 52 },
+      { inner: 0, outer: 24 },
+    ]);
   });
 });

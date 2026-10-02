@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { ColorSwatches } from '@/components/color-swatches';
+import { ColorModeSwitch, ColorSwatches } from '@/components/color-swatches';
 import { PickerOverlay } from '@/components/picker-overlay';
+import { ThemedText } from '@/components/themed-text';
+import { Spacing } from '@/constants/theme';
 import { useSettings } from '@/store/settings';
 import { sectorPath } from '@/timer/dial-geometry';
 
@@ -12,7 +14,7 @@ const STEP = (2 * Math.PI) / HUES.length;
 
 /** Rainbow button that opens an overlay of color circles. */
 export function ColorButton({ size = 52 }: { size?: number }) {
-  const { color, setColor } = useSettings();
+  const { color, multiColor, colors, setColor, toggleColor, setMultiColor } = useSettings();
   const [open, setOpen] = useState(false);
   const r = size / 2;
 
@@ -32,13 +34,25 @@ export function ColorButton({ size = 52 }: { size?: number }) {
       </Pressable>
 
       <PickerOverlay visible={open} title="Timer color" label="color picker" onClose={() => setOpen(false)}>
+        <ColorModeSwitch multi={multiColor} accent={color} onChange={setMultiColor} />
         <ColorSwatches
-          value={color}
-          onChange={(c) => {
+          value={multiColor ? colors : [color]}
+          multi={multiColor}
+          onPress={(c) => {
+            if (multiColor) return toggleColor(c);
             setColor(c);
             setOpen(false);
           }}
         />
+        {/* Picking several colors takes several taps, so closing is explicit. */}
+        {multiColor && (
+          <Pressable
+            onPress={() => setOpen(false)}
+            accessibilityRole="button"
+            style={({ pressed }) => [styles.done, pressed && { opacity: 0.6 }]}>
+            <ThemedText type="smallBold">Done</ThemedText>
+          </Pressable>
+        )}
       </PickerOverlay>
     </>
   );
@@ -46,4 +60,5 @@ export function ColorButton({ size = 52 }: { size?: number }) {
 
 const styles = StyleSheet.create({
   pressed: { opacity: 0.7, transform: [{ scale: 0.94 }] },
+  done: { alignSelf: 'flex-end', paddingVertical: Spacing.one, paddingHorizontal: Spacing.two },
 });

@@ -1,33 +1,91 @@
 import { Check } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { contentColorOn, TIMER_COLORS } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
 
-type ColorSwatchesProps = { value: string; onChange: (color: string) => void };
+type ColorSwatchesProps = {
+  /** Selected colors; in multi mode, in ring order. */
+  value: string[];
+  multi?: boolean;
+  onPress: (color: string) => void;
+};
 
-export function ColorSwatches({ value, onChange }: ColorSwatchesProps) {
+export function ColorSwatches({ value, multi = false, onPress }: ColorSwatchesProps) {
   const theme = useTheme();
+  const selected = value.map((v) => v.toLowerCase());
+  // Custom (hex) picks get a swatch too, so they can be seen and deselected.
+  const custom = value
+    .filter((v) => !TIMER_COLORS.some((c) => c.value.toLowerCase() === v.toLowerCase()))
+    .map((v) => ({ name: `Custom ${v}`, value: v }));
+
   return (
-    <View style={styles.grid} accessibilityRole="radiogroup">
-      {TIMER_COLORS.map((c) => {
-        const selected = c.value.toLowerCase() === value.toLowerCase();
+    <View style={styles.grid} accessibilityRole={multi ? undefined : 'radiogroup'}>
+      {[...TIMER_COLORS, ...custom].map((c) => {
+        const index = selected.indexOf(c.value.toLowerCase());
+        const isSelected = index !== -1;
+        const content = contentColorOn(c.value);
         return (
           <Pressable
             key={c.value}
-            onPress={() => onChange(c.value)}
-            accessibilityRole="radio"
-            aria-checked={selected}
-            accessibilityLabel={c.name}
+            onPress={() => onPress(c.value)}
+            accessibilityRole={multi ? 'checkbox' : 'radio'}
+            aria-checked={isSelected}
+            accessibilityLabel={multi && isSelected ? `${c.name}, ring ${index + 1}` : c.name}
             style={({ pressed }) => [
               styles.swatch,
-              { backgroundColor: c.value, borderColor: selected ? theme.text : 'transparent' },
+              { backgroundColor: c.value, borderColor: isSelected ? theme.text : 'transparent' },
               pressed && styles.pressed,
             ]}>
-            {selected && (
-              <Check size={20} strokeWidth={3} color={contentColorOn(c.value)} />
-            )}
+            {isSelected &&
+              (multi && value.length > 1 ? (
+                <ThemedText type="smallBold" style={{ color: content }}>
+                  {index + 1}
+                </ThemedText>
+              ) : (
+                <Check size={20} strokeWidth={3} color={content} />
+              ))}
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+type ColorModeSwitchProps = {
+  multi: boolean;
+  accent: string;
+  onChange: (multi: boolean) => void;
+};
+
+/** Segmented control between picking one color and picking several rings. */
+export function ColorModeSwitch({ multi, accent, onChange }: ColorModeSwitchProps) {
+  const theme = useTheme();
+  const options = [
+    { label: 'Single', value: false },
+    { label: 'Multiple', value: true },
+  ];
+  return (
+    <View style={[styles.segments, { backgroundColor: theme.backgroundElement }]} accessibilityRole="radiogroup">
+      {options.map((o) => {
+        const active = o.value === multi;
+        return (
+          <Pressable
+            key={o.label}
+            onPress={() => onChange(o.value)}
+            accessibilityRole="radio"
+            aria-checked={active}
+            accessibilityLabel={o.value ? 'Multiple colors as rings' : 'Single color'}
+            style={({ pressed }) => [
+              styles.segment,
+              active && { backgroundColor: accent },
+              pressed && styles.pressed,
+            ]}>
+            <ThemedText type="smallBold" style={active && { color: contentColorOn(accent) }}>
+              {o.label}
+            </ThemedText>
           </Pressable>
         );
       })}
@@ -46,4 +104,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pressed: { opacity: 0.7 },
+  segments: { flexDirection: 'row', alignSelf: 'flex-start', borderRadius: 20, padding: Spacing.half },
+  segment: {
+    height: 36,
+    paddingHorizontal: Spacing.three,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
