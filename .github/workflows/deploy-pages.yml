@@ -27,6 +27,8 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npx expo export --platform web
+        env:
+          EXPO_PUBLIC_COMMIT: ${{ github.sha }}
       # Pages has no SPA routing: serve the app for any unknown path so
       # reloading /timer/history or /timer/settings works.
       - run: cp dist/index.html dist/404.html

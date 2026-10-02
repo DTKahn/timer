@@ -1,3 +1,5 @@
+import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import { CircleMinus, type LucideIcon } from 'lucide-react-native';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { useState } from 'react';
@@ -11,6 +13,9 @@ import { useTheme } from '@/hooks/use-theme';
 import { useFavorites } from '@/store/favorites';
 import { useSettings } from '@/store/settings';
 import { formatShort } from '@/timer/engine';
+
+// The commit is set by the deploy workflow so each release is identifiable.
+const VERSION = `Version ${Constants.expoConfig?.version ?? '?'} (${process.env.EXPO_PUBLIC_COMMIT?.slice(0, 7) ?? 'dev'})`;
 
 export default function SettingsScreen() {
   const theme = useTheme();
@@ -80,6 +85,17 @@ export default function SettingsScreen() {
         </Section>
 
         <FavoritesSection />
+
+        <Pressable
+          onPress={() => router.push('/releases')}
+          accessibilityRole="button"
+          accessibilityHint="Shows what changed in each version"
+          hitSlop={8}
+          style={({ pressed }) => [styles.version, pressed && { opacity: 0.6 }]}>
+          <ThemedText type="small" themeColor="textSecondary">
+            {VERSION}
+          </ThemedText>
+        </Pressable>
       </ScrollView>
     </Screen>
   );
@@ -182,4 +198,5 @@ const styles = StyleSheet.create({
   favLabel: { flex: 1, fontFamily: Fonts.bold },
   iconButton: { padding: Spacing.two },
   restore: { alignSelf: 'flex-start', paddingVertical: Spacing.one },
+  version: { alignSelf: 'center', paddingVertical: Spacing.one },
 });
