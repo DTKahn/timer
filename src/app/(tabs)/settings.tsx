@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { CircleMinus, type LucideIcon } from 'lucide-react-native';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { useState } from 'react';
@@ -11,6 +12,9 @@ import { useTheme } from '@/hooks/use-theme';
 import { useFavorites } from '@/store/favorites';
 import { useSettings } from '@/store/settings';
 import { formatShort } from '@/timer/engine';
+
+// The commit is set by the deploy workflow so each release is identifiable.
+const VERSION = `Version ${Constants.expoConfig?.version ?? '?'} (${process.env.EXPO_PUBLIC_COMMIT?.slice(0, 7) ?? 'dev'})`;
 
 export default function SettingsScreen() {
   const theme = useTheme();
@@ -80,6 +84,10 @@ export default function SettingsScreen() {
         </Section>
 
         <FavoritesSection />
+
+        <ThemedText type="small" themeColor="textSecondary" style={styles.version}>
+          {VERSION}
+        </ThemedText>
       </ScrollView>
     </Screen>
   );
@@ -182,4 +190,5 @@ const styles = StyleSheet.create({
   favLabel: { flex: 1, fontFamily: Fonts.bold },
   iconButton: { padding: Spacing.two },
   restore: { alignSelf: 'flex-start', paddingVertical: Spacing.one },
+  version: { textAlign: 'center' },
 });
