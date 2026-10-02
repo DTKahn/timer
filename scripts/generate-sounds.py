@@ -124,8 +124,32 @@ def guitar():
     return mix(strum_at + 2.6, tracks)
 
 
+def beep(freq, dur):
+    """A piezo-buzzer tone: a band-limited square wave with 2 ms ramps against clicks."""
+    n = int(dur * RATE)
+    ramp = 0.002
+    out = []
+    for i in range(n):
+        t = i / RATE
+        env = min(1.0, t / ramp, (dur - t) / ramp)
+        out.append(env * sum(sine(freq * h, t) / h for h in (1, 3, 5)))
+    return out
+
+
+def watch():
+    # Classic digital-watch alarm: four quick beeps, a pause, three times over.
+    tracks = []
+    t = 0.0
+    for _ in range(3):
+        for _ in range(4):
+            tracks.append((t, beep(4096, 0.06)))
+            t += 0.12
+        t += 0.5
+    return mix(t, tracks)
+
+
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, fn in [("bell", bell), ("bird", bird), ("guitar", guitar)]:
+    for name, fn in [("bell", bell), ("bird", bird), ("guitar", guitar), ("watch", watch)]:
         write(name, fn())
         print(f"wrote {name}.wav")

@@ -1,4 +1,4 @@
-import { Bell, Bird, Guitar, VolumeX, type LucideIcon } from 'lucide-react-native';
+import { Bell, Bird, Guitar, VolumeX, Watch, type LucideIcon } from 'lucide-react-native';
 
 import type { SoundId } from '@/constants/sounds';
 
@@ -6,6 +6,7 @@ const ICONS: Record<SoundId, LucideIcon> = {
   bell: Bell,
   bird: Bird,
   guitar: Guitar,
+  watch: Watch,
   silent: VolumeX,
 };
 
