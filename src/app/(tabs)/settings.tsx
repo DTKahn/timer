@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import { CircleMinus, type LucideIcon } from 'lucide-react-native';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { useState } from 'react';
@@ -85,9 +86,16 @@ export default function SettingsScreen() {
 
         <FavoritesSection />
 
-        <ThemedText type="small" themeColor="textSecondary" style={styles.version}>
-          {VERSION}
-        </ThemedText>
+        <Pressable
+          onPress={() => router.push('/releases')}
+          accessibilityRole="button"
+          accessibilityHint="Shows what changed in each version"
+          hitSlop={8}
+          style={({ pressed }) => [styles.version, pressed && { opacity: 0.6 }]}>
+          <ThemedText type="small" themeColor="textSecondary">
+            {VERSION}
+          </ThemedText>
+        </Pressable>
       </ScrollView>
     </Screen>
   );
@@ -190,5 +198,5 @@ const styles = StyleSheet.create({
   favLabel: { flex: 1, fontFamily: Fonts.bold },
   iconButton: { padding: Spacing.two },
   restore: { alignSelf: 'flex-start', paddingVertical: Spacing.one },
-  version: { textAlign: 'center' },
+  version: { alignSelf: 'center', paddingVertical: Spacing.one },
 });
