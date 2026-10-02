@@ -41,7 +41,8 @@
           "sounds": [
             "./assets/sounds/bell.wav",
             "./assets/sounds/bird.wav",
-            "./assets/sounds/guitar.wav"
+            "./assets/sounds/guitar.wav",
+            "./assets/sounds/watch.wav"
           ]
         }
       ]

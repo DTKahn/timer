@@ -3,6 +3,7 @@ export const SOUNDS = [
   { id: 'bell', name: 'Bell' },
   { id: 'bird', name: 'Bird' },
   { id: 'guitar', name: 'Guitar' },
+  { id: 'watch', name: 'Watch' },
   { id: 'silent', name: 'Silent' },
 ] as const;
 

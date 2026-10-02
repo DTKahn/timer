@@ -2,8 +2,8 @@ import { SOUNDS } from '@/constants/sounds';
 import { dialColors, migrateSettings, toggledColors, useSettings } from '@/store/settings';
 
 describe('sounds', () => {
-  it('offers bell, bird, guitar, and silent', () => {
-    expect(SOUNDS.map((s) => s.id)).toEqual(['bell', 'bird', 'guitar', 'silent']);
+  it('offers bell, bird, guitar, watch, and silent', () => {
+    expect(SOUNDS.map((s) => s.id)).toEqual(['bell', 'bird', 'guitar', 'watch', 'silent']);
   });
 });
 

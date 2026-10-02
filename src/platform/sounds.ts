@@ -7,6 +7,7 @@ const SOURCES: Record<Exclude<SoundId, 'silent'>, number> = {
   bell: require('@/assets/sounds/bell.wav'),
   bird: require('@/assets/sounds/bird.wav'),
   guitar: require('@/assets/sounds/guitar.wav'),
+  watch: require('@/assets/sounds/watch.wav'),
 };
 
 const players = new Map<SoundId, AudioPlayer>();
