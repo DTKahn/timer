@@ -36,7 +36,9 @@ export function TimerFace({ size, onDraftEmptyChange, editingExtras }: TimerFace
 
   // Stay in countdown mode until the flash ends, then switch to editing.
   const editable = (timer.status === 'idle' || timer.status === 'finished') && !flash.active;
-  const fraction = flash.active ? (flash.lit ? 1 : 0) : progress(timer, now);
+  // After the flash, a finished timer shows a full disk, ready to start again.
+  const fraction =
+    flash.active ? (flash.lit ? 1 : 0) : timer.status === 'finished' ? 1 : progress(timer, now);
 
   const remaining = remainingMs(timer, now);
   const { hours, minutes, seconds } = splitDuration(remaining);
