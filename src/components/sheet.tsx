@@ -7,7 +7,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-/** A screen shown over the tabs, with a back and/or close button. */
+/** A screen shown over the timer, with a back and/or close button. */
 export function Sheet({
   title,
   onBack,

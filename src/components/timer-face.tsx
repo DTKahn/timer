@@ -25,6 +25,10 @@ type TimerFaceProps = {
   editingExtras?: React.ReactNode;
 };
 
+/**
+ * The dial and the time section (editor or countdown, plus favorites) as two
+ * siblings, so the screen can space them like its other sections.
+ */
 export function TimerFace({ size, onDraftEmptyChange, editingExtras }: TimerFaceProps) {
   const timer = useTimer((s) => s.timer);
   const colors = useSettings(useShallow(dialColors));
@@ -47,29 +51,36 @@ export function TimerFace({ size, onDraftEmptyChange, editingExtras }: TimerFace
     .join(' ');
 
   return (
-    <View style={styles.container}>
-      <View accessible accessibilityRole="timer" accessibilityLabel={`${spoken} remaining`}>
+    <>
+      <View
+        accessible
+        accessibilityRole="timer"
+        accessibilityLabel={`${spoken} remaining`}
+        style={styles.dial}>
         <PieDial fraction={fraction} colors={colors} size={size} />
       </View>
-      <View style={styles.readout}>
-        {editable ? (
-          <DurationEditor onEmptyChange={onDraftEmptyChange} />
-        ) : (
-          <ThemedText style={styles.time}>{formatDuration(remaining)}</ThemedText>
-        )}
+      <View style={styles.time}>
+        <View style={styles.readout}>
+          {editable ? (
+            <DurationEditor onEmptyChange={onDraftEmptyChange} />
+          ) : (
+            <ThemedText style={styles.countdown}>{formatDuration(remaining)}</ThemedText>
+          )}
+        </View>
+        {/* Space stays reserved so the dial doesn't move when the extras hide. */}
+        <View style={styles.extras}>{editable && editingExtras}</View>
       </View>
-      {/* Space stays reserved so the dial doesn't move when the extras hide. */}
-      <View style={styles.extras}>{editable && editingExtras}</View>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  dial: { alignSelf: 'center' },
   // Full width (not sized to content) so the favorites row scrolls inside it.
-  container: { alignSelf: 'stretch', alignItems: 'center', gap: Spacing.two },
+  time: { alignSelf: 'stretch', alignItems: 'center', gap: Spacing.two },
   readout: { height: READOUT_HEIGHT, justifyContent: 'center' },
   extras: { height: EXTRAS_HEIGHT, alignSelf: 'stretch' },
-  time: {
+  countdown: {
     fontSize: 72,
     lineHeight: 84,
     fontFamily: Fonts.bold,
