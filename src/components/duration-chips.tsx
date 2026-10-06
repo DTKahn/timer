@@ -48,7 +48,8 @@ export function DurationChips({ durations, selected, color, onSelect }: Duration
 
 const styles = StyleSheet.create({
   scroll: { flexGrow: 0 },
-  row: { flexGrow: 1, justifyContent: 'center', gap: Spacing.two, paddingHorizontal: Spacing.four },
+  // Left-aligned under the section heading.
+  row: { gap: Spacing.two, paddingHorizontal: Spacing.four },
   chip: {
     minWidth: 56,
     height: 40,
