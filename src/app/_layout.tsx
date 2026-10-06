@@ -33,7 +33,9 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={themes[scheme]}>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="index" />
+        <Stack.Screen name="history" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
         <Stack.Screen name="releases" options={{ presentation: 'modal' }} />
       </Stack>
       <TimerEffects />

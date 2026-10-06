@@ -13,7 +13,7 @@ import { playSound, stopSounds } from '@/platform/sounds';
 import { useSettings } from '@/store/settings';
 
 /** Speaker button (crossed out when silent) that opens the completion sounds. */
-export function SoundButton({ size = 52 }: { size?: number }) {
+export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconSize?: number }) {
   const theme = useTheme();
   const { sound, setSound, color } = useSettings();
   const [open, setOpen] = useState(false);
@@ -34,7 +34,11 @@ export function SoundButton({ size = 52 }: { size?: number }) {
           { width: size, height: size, borderRadius: size / 2, backgroundColor: theme.backgroundElement },
           pressed && styles.pressed,
         ]}>
-        {sound === 'silent' ? <VolumeX size={22} color={theme.text} /> : <Volume2 size={22} color={theme.text} />}
+        {sound === 'silent' ? (
+          <VolumeX size={iconSize} color={theme.text} />
+        ) : (
+          <Volume2 size={iconSize} color={theme.text} />
+        )}
       </Pressable>
 
       <PickerOverlay visible={open} title="Sound when time is up" label="sound picker" onClose={close}>

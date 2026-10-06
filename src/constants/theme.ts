@@ -3,8 +3,6 @@
  * a quiet neutral so the dial carries the design.
  */
 
-import { Platform } from 'react-native';
-
 export const Colors = {
   light: {
     text: '#16181C',
@@ -47,7 +45,4 @@ export const Spacing = {
   six: 64,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
-/** Room for the floating tab bar that sits at the top of the page on web. */
-export const TopBarInset = Platform.select({ web: 80 }) ?? 0;

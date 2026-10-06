@@ -5,7 +5,7 @@ import { Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } 
 import { useState } from 'react';
 
 import { ColorModeSwitch, ColorSwatches } from '@/components/color-swatches';
-import { Screen } from '@/components/screen';
+import { Sheet } from '@/components/sheet';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
 import { isHexColor } from '@/constants/timer-colors';
@@ -21,11 +21,12 @@ export default function SettingsScreen() {
   const theme = useTheme();
   const settings = useSettings();
   const [hex, setHex] = useState(settings.color);
+  // Opened directly on the web there's nothing to go back to.
+  const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
   return (
-    <Screen>
+    <Sheet title="Settings" onClose={close}>
       <ScrollView contentContainerStyle={styles.container}>
-        <ThemedText type="subtitle">Settings</ThemedText>
 
         <Section title="Timer color">
           <ColorModeSwitch
@@ -97,7 +98,7 @@ export default function SettingsScreen() {
           </ThemedText>
         </Pressable>
       </ScrollView>
-    </Screen>
+    </Sheet>
   );
 }
 
@@ -181,7 +182,7 @@ function IconButton({
 }
 
 const styles = StyleSheet.create({
-  container: { padding: Spacing.four, gap: Spacing.five },
+  container: { paddingHorizontal: Spacing.four, paddingBottom: Spacing.four, gap: Spacing.five },
   section: { gap: Spacing.three },
   hexRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   hexPreview: { width: 28, height: 28, borderRadius: 14, borderWidth: 1 },

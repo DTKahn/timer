@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 
-import { Screen } from '@/components/screen';
+import { Sheet } from '@/components/sheet';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -13,19 +13,16 @@ export default function HistoryScreen() {
   const entries = useHistory((s) => s.entries);
   const setDuration = useTimer((s) => s.setDuration);
   const theme = useTheme();
+  // Opened directly on the web there's nothing to go back to.
+  const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
   return (
-    <Screen>
+    <Sheet title="History" onClose={close}>
       <FlatList
         data={recentTimes(entries)}
         keyExtractor={(ms) => String(ms)}
         contentContainerStyle={styles.list}
         ItemSeparatorComponent={() => <View style={styles.gap} />}
-        ListHeaderComponent={
-          <ThemedText type="subtitle" style={styles.header}>
-            History
-          </ThemedText>
-        }
         ListEmptyComponent={
           <ThemedText themeColor="textSecondary" style={styles.empty}>
             Times you run show up here. Tap one to use it again.
@@ -35,7 +32,7 @@ export default function HistoryScreen() {
           <Pressable
             onPress={() => {
               setDuration(ms);
-              router.navigate('/');
+              close();
             }}
             accessibilityRole="button"
             accessibilityLabel={`Set timer to ${formatShort(ms)}`}
@@ -47,13 +44,12 @@ export default function HistoryScreen() {
           </Pressable>
         )}
       />
-    </Screen>
+    </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
   list: { paddingHorizontal: Spacing.four, paddingBottom: Spacing.four },
-  header: { paddingVertical: Spacing.four },
   empty: { maxWidth: 420 },
   card: {
     paddingVertical: Spacing.three,
