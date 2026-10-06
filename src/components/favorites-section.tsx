@@ -2,6 +2,7 @@ import { Minus, Plus, Star } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { CHIP_HEIGHT, DurationChips } from '@/components/duration-chips';
+import { Spacing } from '@/constants/theme';
 import { contentColorOn } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
 import { useFavorites } from '@/store/favorites';
@@ -18,7 +19,7 @@ type FavoritesSectionProps = {
   onSelect: (durationMs: number) => void;
 };
 
-/** The saved times, led by a star that adds or removes the current time. */
+/** A star that adds or removes the current time, beside the scrolling saved times. */
 export function FavoritesSection({ durationMs, color, disabled, onSelect }: FavoritesSectionProps) {
   const theme = useTheme();
   const { favorites, add, remove } = useFavorites();
@@ -27,33 +28,42 @@ export function FavoritesSection({ durationMs, color, disabled, onSelect }: Favo
   const Sign = favorite ? Minus : Plus;
 
   return (
-    <DurationChips
-      durations={favorites.map((f) => f.durationMs)}
-      selected={durationMs}
-      color={color}
-      onSelect={onSelect}
-      leading={
-        <Pressable
-          onPress={() => (favorite ? remove(favorite.id) : add(durationMs))}
-          disabled={disabled}
-          accessibilityRole="button"
-          accessibilityLabel={favorite ? `Remove ${label} from favorites` : `Add ${label} to favorites`}
-          style={({ pressed }) => [
-            styles.star,
-            { backgroundColor: theme.backgroundElement, opacity: disabled ? 0.4 : pressed ? 0.6 : 1 },
-          ]}>
-          {/* Saved times get a filled star with a minus; others an outline with a plus. */}
-          <Star size={30} color={favorite ? color : theme.text} fill={favorite ? color : 'none'} strokeWidth={1.75} />
-          <View style={styles.sign} pointerEvents="none">
-            <Sign size={13} strokeWidth={3} color={favorite ? contentColorOn(color) : theme.text} />
-          </View>
-        </Pressable>
-      }
-    />
+    <View style={styles.row}>
+      {/* Stays put while the favorites scroll beside it. */}
+      <Pressable
+        onPress={() => (favorite ? remove(favorite.id) : add(durationMs))}
+        disabled={disabled}
+        accessibilityRole="button"
+        accessibilityLabel={favorite ? `Remove ${label} from favorites` : `Add ${label} to favorites`}
+        style={({ pressed }) => [
+          styles.star,
+          { backgroundColor: theme.backgroundElement, opacity: disabled ? 0.4 : pressed ? 0.6 : 1 },
+        ]}>
+        {/* Saved times get a filled star with a minus; others an outline with a plus. */}
+        <Star size={30} color={favorite ? color : theme.text} fill={favorite ? color : 'none'} strokeWidth={1.75} />
+        <View style={styles.sign} pointerEvents="none">
+          <Sign size={13} strokeWidth={3} color={favorite ? contentColorOn(color) : theme.text} />
+        </View>
+      </Pressable>
+      <DurationChips
+        durations={favorites.map((f) => f.durationMs)}
+        selected={durationMs}
+        color={color}
+        onSelect={onSelect}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // Star and chips centered together; the chips shrink and scroll when they don't fit.
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.two,
+    paddingHorizontal: Spacing.four,
+  },
   star: {
     width: CHIP_HEIGHT,
     height: CHIP_HEIGHT,
