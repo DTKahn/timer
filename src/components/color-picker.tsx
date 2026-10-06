@@ -3,9 +3,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { ColorModeSwitch, ColorSwatches } from '@/components/color-swatches';
-import { PickerOverlay } from '@/components/picker-overlay';
-import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { PickerDone, PickerOverlay } from '@/components/picker-overlay';
 import { useSettings } from '@/store/settings';
 import { sectorPath } from '@/timer/dial-geometry';
 
@@ -45,14 +43,7 @@ export function ColorButton({ size = 52 }: { size?: number }) {
           }}
         />
         {/* Picking several colors takes several taps, so closing is explicit. */}
-        {multiColor && (
-          <Pressable
-            onPress={() => setOpen(false)}
-            accessibilityRole="button"
-            style={({ pressed }) => [styles.done, pressed && { opacity: 0.6 }]}>
-            <ThemedText type="smallBold">Done</ThemedText>
-          </Pressable>
-        )}
+        {multiColor && <PickerDone onPress={() => setOpen(false)} />}
       </PickerOverlay>
     </>
   );
@@ -60,5 +51,4 @@ export function ColorButton({ size = 52 }: { size?: number }) {
 
 const styles = StyleSheet.create({
   pressed: { opacity: 0.7, transform: [{ scale: 0.94 }] },
-  done: { alignSelf: 'flex-end', paddingVertical: Spacing.one, paddingHorizontal: Spacing.two },
 });

@@ -6,6 +6,9 @@ import { Spacing } from '@/constants/theme';
 import { contentColorOn, TIMER_COLORS } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
 
+export const SWATCH_SIZE = 60;
+export const SWATCH_GAP = Spacing.three;
+
 type ColorSwatchesProps = {
   /** Selected colors; in multi mode, in ring order. */
   value: string[];
@@ -45,7 +48,7 @@ export function ColorSwatches({ value, multi = false, onPress }: ColorSwatchesPr
                   {index + 1}
                 </ThemedText>
               ) : (
-                <Check size={20} strokeWidth={3} color={content} />
+                <Check size={26} strokeWidth={3} color={content} />
               ))}
           </Pressable>
         );
@@ -94,11 +97,11 @@ export function ColorModeSwitch({ multi, accent, onChange }: ColorModeSwitchProp
 }
 
 const styles = StyleSheet.create({
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: SWATCH_GAP },
   swatch: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: SWATCH_SIZE,
+    height: SWATCH_SIZE,
+    borderRadius: SWATCH_SIZE / 2,
     borderWidth: 3,
     alignItems: 'center',
     justifyContent: 'center',
