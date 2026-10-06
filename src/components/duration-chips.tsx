@@ -6,15 +6,19 @@ import { contentColorOn } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
 import { formatShort } from '@/timer/engine';
 
+export const CHIP_HEIGHT = 40;
+
 type DurationChipsProps = {
   durations: number[];
   selected?: number;
   color: string;
   onSelect: (durationMs: number) => void;
+  /** Shown before the chips, scrolling with them. */
+  leading?: React.ReactNode;
 };
 
 /** Horizontally scrolling row of duration pills (favorites, recents). */
-export function DurationChips({ durations, selected, color, onSelect }: DurationChipsProps) {
+export function DurationChips({ durations, selected, color, onSelect, leading }: DurationChipsProps) {
   const theme = useTheme();
   return (
     <ScrollView
@@ -22,6 +26,7 @@ export function DurationChips({ durations, selected, color, onSelect }: Duration
       showsHorizontalScrollIndicator={false}
       style={styles.scroll}
       contentContainerStyle={styles.row}>
+      {leading}
       {durations.map((ms) => {
         const active = ms === selected;
         return (
@@ -48,13 +53,13 @@ export function DurationChips({ durations, selected, color, onSelect }: Duration
 
 const styles = StyleSheet.create({
   scroll: { flexGrow: 0 },
-  // Left-aligned under the section heading.
-  row: { gap: Spacing.two, paddingHorizontal: Spacing.four },
+  // Centered when they fit; scrolls from the left edge when they don't.
+  row: { flexGrow: 1, justifyContent: 'center', gap: Spacing.two, paddingHorizontal: Spacing.four },
   chip: {
     minWidth: 56,
-    height: 40,
+    height: CHIP_HEIGHT,
     paddingHorizontal: Spacing.three,
-    borderRadius: 20,
+    borderRadius: CHIP_HEIGHT / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
