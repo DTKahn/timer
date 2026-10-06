@@ -4,27 +4,24 @@ import { useState } from 'react';
 import { Keyboard, Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { DurationChips } from '@/components/duration-chips';
+import { FavoritesSection } from '@/components/favorites-section';
 import { Screen } from '@/components/screen';
 import { CONTROLS_HEIGHT, TimerControls } from '@/components/timer-controls';
 import { EXTRAS_HEIGHT, READOUT_HEIGHT, TimerFace } from '@/components/timer-face';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { useFavorites } from '@/store/favorites';
 import { useSettings } from '@/store/settings';
 import { useTimer } from '@/store/timer';
 
 const TOP_BAR_HEIGHT = 48;
-/** Smallest gap between the four sections; any spare height is shared evenly between them. */
+/** Smallest gap between the dial, time, favorites, and buttons; any spare height is shared evenly between them. */
 const MIN_GAP = Spacing.four;
-const TIME_SECTION_HEIGHT = READOUT_HEIGHT + Spacing.two + EXTRAS_HEIGHT;
-// Everything stacked with the dial except the controls: top bar, time section, gaps, bottom padding.
-const AROUND_DIAL = TOP_BAR_HEIGHT + TIME_SECTION_HEIGHT + MIN_GAP * 3 + Spacing.four;
+// Everything stacked with the dial except the controls: top bar, time, favorites, gaps, bottom padding.
+const AROUND_DIAL = TOP_BAR_HEIGHT + READOUT_HEIGHT + EXTRAS_HEIGHT + MIN_GAP * 3 + Spacing.four;
 
 export default function TimerScreen() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
-  const favorites = useFavorites((s) => s.favorites);
   const color = useSettings((s) => s.color);
   const timer = useTimer((s) => s.timer);
   const setDuration = useTimer((s) => s.setDuration);
@@ -39,19 +36,21 @@ export default function TimerScreen() {
         <TopButton label="History" icon={History} onPress={() => router.push('/history')} />
         <TopButton label="Settings" icon={Settings} onPress={() => router.push('/settings')} />
       </View>
-      <TimerFace
-        size={dial}
-        onDraftEmptyChange={setDraftEmpty}
-        editingExtras={
-          <DurationChips
-            durations={favorites.map((f) => f.durationMs)}
-            selected={timer.durationMs}
-            color={color}
-            onSelect={setDuration}
-          />
-        }
-      />
-      <TimerControls canStart={!draftEmpty} />
+      <View style={styles.sections}>
+        <TimerFace
+          size={dial}
+          onDraftEmptyChange={setDraftEmpty}
+          editingExtras={
+            <FavoritesSection
+              durationMs={timer.durationMs}
+              color={color}
+              disabled={draftEmpty}
+              onSelect={setDuration}
+            />
+          }
+        />
+        <TimerControls canStart={!draftEmpty} />
+      </View>
     </Screen>
   );
 
@@ -80,8 +79,9 @@ function TopButton({ label, icon: Glyph, onPress }: { label: string; icon: Lucid
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  // Header, dial, time, and buttons with equal space between each.
-  screen: { justifyContent: 'space-between', paddingBottom: Spacing.four },
+  screen: { paddingBottom: Spacing.four },
+  // The dial sits right under the top bar; the dial, time, favorites, and buttons share the spare height evenly.
+  sections: { flex: 1, justifyContent: 'space-between' },
   topBar: {
     height: TOP_BAR_HEIGHT,
     flexDirection: 'row',

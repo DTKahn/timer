@@ -1,4 +1,5 @@
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
+import { useRef } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -7,26 +8,32 @@ import { useTheme } from '@/hooks/use-theme';
 import type { DurationParts } from '@/timer/engine';
 
 const UNITS = [
-  { key: 'hours', label: 'hours', max: 23 },
-  { key: 'minutes', label: 'min', max: 59 },
-  { key: 'seconds', label: 'sec', max: 59 },
+  { key: 'hours', label: 'hours', short: 'h', max: 23 },
+  { key: 'minutes', label: 'minutes', short: 'm', max: 59 },
+  { key: 'seconds', label: 'seconds', short: 's', max: 59 },
 ] as const;
+
+/** Each box holds two digits and the unit letter, beside a column of up and down arrows. */
+const BOX_WIDTH = 72;
+const STEP_SIZE = 28;
+const STEP_HEIGHT = 32;
+const BOX_HEIGHT = STEP_HEIGHT * 2 + Spacing.one;
+export const TIME_PICKER_HEIGHT = BOX_HEIGHT;
 
 type TimePickerProps = { value: DurationParts; onChange: (value: DurationParts) => void };
 
 export function TimePicker({ value, onChange }: TimePickerProps) {
   return (
-    <View style={styles.row}>
-      {UNITS.map((unit, i) => (
-        <View key={unit.key} style={styles.row}>
-          {i > 0 && <ThemedText style={styles.colon}>:</ThemedText>}
-          <UnitField
-            label={unit.label}
-            max={unit.max}
-            value={value[unit.key]}
-            onChange={(n) => onChange({ ...value, [unit.key]: n })}
-          />
-        </View>
+    <View style={[styles.row, styles.units]}>
+      {UNITS.map((unit) => (
+        <UnitField
+          key={unit.key}
+          label={unit.label}
+          short={unit.short}
+          max={unit.max}
+          value={value[unit.key]}
+          onChange={(n) => onChange({ ...value, [unit.key]: n })}
+        />
       ))}
     </View>
   );
@@ -34,37 +41,50 @@ export function TimePicker({ value, onChange }: TimePickerProps) {
 
 function UnitField({
   label,
+  short,
   max,
   value,
   onChange,
 }: {
   label: string;
+  short: string;
   max: number;
   value: number;
   onChange: (n: number) => void;
 }) {
   const theme = useTheme();
+  const input = useRef<TextInput>(null);
   const step = (delta: number) => onChange((value + delta + max + 1) % (max + 1));
 
   return (
     <View style={styles.unit}>
-      <StepButton label={`More ${label}`} onPress={() => step(1)} up />
-      <TextInput
-        value={String(value).padStart(2, '0')}
-        onChangeText={(text) => {
-          const digits = text.replace(/\D/g, '').slice(-2);
-          onChange(Math.min(max, Number(digits || 0)));
-        }}
-        selectTextOnFocus
-        keyboardType="number-pad"
-        maxLength={3}
-        accessibilityLabel={label}
-        style={[styles.input, { color: theme.text, backgroundColor: theme.face }]}
-      />
-      <StepButton label={`Fewer ${label}`} onPress={() => step(-1)} />
-      <ThemedText type="small" themeColor="textSecondary">
-        {label}
-      </ThemedText>
+      {/* Tapping the letter (or anywhere in the box) types into the number. */}
+      <Pressable
+        onPress={() => input.current?.focus()}
+        accessible={false}
+        style={[styles.box, { backgroundColor: theme.face }]}>
+        <TextInput
+          ref={input}
+          value={String(value).padStart(2, '0')}
+          onChangeText={(text) => {
+            const digits = text.replace(/\D/g, '').slice(-2);
+            onChange(Math.min(max, Number(digits || 0)));
+          }}
+          selectTextOnFocus
+          keyboardType="number-pad"
+          maxLength={3}
+          accessibilityLabel={label}
+          style={[styles.input, { color: theme.text }]}
+        />
+        {/* The input carries the full name for screen readers. */}
+        <ThemedText themeColor="textSecondary" style={styles.short} accessible={false}>
+          {short}
+        </ThemedText>
+      </Pressable>
+      <View style={styles.steps}>
+        <StepButton label={`More ${label}`} onPress={() => step(1)} up />
+        <StepButton label={`Fewer ${label}`} onPress={() => step(-1)} />
+      </View>
     </View>
   );
 }
@@ -76,7 +96,7 @@ function StepButton({ label, onPress, up }: { label: string; onPress: () => void
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={label}
-      hitSlop={8}
+      hitSlop={{ left: 4, right: 8 }}
       style={({ pressed }) => [styles.step, pressed && { backgroundColor: theme.backgroundElement }]}>
       {up ? <ChevronUp size={22} color={theme.textSecondary} /> : <ChevronDown size={22} color={theme.textSecondary} />}
     </Pressable>
@@ -85,15 +105,33 @@ function StepButton({ label, onPress, up }: { label: string; onPress: () => void
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  colon: { fontSize: 40, lineHeight: 48, fontFamily: Fonts.bold, marginBottom: 24, marginHorizontal: Spacing.one },
-  unit: { alignItems: 'center', gap: Spacing.one },
-  step: { width: 64, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  input: {
-    width: 72,
-    height: 72,
+  units: { gap: Spacing.two + Spacing.one },
+  unit: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
+  steps: { gap: Spacing.one },
+  box: {
+    width: BOX_WIDTH,
+    height: BOX_HEIGHT,
     borderRadius: Spacing.three,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.half,
+  },
+  short: { fontSize: 22, lineHeight: 28 },
+  step: {
+    width: STEP_SIZE,
+    height: STEP_HEIGHT,
+    borderRadius: STEP_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  input: {
+    // Just wide enough for two digits, so the letter sits right after them.
+    width: 42,
+    height: BOX_HEIGHT,
+    padding: 0,
     textAlign: 'center',
-    fontSize: 44,
+    fontSize: 34,
     fontFamily: Fonts.bold,
     fontVariant: ['tabular-nums'],
   },
