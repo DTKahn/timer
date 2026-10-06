@@ -11,6 +11,15 @@ export type Release = {
 /** Newest first. Add an entry for every release and match `version` in app.json. */
 export const RELEASES: Release[] = [
   {
+    version: '0.8.0',
+    date: 'Oct 5, 2026, 23:48',
+    name: 'Star button for favorites',
+    changes: [
+      'A star at the start of your favorites adds the time you’ve set, or removes it if it’s already saved.',
+      'Favorites now line up in the middle of the screen on computers and tablets.',
+    ],
+  },
+  {
     version: '0.7.0',
     date: 'Oct 5, 2026, 23:30',
     name: 'A bigger timer and a simpler way to set the time',
