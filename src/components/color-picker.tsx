@@ -31,7 +31,7 @@ export function ColorButton({ size = 52 }: { size?: number }) {
         </Svg>
       </Pressable>
 
-      <PickerOverlay visible={open} title="Timer color" label="color picker" onClose={() => setOpen(false)}>
+      <PickerOverlay visible={open} title="Color" label="color picker" onClose={() => setOpen(false)}>
         <ColorModeSwitch multi={multiColor} accent={color} onChange={setMultiColor} />
         <ColorSwatches
           value={multiColor ? colors : [color]}
