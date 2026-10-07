@@ -64,6 +64,7 @@ export function PickerDone({ onPress }: { onPress: () => void }) {
   );
 }
 
+// ColorSwatches assumes this and the panel padding when shrinking swatches to fit.
 const OVERLAY_PADDING = Spacing.four;
 
 const styles = StyleSheet.create({
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     marginRight: -Spacing.three,
   },
   panel: {
-    // Fits four color swatches per row, plus padding; narrower screens wrap to fewer.
+    // Fits four color swatches per row, plus padding; on narrower screens the swatches shrink to keep four.
     width: 4 * SWATCH_SIZE + 3 * SWATCH_GAP + 2 * Spacing.four,
     maxWidth: '100%',
     padding: Spacing.four,
