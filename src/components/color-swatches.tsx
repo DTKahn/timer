@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
@@ -18,6 +18,10 @@ type ColorSwatchesProps = {
 
 export function ColorSwatches({ value, multi = false, onPress }: ColorSwatchesProps) {
   const theme = useTheme();
+  // On narrow screens (like iPhone mini) shrink the swatches so four still fit per row:
+  // the room left after the picker overlay's and panel's Spacing.four padding on each side.
+  const { width } = useWindowDimensions();
+  const size = Math.min(SWATCH_SIZE, Math.floor((width - 4 * Spacing.four - 3 * SWATCH_GAP) / 4));
   const selected = value.map((v) => v.toLowerCase());
   // Custom (hex) picks get a swatch too, so they can be seen and deselected.
   const custom = value
@@ -39,6 +43,7 @@ export function ColorSwatches({ value, multi = false, onPress }: ColorSwatchesPr
             accessibilityLabel={multi && isSelected ? `${c.name}, ring ${index + 1}` : c.name}
             style={({ pressed }) => [
               styles.swatch,
+              { width: size, height: size, borderRadius: size / 2 },
               { backgroundColor: c.value, borderColor: isSelected ? theme.text : 'transparent' },
               pressed && styles.pressed,
             ]}>
@@ -99,9 +104,6 @@ export function ColorModeSwitch({ multi, accent, onChange }: ColorModeSwitchProp
 const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: SWATCH_GAP },
   swatch: {
-    width: SWATCH_SIZE,
-    height: SWATCH_SIZE,
-    borderRadius: SWATCH_SIZE / 2,
     borderWidth: 3,
     alignItems: 'center',
     justifyContent: 'center',
