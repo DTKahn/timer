@@ -12,7 +12,7 @@ export type Release = {
 export const RELEASES: Release[] = [
   {
     version: '0.10.1',
-    date: 'Oct 7, 2026, 09:44',
+    date: 'Oct 7, 2026, 09:45',
     name: 'Colors fit four across on small phones',
     changes: ['On smaller phones like the iPhone mini, the color picker shows four colors per row again instead of three.'],
   },
