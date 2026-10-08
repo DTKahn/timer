@@ -66,6 +66,11 @@ function watchForReturn() {
   });
 }
 
+/** Loads every sound ahead of time so previews play the instant they're tapped. */
+export function preloadSounds() {
+  for (const id of Object.keys(SOURCES) as Exclude<SoundId, 'silent'>[]) getPlayer(id);
+}
+
 /** Plays a completion sound from the start, stopping any other one. */
 export function playSound(id: SoundId) {
   stopSounds();
