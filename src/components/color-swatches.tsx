@@ -16,12 +16,19 @@ type ColorSwatchesProps = {
   onPress: (color: string) => void;
 };
 
+/**
+ * Circle diameter for picker options. On narrow screens (like iPhone mini) it shrinks so four
+ * still fit per row: the room left after the picker overlay's and panel's Spacing.four padding
+ * on each side.
+ */
+export function useSwatchSize() {
+  const { width } = useWindowDimensions();
+  return Math.min(SWATCH_SIZE, Math.floor((width - 4 * Spacing.four - 3 * SWATCH_GAP) / 4));
+}
+
 export function ColorSwatches({ value, multi = false, onPress }: ColorSwatchesProps) {
   const theme = useTheme();
-  // On narrow screens (like iPhone mini) shrink the swatches so four still fit per row:
-  // the room left after the picker overlay's and panel's Spacing.four padding on each side.
-  const { width } = useWindowDimensions();
-  const size = Math.min(SWATCH_SIZE, Math.floor((width - 4 * Spacing.four - 3 * SWATCH_GAP) / 4));
+  const size = useSwatchSize();
   const selected = value.map((v) => v.toLowerCase());
   // Custom (hex) picks get a swatch too, so they can be seen and deselected.
   const custom = value
