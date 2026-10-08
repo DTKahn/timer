@@ -11,6 +11,12 @@ export type Release = {
 /** Newest first. Add an entry for every release and match `version` in app.json. */
 export const RELEASES: Release[] = [
   {
+    version: '0.11.1',
+    date: 'Oct 8, 2026, 07:00',
+    name: 'Bigger sound buttons',
+    changes: ['The sound buttons and their icons are larger and easier to tap, and still fit on small phones.'],
+  },
+  {
     version: '0.11.0',
     date: 'Oct 8, 2026, 06:40',
     name: 'Sounds are now round buttons',

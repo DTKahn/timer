@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
-import { SWATCH_GAP, useSwatchSize } from '@/components/color-swatches';
+import { SWATCH_GAP, SWATCH_SIZE } from '@/components/color-swatches';
 import { PickerDone, PickerOverlay } from '@/components/picker-overlay';
 import { SoundIcon } from '@/components/sound-icon';
 import { ThemedText } from '@/components/themed-text';
@@ -18,7 +18,11 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
   const theme = useTheme();
   const { sound, setSound, color } = useSettings();
   const [open, setOpen] = useState(false);
-  const swatch = useSwatchSize();
+  // Fill the panel's content width with PER_TOP_ROW circles; on narrow screens (like iPhone mini)
+  // the panel shrinks to the room left after the overlay's and panel's Spacing.four padding.
+  const { width } = useWindowDimensions();
+  const content = Math.min(4 * SWATCH_SIZE + 3 * SWATCH_GAP, width - 4 * Spacing.four);
+  const swatch = Math.floor((content - (PER_TOP_ROW - 1) * SWATCH_GAP) / PER_TOP_ROW);
   // Three on top, the rest centered below, so the last option isn't orphaned.
   const rows = [SOUNDS.slice(0, PER_TOP_ROW), SOUNDS.slice(PER_TOP_ROW)];
 
@@ -54,7 +58,7 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
             <View key={i} style={styles.row}>
               {row.map((s) => {
                 const selected = s.id === sound;
-                const content = selected ? contentColorOn(color) : theme.text;
+                const iconColor = selected ? contentColorOn(color) : theme.text;
                 return (
                   <Pressable
                     key={s.id}
@@ -72,7 +76,7 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
                         { width: swatch, height: swatch, borderRadius: swatch / 2 },
                         { backgroundColor: selected ? color : theme.backgroundElement },
                       ]}>
-                      <SoundIcon id={s.id} size={ICON_SIZE} color={content} />
+                      <SoundIcon id={s.id} size={Math.round(swatch * ICON_RATIO)} color={iconColor} />
                     </View>
                     <ThemedText type="smallBold" numberOfLines={1}>
                       {s.name}
@@ -89,7 +93,7 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
   );
 }
 
-const ICON_SIZE = 32;
+const ICON_RATIO = 0.5;
 const PER_TOP_ROW = 3;
 
 const styles = StyleSheet.create({
