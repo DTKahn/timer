@@ -2,7 +2,7 @@
   "expo": {
     "name": "Timer",
     "slug": "timer",
-    "version": "0.10.2",
+    "version": "0.11.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "timer",
