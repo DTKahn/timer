@@ -9,7 +9,7 @@ import { SOUNDS } from '@/constants/sounds';
 import { Spacing } from '@/constants/theme';
 import { contentColorOn } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
-import { playSound, stopSounds } from '@/platform/sounds';
+import { playSound, preloadSounds, stopSounds } from '@/platform/sounds';
 import { useSettings } from '@/store/settings';
 
 /** Speaker button (crossed out when silent) that opens the completion sounds. */
@@ -26,7 +26,10 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
   return (
     <>
       <Pressable
-        onPress={() => setOpen(true)}
+        onPress={() => {
+          preloadSounds();
+          setOpen(true);
+        }}
         accessibilityRole="button"
         accessibilityLabel="Change completion sound"
         style={({ pressed }) => [
