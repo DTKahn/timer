@@ -12,7 +12,7 @@ export type Release = {
 export const RELEASES: Release[] = [
   {
     version: '0.11.0',
-    date: 'Oct 8, 2026, 04:10',
+    date: 'Oct 8, 2026, 06:40',
     name: 'Sounds are now round buttons',
     changes: ['The sound picker now shows round buttons with larger icons and the name underneath, matching the color picker.'],
   },
