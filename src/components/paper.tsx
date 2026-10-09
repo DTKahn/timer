@@ -151,21 +151,24 @@ export const Paper = memo(function Paper({
 });
 
 /**
- * The cut itself: a hairline of light just inside edges that face up and a
- * hairline of shade inside edges that face down, so the sheet reads as a
- * separate piece with its grain ending at the scissors. It's the outline
- * stroked twice, nudged down and up, and clipped to the piece.
+ * The cut itself: a hairline of slightly paler, uneven fibers just inside the
+ * edge, where the scissors sliced through the paper. It's the outline stroked
+ * twice (once solid, once broken up), clipped to the piece so only the inner
+ * half shows.
  */
 export function CutEdge({ d, clipId }: { d: string; clipId: string }) {
   const look = usePaperLook();
   return (
     <G clipPath={`url(#${clipId})`}>
-      <G transform="translate(0.2 0.7)">
-        <Path d={d} fill="none" stroke="#FFFFFF" strokeOpacity={look.edgeLight} strokeWidth={1.1} />
-      </G>
-      <G transform="translate(-0.2 -0.7)">
-        <Path d={d} fill="none" stroke="#000000" strokeOpacity={look.edgeShade} strokeWidth={1.1} />
-      </G>
+      <Path d={d} fill="none" stroke="#FFFFFF" strokeOpacity={look.cutFibers} strokeWidth={0.8} />
+      <Path
+        d={d}
+        fill="none"
+        stroke="#FFFFFF"
+        strokeOpacity={look.cutFibers}
+        strokeWidth={0.8}
+        strokeDasharray="5 3 2 4 9 2 3 6"
+      />
     </G>
   );
 }

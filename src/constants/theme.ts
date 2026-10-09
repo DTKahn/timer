@@ -4,28 +4,29 @@
  * same grain; only the color differs.
  */
 export const PaperPack = {
-  white: '#FAF9F5',
-  cream: '#F1E9D6',
-  lightGray: '#C5C7C4',
+  white: '#FBF7EE',
+  manila: '#EAE0CB',
+  oatmeal: '#D7C7A7',
   kraft: '#B48C61',
+  lightGray: '#C5C7C4',
   charcoal: '#3A3937',
   black: '#1D1D1C',
 } as const;
 
 /**
- * App palette. Light mode: white and cream pieces on a light gray sheet.
+ * App palette. Light mode: white and oatmeal pieces on a manila sheet.
  * Dark mode: charcoal pieces on a black sheet. The only accent is the
  * user's timer color.
  */
 export const Colors = {
   light: {
-    text: '#1F1F1E',
-    textSecondary: '#4F504D',
-    background: PaperPack.lightGray,
-    backgroundElement: PaperPack.cream,
-    backgroundSelected: '#A9ABA7',
+    text: '#2A2520',
+    textSecondary: '#655C50',
+    background: PaperPack.manila,
+    backgroundElement: PaperPack.oatmeal,
+    backgroundSelected: '#BCAB89',
     face: PaperPack.white,
-    tick: '#1F1F1E',
+    tick: '#2A2520',
   },
   dark: {
     text: '#F1EFEA',
@@ -47,17 +48,15 @@ export const PaperLook = {
     shadow: 0.2,
     /** How far torn fibers are lightened from the sheet's own color, toward white. */
     fringe: 0.6,
-    /** Light caught by cut edges facing up, and shade on edges facing down. */
-    edgeLight: 0.35,
-    edgeShade: 0.14,
+    /** Paleness of the cut fibers along scissor-cut edges. */
+    cutFibers: 0.16,
   },
   dark: {
     grain: 0.75,
     shadow: 0.55,
     // Black and charcoal paper tear to a grayish core, not a white one.
     fringe: 0.1,
-    edgeLight: 0.16,
-    edgeShade: 0.2,
+    cutFibers: 0.07,
   },
 } as const;
 
