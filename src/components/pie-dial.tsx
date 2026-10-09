@@ -2,11 +2,11 @@ import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { ClipPath, Defs, FeGaussianBlur, Filter, G, Line, Path } from 'react-native-svg';
 
-import { GrainTiles, grainScale, usePaperLook, useSvgId } from '@/components/paper';
+import { CutEdge, GrainTiles, usePaperLook, useSvgId } from '@/components/paper';
 import { paperColor } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
 import { polar, ringBands } from '@/timer/dial-geometry';
-import { circleFacets, facetedCircle, facetedRingPath, polygonPath, type Facets } from '@/paper/outline';
+import { circleCut, cutCircle, cutRingPath, polygonPath, type CircleCut } from '@/paper/outline';
 
 type PieDialProps = {
   /** Fraction of time remaining, 1 → 0. */
@@ -20,10 +20,10 @@ const TICKS = Array.from({ length: 60 }, (_, i) => i);
 /** The drawing overflows the dial's box by this much so the face's shadow isn't clipped. */
 const BLEED = 12;
 
-type Ring = { inner: number; outer: number; color: string; outerFacets: Facets; innerFacets: Facets };
+type Ring = { inner: number; outer: number; color: string; outerCut: CircleCut; innerCut: CircleCut };
 
 /**
- * A scissor-cut paper disc with the remaining time as cut colored paper laid
+ * A hand-cut paper disc with the remaining time as cut colored paper laid
  * on it. The face never changes while the timer runs, so it's its own drawing;
  * only the wedge redraws each frame, and it has no blur to recompute.
  */
@@ -36,9 +36,9 @@ export function PieDial({ fraction, colors, size }: PieDialProps) {
       ringBands(wedge, colors.length, c * 0.015).map((band, i) => ({
         ...band,
         color: paperColor(colors[i]),
-        // Each ring edge has its own fixed cuts, so they don't line up like a machine-cut part.
-        outerFacets: circleFacets(band.outer, `ring-${i}-out`),
-        innerFacets: circleFacets(band.inner, `ring-${i}-in`),
+        // Each ring edge is cut separately, so they don't line up like a machine-cut part.
+        outerCut: circleCut(band.outer, `ring-${i}-out`),
+        innerCut: circleCut(band.inner, `ring-${i}-in`),
       })),
     // The colors array is rebuilt by the store; its contents are what matter.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,7 +59,7 @@ const DialFace = memo(function DialFace({ size, rings }: { size: number; rings: 
   const id = useSvgId('face');
   const c = size / 2;
   const face = c - 3;
-  const outline = useMemo(() => polygonPath(facetedCircle(c, c, face, circleFacets(face, 'dial-face'))), [c, face]);
+  const outline = useMemo(() => polygonPath(cutCircle(c, c, face, circleCut(face, 'dial-face'))), [c, face]);
 
   return (
     <Svg width={size + BLEED * 2} height={size + BLEED * 2} style={[styles.layer, { left: -BLEED, top: -BLEED }]}>
@@ -76,14 +76,15 @@ const DialFace = memo(function DialFace({ size, rings }: { size: number; rings: 
           <Path d={outline} fill="#000" opacity={look.shadow * 1.3} filter={`url(#${id}s)`} />
         </G>
         <Path d={outline} fill={theme.face} />
-        <G clipPath={`url(#${id}c)`} opacity={look.grain * grainScale(theme.face)}>
+        <G clipPath={`url(#${id}c)`} opacity={look.grain}>
           <GrainTiles width={size} height={size} seed="dial-face" />
         </G>
+        <CutEdge d={outline} clipId={`${id}c`} />
         {/* Faint full-size ghost of the wedge so an empty dial still shows its colors. */}
         {rings.map((ring) => (
           <Path
             key={`ghost-${ring.outer}`}
-            d={facetedRingPath(c, c, ring.inner, ring.outer, 1, ring.outerFacets, ring.innerFacets)}
+            d={cutRingPath(c, c, ring.inner, ring.outer, 1, ring.outerCut, ring.innerCut)}
             fill={ring.color}
             fillRule="evenodd"
             opacity={0.14}
@@ -119,7 +120,7 @@ function Wedge({ size, rings, fraction }: { size: number; rings: Ring[]; fractio
   const c = size / 2;
   const paths = rings.map((ring) => ({
     color: ring.color,
-    d: facetedRingPath(c, c, ring.inner, ring.outer, fraction, ring.outerFacets, ring.innerFacets),
+    d: cutRingPath(c, c, ring.inner, ring.outer, fraction, ring.outerCut, ring.innerCut),
   }));
   const all = paths.map((p) => p.d).join('');
   if (!all) return null;
@@ -144,6 +145,9 @@ function Wedge({ size, rings, fraction }: { size: number; rings: Ring[]; fractio
       <G clipPath={`url(#${id}c)`} opacity={look.grain}>
         <GrainTiles width={size} height={size} seed="dial-wedge" />
       </G>
+      {paths.map((p, i) => (
+        <CutEdge key={i} d={p.d} clipId={`${id}c`} />
+      ))}
     </Svg>
   );
 }

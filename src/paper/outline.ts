@@ -1,7 +1,9 @@
 /**
- * Outlines for the construction-paper look: pieces cut with scissors (short
- * straight facets) or torn by hand (a ragged edge with a pale fiber fringe).
- * Everything is seeded, so a piece keeps the same edge on every render.
+ * Outlines for the construction-paper look: pieces cut by hand with scissors
+ * (smooth curves that wander a little, with the odd small step where the
+ * blades stopped and started again) or torn by hand (a ragged edge with a
+ * pale fiber fringe). Everything is seeded, so a piece keeps the same edge on
+ * every render.
  */
 
 export type Point = { x: number; y: number };
@@ -98,39 +100,6 @@ export type OutlineOptions = {
   tilt?: number;
 };
 
-/**
- * Scissor cut: the rounded rectangle traced with short straight cuts. Curves
- * get short facets, straight sides long ones, and each cut lands a hair off
- * the line.
- */
-export function cutOutline(w: number, h: number, { radius, seed, tilt = 0 }: OutlineOptions): Point[] {
-  const shape = roundedRect(w, h, radius);
-  const rand = seeded(seed);
-  // About 9pt facets on a 40pt circle, up to 16pt on big ones.
-  const facet = Math.min(16, Math.max(6, Math.sqrt(shape.length) * 0.8));
-  const wobble = Math.min(0.9, Math.max(0.35, shape.length * 0.0025));
-  const points: Point[] = [];
-  const add = (s: number, scale = 1) => {
-    const p = shape.at(s);
-    const off = ((rand() * 2 - 1) * wobble - wobble * 0.3) * scale;
-    points.push({ x: p.x + p.nx * off, y: p.y + p.ny * off });
-  };
-  // Each run is a straight side or a corner; every run starts with a cut at its first point.
-  let s = 0;
-  for (const run of shape.runs) {
-    if (run <= 0.01) continue;
-    const corner = shape.at(s + run / 2).corner;
-    // Curves get short facets; a straight side is cut in a few long strokes rather than many nibbles.
-    const n = corner ? Math.max(2, Math.round(run / facet)) : Math.max(1, Math.round(run / (facet * 4)));
-    for (let j = 0; j < n; j++) {
-      const jitter = j === 0 ? 0 : (rand() - 0.5) * 0.5;
-      add(s + ((j + jitter) / n) * run, corner ? 1 : 0.6);
-    }
-    s += run;
-  }
-  return rotate(points, w, h, tilt);
-}
-
 /** Smooth periodic noise along a loop of `length`, in [-1, 1]. */
 function loopNoise(rand: () => number, length: number, spacing: number) {
   const n = Math.max(3, Math.round(length / spacing));
@@ -142,6 +111,61 @@ function loopNoise(rand: () => number, length: number, spacing: number) {
     const e = (1 - Math.cos(f * Math.PI)) / 2;
     return knots[i] * (1 - e) + knots[(i + 1) % n] * e;
   };
+}
+
+/**
+ * How far a hand cut strays from the ideal line, at each point `s` along a
+ * loop of `length` points: a slow wander, a little tremble, and a few small
+ * steps where the scissors were stopped and restarted a hair off the line,
+ * each easing back over the next stretch. `restarts` lists where the steps
+ * are, so the edge can be sampled on both sides of each one.
+ */
+function handCut(rand: () => number, length: number) {
+  const amp = Math.min(0.6, Math.max(0.25, length * 0.0018));
+  const wander = loopNoise(rand, length, 26);
+  const tremble = loopNoise(rand, length, 7);
+  const count = Math.min(4, Math.max(1, Math.round(length / 160)));
+  const restarts = Array.from({ length: count }, (_, i) => ({
+    // Spread around the loop, and never right at its start (12 o'clock on a circle).
+    at: ((i + 0.2 + rand() * 0.6) / count) * length,
+    step: (rand() < 0.5 ? -1 : 1) * (0.25 + rand() * 0.3),
+    ease: 10 + rand() * 20,
+  }));
+  const offset = (s: number) => {
+    let d = wander(s) * amp + tremble(s) * 0.12 - amp * 0.3;
+    for (const r of restarts) d += r.step * Math.exp(-((((s - r.at) % length) + length) % length) / r.ease);
+    return d;
+  };
+  return { offset, restarts: restarts.map((r) => r.at) };
+}
+
+/** Sample positions along a loop: evenly `step` apart, plus both sides of each restart. */
+function samples(length: number, step: number, restarts: number[]): number[] {
+  const n = Math.max(8, Math.ceil(length / step));
+  const out = Array.from({ length: n }, (_, i) => (i / n) * length);
+  for (const at of restarts) out.push(Math.max(0, at - 0.05), at);
+  return out.sort((a, b) => a - b);
+}
+
+/** Chord length that keeps a curve of radius `r` looking smooth (it bulges under 0.05pt). */
+function smoothStep(r: number) {
+  return r > 0 ? Math.min(6, Math.max(1.5, Math.sqrt(0.4 * r))) : 4;
+}
+
+/**
+ * Hand cut with scissors: the rounded rectangle traced as a smooth curve that
+ * wanders a little, with a couple of small restart steps.
+ */
+export function cutOutline(w: number, h: number, { radius, seed, tilt = 0 }: OutlineOptions): Point[] {
+  const shape = roundedRect(w, h, radius);
+  const cut = handCut(seeded(seed), shape.length);
+  const step = Math.min(4, smoothStep(shape.radius));
+  const points = samples(shape.length, step, cut.restarts).map((s) => {
+    const p = shape.at(s);
+    const off = cut.offset(s);
+    return { x: p.x + p.nx * off, y: p.y + p.ny * off };
+  });
+  return rotate(points, w, h, tilt);
 }
 
 /**
@@ -181,42 +205,41 @@ export function seededTilt(seed: string, w: number, max = 1.2): number {
   return (rand() * 2 - 1) * limit;
 }
 
-/** Facet corners of a scissor-cut disk, as (angle, radius scale) pairs from 12 o'clock clockwise. */
-export type Facets = { angle: number; scale: number }[];
+/** A hand-cut circle, as (angle, radius scale) samples from 12 o'clock clockwise. */
+export type CircleCut = { angle: number; scale: number }[];
 
 /**
- * Corners for a hand-cut circle of radius `r`. The first corner sits exactly
- * at 12 o'clock so a wedge that ends there has a clean straight edge.
+ * A circle of radius `r` cut by hand. The first sample sits exactly at
+ * 12 o'clock, where the wedge ends.
  */
-export function circleFacets(r: number, seed: string): Facets {
-  const rand = seeded(seed);
-  const count = Math.max(12, Math.round((2 * Math.PI * r) / Math.min(22, Math.max(8, Math.sqrt(r) * 2.2))));
-  const wobble = Math.min(0.006, 1.2 / Math.max(r, 1));
-  return Array.from({ length: count }, (_, i) => ({
-    angle: i === 0 ? 0 : ((i + (rand() - 0.5) * 0.5) / count) * 2 * Math.PI,
-    scale: 1 + (rand() * 2 - 1) * wobble,
+export function circleCut(r: number, seed: string): CircleCut {
+  const length = 2 * Math.PI * r;
+  const cut = handCut(seeded(seed), length);
+  return samples(length, smoothStep(r), cut.restarts).map((s) => ({
+    angle: s / r,
+    scale: 1 + cut.offset(s) / r,
   }));
 }
 
-function facetPoint(cx: number, cy: number, r: number, f: { angle: number; scale: number }): Point {
+function cutPoint(cx: number, cy: number, r: number, f: { angle: number; scale: number }): Point {
   return { x: cx + r * f.scale * Math.sin(f.angle), y: cy - r * f.scale * Math.cos(f.angle) };
 }
 
-/** Point on the faceted circle's edge at `angle`, between the two corners around it. */
-function facetEdgeAt(cx: number, cy: number, r: number, facets: Facets, angle: number): Point {
-  const n = facets.length;
+/** Point on the cut circle's edge at `angle`, between the two samples around it. */
+function cutEdgeAt(cx: number, cy: number, r: number, cut: CircleCut, angle: number): Point {
+  const n = cut.length;
   let i = n - 1;
   for (let k = 0; k < n; k++) {
-    if (facets[k].angle > angle) {
+    if (cut[k].angle > angle) {
       i = k - 1;
       break;
     }
   }
-  const a = facets[i];
-  const b = i + 1 < n ? facets[i + 1] : { angle: 2 * Math.PI, scale: facets[0].scale };
-  const pa = facetPoint(cx, cy, r, a);
-  const pb = facetPoint(cx, cy, r, b);
-  // Intersect the ray from the center at `angle` with the straight cut from a to b.
+  const a = cut[i];
+  const b = i + 1 < n ? cut[i + 1] : { angle: 2 * Math.PI, scale: cut[0].scale };
+  const pa = cutPoint(cx, cy, r, a);
+  const pb = cutPoint(cx, cy, r, b);
+  // Intersect the ray from the center at `angle` with the short chord from a to b.
   const dx = Math.sin(angle);
   const dy = -Math.cos(angle);
   const ex = pb.x - pa.x;
@@ -227,41 +250,80 @@ function facetEdgeAt(cx: number, cy: number, r: number, facets: Facets, angle: n
   return { x: cx + dx * t, y: cy + dy * t };
 }
 
-/** The whole faceted circle. */
-export function facetedCircle(cx: number, cy: number, r: number, facets: Facets): Point[] {
-  return facets.map((f) => facetPoint(cx, cy, r, f));
+/** The whole cut circle. */
+export function cutCircle(cx: number, cy: number, r: number, cut: CircleCut): Point[] {
+  return cut.map((f) => cutPoint(cx, cy, r, f));
 }
 
-/** Corners of the faceted circle from `from` (radians) clockwise to 12 o'clock. */
-function facetedArc(cx: number, cy: number, r: number, facets: Facets, from: number): Point[] {
-  const points = [facetEdgeAt(cx, cy, r, facets, from)];
-  for (const f of facets) if (f.angle > from) points.push(facetPoint(cx, cy, r, f));
-  points.push(facetPoint(cx, cy, r, { angle: 2 * Math.PI, scale: facets[0].scale }));
+/** The cut circle's edge from `from` (radians) clockwise to 12 o'clock. */
+function cutArc(cx: number, cy: number, r: number, cut: CircleCut, from: number): Point[] {
+  const points = [cutEdgeAt(cx, cy, r, cut, from)];
+  for (const f of cut) if (f.angle > from) points.push(cutPoint(cx, cy, r, f));
+  points.push(cutPoint(cx, cy, r, { angle: 2 * Math.PI, scale: cut[0].scale }));
   return points;
 }
 
+/** A gentle wander across a straight cut, by distance along it; never periodic. */
+function lineWander(seed: string) {
+  const rand = seeded(seed);
+  const spacing = 16;
+  const knots = Array.from({ length: 80 }, () => (rand() * 2 - 1) * 0.35);
+  return (t: number) => {
+    const u = Math.min(knots.length - 2, Math.max(0, t / spacing));
+    const i = Math.floor(u);
+    const e = (1 - Math.cos((u - i) * Math.PI)) / 2;
+    return knots[i] * (1 - e) + knots[i + 1] * e;
+  };
+}
+const START_EDGE = lineWander('wedge-start');
+const MOVING_EDGE = lineWander('wedge-moving');
+/** Spacing of points along the wedge's straight cuts. */
+const LINE_STEP = 7;
+
 /**
- * The remaining-time wedge (or one ring of it) cut from faceted circles, so
- * the arc edge has fixed scissor cuts that don't shimmer as it sweeps.
- * `fraction` 1 is the full disk; the wedge ends at 12 o'clock like `ringPath`.
+ * Points along a hand-cut straight edge at `angle`, from radius `t0` toward
+ * `t1` (both ends left out; the arcs supply them). Points sit at fixed
+ * distances from the center, so the edge keeps its shape as it turns.
  */
-export function facetedRingPath(
+function radialCut(cx: number, cy: number, angle: number, t0: number, t1: number, wander: (t: number) => number): Point[] {
+  const lo = Math.min(t0, t1) + 1.5;
+  const hi = Math.max(t0, t1) - 1.5;
+  const ts: number[] = [];
+  for (let t = Math.ceil(lo / LINE_STEP) * LINE_STEP; t <= hi; t += LINE_STEP) ts.push(t);
+  if (t0 > t1) ts.reverse();
+  const dx = Math.sin(angle);
+  const dy = -Math.cos(angle);
+  return ts.map((t) => {
+    const across = wander(t);
+    return { x: cx + dx * t - dy * across, y: cy + dy * t + dx * across };
+  });
+}
+
+/**
+ * The remaining-time wedge (or one ring of it) cut from hand-cut circles, so
+ * the curved edges don't shimmer as it sweeps, and its two straight cuts
+ * wander slightly too. `fraction` 1 is the full disk; the wedge ends at
+ * 12 o'clock like `ringPath`.
+ */
+export function cutRingPath(
   cx: number,
   cy: number,
   inner: number,
   outer: number,
   fraction: number,
-  outerFacets: Facets,
-  innerFacets: Facets,
+  outerCut: CircleCut,
+  innerCut: CircleCut,
 ): string {
   const f = Math.min(1, Math.max(0, fraction));
   if (f <= 0) return '';
   if (f >= 0.99999) {
-    const ring = polygonPath(facetedCircle(cx, cy, outer, outerFacets));
-    return inner > 0 ? `${ring}${polygonPath(facetedCircle(cx, cy, inner, innerFacets).reverse())}` : ring;
+    const ring = polygonPath(cutCircle(cx, cy, outer, outerCut));
+    return inner > 0 ? `${ring}${polygonPath(cutCircle(cx, cy, inner, innerCut).reverse())}` : ring;
   }
   const from = (1 - f) * 2 * Math.PI;
-  const outside = facetedArc(cx, cy, outer, outerFacets, from);
-  const inside = inner > 0 ? facetedArc(cx, cy, inner, innerFacets, from).reverse() : [{ x: cx, y: cy }];
-  return polygonPath([...outside, ...inside]);
+  const outside = cutArc(cx, cy, outer, outerCut, from);
+  const startEdge = radialCut(cx, cy, 0, outer, inner, START_EDGE);
+  const inside = inner > 0 ? cutArc(cx, cy, inner, innerCut, from).reverse() : [{ x: cx, y: cy }];
+  const movingEdge = radialCut(cx, cy, from, inner, outer, MOVING_EDGE);
+  return polygonPath([...outside, ...startEdge, ...inside, ...movingEdge]);
 }

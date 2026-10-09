@@ -104,7 +104,7 @@ function Fade({ side, color }: { side: 'left' | 'right'; color: string }) {
         </Defs>
         <G mask={`url(#${id}m)`}>
           <Rect width={FADE_WIDTH} height={height} fill={color} />
-          <G opacity={look.backdropGrain}>
+          <G opacity={look.grain}>
             <GrainTiles width={FADE_WIDTH} height={height} seed={`fade-${side}`} />
           </G>
         </G>

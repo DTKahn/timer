@@ -1,104 +1,97 @@
 """Generates assets/images/paper-grain.png, the construction-paper texture.
 
-A seamlessly tiling 512px grayscale + alpha image: light and dark fibers,
-soft mottling, and a few flecks. The app lays it over every paper piece at low
-opacity, drawn at 256pt per tile (so it stays sharp on 2x screens), and the
-white and black pixels lighten or darken whatever color is underneath.
+A seamlessly tiling gray + alpha image, 160pt square drawn at 3 pixels per
+point: faint mottling like uneven pulp, fine paper tooth, and lots of tiny
+light and dark fibers (the felted look) with a few longer strands. The app
+lays the same tile over every sheet of paper, whatever its color; its white
+and black pixels lighten or darken the color underneath.
 
-Run from the repo root: python3 scripts/generate-paper-grain.py
+Run from the repo root: python3 scripts/generate-paper-grain.py   (needs numpy + Pillow)
 """
 
 import math
 import random
+from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw
 
-SIZE = 512
-SUPER = 2  # Fibers are drawn at 2x and scaled down for smooth edges.
-SEED = 7
+OUT = Path(__file__).resolve().parent.parent / "assets" / "images" / "paper-grain.png"
 
-rng = np.random.default_rng(SEED)
-random.seed(SEED)
+TILE_PT = 160  # Keep in sync with GRAIN_TILE in src/components/paper.tsx.
+PX = 3  # pixels per point
 
 
-def periodic_noise(size: int, low: float, high: float) -> np.ndarray:
-    """Band-limited noise in [-1, 1] that wraps at the edges (built in frequency space)."""
-    white = rng.standard_normal((size, size))
-    f = np.fft.fftfreq(size)
-    fx, fy = np.meshgrid(f, f)
-    r = np.sqrt(fx**2 + fy**2) * size
-    band = np.exp(-((r - (low + high) / 2) ** 2) / (2 * ((high - low) / 2) ** 2))
-    band[0, 0] = 0
-    out = np.real(np.fft.ifft2(np.fft.fft2(white) * band))
-    return out / np.abs(out).max()
+def wrap_blur(arr, sigma):
+    """Gaussian blur that wraps around (done in frequency space), so the tile stays seamless."""
+    h, w = arr.shape
+    fy = np.fft.fftfreq(h)[:, None]
+    fx = np.fft.fftfreq(w)[None, :]
+    kernel = np.exp(-2 * (np.pi * sigma) ** 2 * (fx**2 + fy**2))
+    return np.real(np.fft.ifft2(np.fft.fft2(arr) * kernel)).astype(np.float32)
 
 
-def fibers(count: int, length: tuple[int, int], width: int, alpha: tuple[int, int]) -> np.ndarray:
-    """Short, gently curved strands, wrapped so the tile repeats without seams."""
-    big = SIZE * SUPER
-    layer = Image.new('L', (big, big), 0)
-    draw = ImageDraw.Draw(layer)
-    for _ in range(count):
-        x, y = random.uniform(0, big), random.uniform(0, big)
-        angle = random.uniform(0, math.pi)
-        steps = 4
-        seg = random.uniform(*length) * SUPER / steps
-        points = [(x, y)]
-        for _ in range(steps):
-            angle += random.uniform(-0.35, 0.35)
-            x += math.cos(angle) * seg
-            y += math.sin(angle) * seg
-            points.append((x, y))
-        a = random.randint(*alpha)
-        for ox in (-big, 0, big):
-            for oy in (-big, 0, big):
-                draw.line([(px + ox, py + oy) for px, py in points], fill=a, width=width * SUPER, joint='curve')
-    layer = layer.resize((SIZE, SIZE), Image.LANCZOS)
-    return np.asarray(layer, dtype=np.float64) / 255
+def light_dark_to_la(light, dark):
+    """Combine a white-alpha and a black-alpha layer into one gray + alpha image."""
+    light = np.clip(light, 0, 1)
+    dark = np.clip(dark, 0, 1)
+    alpha = light + dark * (1 - light)
+    gray = np.where(alpha > 1e-4, light / np.maximum(alpha, 1e-4), 0)
+    return gray, alpha
 
 
-def flecks(count: int, radius: tuple[float, float], alpha: tuple[int, int]) -> np.ndarray:
-    big = SIZE * SUPER
-    layer = Image.new('L', (big, big), 0)
-    draw = ImageDraw.Draw(layer)
-    for _ in range(count):
-        x, y = random.uniform(0, big), random.uniform(0, big)
-        r = random.uniform(*radius) * SUPER
-        a = random.randint(*alpha)
-        for ox in (-big, 0, big):
-            for oy in (-big, 0, big):
-                draw.ellipse([x + ox - r, y + oy - r, x + ox + r, y + oy + r], fill=a)
-    layer = layer.resize((SIZE, SIZE), Image.LANCZOS)
-    return np.asarray(layer, dtype=np.float64) / 255
+def grain_tile():
+    rng = np.random.default_rng(11)
+    n = TILE_PT * PX
+
+    # Mottling: very soft blotches, like uneven pulp.
+    mottle = wrap_blur(rng.normal(size=(n, n)).astype(np.float32), PX * 5)
+    mottle = mottle / (mottle.std() or 1)
+
+    # Tooth: fine per-pixel roughness.
+    tooth = wrap_blur(rng.normal(size=(n, n)).astype(np.float32), 0.6)
+    tooth = tooth / (tooth.std() or 1)
+
+    # Fibers: many tiny strands plus a few longer ones, drawn at 2x for smooth edges.
+    k = 2
+    light_img = Image.new("L", (n * k, n * k), 0)
+    dark_img = Image.new("L", (n * k, n * k), 0)
+    dl, dd = ImageDraw.Draw(light_img), ImageDraw.Draw(dark_img)
+    prng = random.Random(5)
+    # (count, length range pt, width range pt, strength range, share that are dark)
+    kinds = [(1500, (0.8, 2.6), (0.2, 0.32), (0.25, 0.7), 0.35), (70, (3.0, 6.5), (0.22, 0.3), (0.3, 0.6), 0.1)]
+    for count, (l0, l1), (w0, w1), (s0, s1), dark_share in kinds:
+        for _ in range(count):
+            x, y = prng.uniform(0, TILE_PT), prng.uniform(0, TILE_PT)
+            length = prng.uniform(l0, l1)
+            ang = prng.uniform(0, math.pi)
+            bend = prng.uniform(-0.6, 0.6)
+            width = prng.uniform(w0, w1)
+            is_dark = prng.random() < dark_share
+            strength = prng.uniform(s0, s1)
+            steps = 5
+            pts = []
+            for st in range(steps + 1):
+                u = st / steps - 0.5
+                a = ang + bend * u * 2
+                pts.append((x + math.cos(a) * u * length, y + math.sin(a) * u * length))
+            draw = dd if is_dark else dl
+            # Drawn in all nine neighboring tiles so strands crossing an edge wrap around.
+            for ox in (-TILE_PT, 0, TILE_PT):
+                for oy in (-TILE_PT, 0, TILE_PT):
+                    seg = [((px + ox) * PX * k, (py + oy) * PX * k) for px, py in pts]
+                    draw.line(seg, fill=round(255 * strength), width=max(1, round(width * PX * k)), joint="curve")
+    fl = np.asarray(light_img.reduce(k), np.float32) / 255
+    fd = np.asarray(dark_img.reduce(k), np.float32) / 255
+
+    light = np.clip(mottle, 0, None) * 0.02 + np.clip(tooth, 0, None) * 0.045 + fl * 0.22
+    dark = np.clip(-mottle, 0, None) * 0.008 + np.clip(-tooth, 0, None) * 0.035 + fd * 0.16
+    gray, alpha = light_dark_to_la(light, dark)
+    g = np.clip(gray * 255 + 0.5, 0, 255).astype(np.uint8)
+    a = np.clip(alpha * 255 + 0.5, 0, 255).astype(np.uint8)
+    Image.merge("LA", (Image.fromarray(g), Image.fromarray(a))).save(OUT, optimize=True)
 
 
-def soften(a: np.ndarray, radius: float) -> np.ndarray:
-    """Gaussian blur that wraps around, by blurring a 3x3 tiling and keeping the middle."""
-    tiled = np.tile(a, (3, 3))
-    img = Image.fromarray(np.uint8(np.clip(tiled, 0, 1) * 255)).filter(ImageFilter.GaussianBlur(radius))
-    out = np.asarray(img, dtype=np.float64)[SIZE : 2 * SIZE, SIZE : 2 * SIZE] / 255
-    return out
-
-
-# Cloudy unevenness, like pulp settling thicker in places.
-mottle = 0.7 * periodic_noise(SIZE, 2, 10) + 0.3 * periodic_noise(SIZE, 14, 40)
-mottle /= np.abs(mottle).max()
-# Fine tooth: the matte, slightly rough surface.
-tooth = periodic_noise(SIZE, 120, 240)
-
-light = np.clip(mottle, 0, 1) * 0.11 + np.clip(tooth, 0, 1) * 0.16
-dark = np.clip(-mottle, 0, 1) * 0.12 + np.clip(-tooth, 0, 1) * 0.18
-
-# Long pale fibers and shorter dark ones, slightly blurred so they sit in the paper.
-light = 1 - (1 - light) * (1 - soften(fibers(1700, (4, 14), 1, (40, 110)), 0.6))
-dark = 1 - (1 - dark) * (1 - soften(fibers(1100, (3, 10), 1, (25, 70)), 0.6))
-dark = 1 - (1 - dark) * (1 - soften(flecks(60, (0.5, 1.1), (50, 120)), 0.4))
-
-alpha = light + dark * (1 - light)
-gray = np.where(alpha > 0, light / np.maximum(alpha, 1e-6), 0)
-
-# Quantize so the PNG stays small; the texture is viewed at low opacity.
-la = np.dstack([np.round(gray * 15) * 17, np.round(np.clip(alpha, 0, 1) * 63) * (255 / 63)]).astype(np.uint8)
-Image.fromarray(la).save('assets/images/paper-grain.png', optimize=True)
-print('wrote assets/images/paper-grain.png')
+if __name__ == "__main__":
+    grain_tile()
+    print(f"wrote {OUT}")

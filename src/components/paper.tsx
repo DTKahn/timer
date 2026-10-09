@@ -3,13 +3,13 @@ import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { ClipPath, Defs, FeGaussianBlur, Filter, G, Image, Path, Rect } from 'react-native-svg';
 
 import { PaperLook } from '@/constants/theme';
-import { isHexColor, relativeLuminance } from '@/constants/timer-colors';
+import { isHexColor } from '@/constants/timer-colors';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { cutOutline, hash, polygonPath, seededTilt, tornOutline } from '@/paper/outline';
 
 const GRAIN = require('@/assets/images/paper-grain.png');
-/** The grain image is 512px, drawn at 256pt per tile so fibers stay fine on 2x and 3x screens. */
-export const GRAIN_TILE = 256;
+/** The grain image is 480px, drawn at 160pt per tile so fibers stay fine on 3x screens. */
+export const GRAIN_TILE = 160;
 /** Room around a piece for its shadow and edge; the drawing overflows the piece's box by this much. */
 const BLEED = 14;
 
@@ -101,7 +101,6 @@ export const Paper = memo(function Paper({
   const blur = 0.8 + elevation * 0.9;
   const drop = 0.6 + elevation * 0.9;
   const shadowOpacity = Math.min(0.9, look.shadow * (1 + (elevation - 1) * 0.25));
-  const grain = look.grain * grainScale(color);
 
   return (
     <View
@@ -138,11 +137,12 @@ export const Paper = memo(function Paper({
                 <Path d={outline.fringe ?? outline.main} fill="#000" opacity={shadowOpacity} filter={`url(#${id}s)`} />
               </G>
             )}
-            {outline.fringe && <Path d={outline.fringe} fill={look.fringe} />}
+            {outline.fringe && <Path d={outline.fringe} fill={mix(color, '#FFFFFF', look.fringe)} />}
             {art ? <G clipPath={`url(#${id}c)`}>{art(w, h)}</G> : <Path d={outline.main} fill={color} />}
-            <G clipPath={`url(#${id}c)`} opacity={grain}>
+            <G clipPath={`url(#${id}c)`} opacity={look.grain}>
               <GrainTiles width={w + 8} height={h + 8} seed={seed} x={-4} y={-4} />
             </G>
+            {edge === 'cut' && <CutEdge d={outline.main} clipId={`${id}c`} />}
           </G>
         </Svg>
       )}
@@ -151,15 +151,35 @@ export const Paper = memo(function Paper({
 });
 
 /**
- * Pale fibers stand out on near-black paper and the gray mottling looks grubby
- * on near-white paper, so both ends get a lighter dusting than colored stock.
+ * The cut itself: a hairline of light just inside edges that face up and a
+ * hairline of shade inside edges that face down, so the sheet reads as a
+ * separate piece with its grain ending at the scissors. It's the outline
+ * stroked twice, nudged down and up, and clipped to the piece.
  */
-export function grainScale(color: string) {
-  if (!isHexColor(color)) return 1;
-  const l = relativeLuminance(color);
-  if (l < 0.15) return 0.4 + 4 * l;
-  if (l > 0.75) return 1 - 1.4 * (l - 0.75);
-  return 1;
+export function CutEdge({ d, clipId }: { d: string; clipId: string }) {
+  const look = usePaperLook();
+  return (
+    <G clipPath={`url(#${clipId})`}>
+      <G transform="translate(0.2 0.7)">
+        <Path d={d} fill="none" stroke="#FFFFFF" strokeOpacity={look.edgeLight} strokeWidth={1.1} />
+      </G>
+      <G transform="translate(-0.2 -0.7)">
+        <Path d={d} fill="none" stroke="#000000" strokeOpacity={look.edgeShade} strokeWidth={1.1} />
+      </G>
+    </G>
+  );
+}
+
+/** `color` moved `t` of the way toward `toward` (both hex). */
+function mix(color: string, toward: string, t: number) {
+  if (!isHexColor(color) || !isHexColor(toward)) return color;
+  const rgb = (hex: string) => {
+    let h = hex.replace('#', '');
+    if (h.length === 3) h = [...h].map((c) => c + c).join('');
+    return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  };
+  const [a, b] = [rgb(color), rgb(toward)];
+  return `#${a.map((c, i) => Math.round(c + (b[i] - c) * t).toString(16).padStart(2, '0')).join('')}`;
 }
 
 /** A full-size sheet of background paper with its grain, behind a whole screen. */
@@ -177,7 +197,7 @@ export function PaperBackdrop({ color, seed = 'backdrop' }: { color: string; see
       {size.width > 0 && (
         <Svg width={size.width} height={size.height}>
           <Rect width={size.width} height={size.height} fill={color} />
-          <G opacity={look.backdropGrain}>
+          <G opacity={look.grain}>
             <GrainTiles width={size.width} height={size.height} seed={seed} />
           </G>
         </Svg>
