@@ -23,10 +23,17 @@ export function TimerEffects() {
   const { sound, haptics, keepAwake } = useSettings();
   const previousStatus = useRef(timer.status);
 
-  // Finish exactly at the end time.
+  // Finish exactly at the end time. Timeouts can fire a little early by the
+  // wall clock, which would leave the timer stuck at 0, so wait again if so.
   useEffect(() => {
     if (timer.status !== 'running') return;
-    const id = setTimeout(tick, Math.max(0, timer.endAt - Date.now()));
+    let id: ReturnType<typeof setTimeout>;
+    const check = () => {
+      const left = timer.endAt - Date.now();
+      if (left > 0) id = setTimeout(check, left);
+      else tick();
+    };
+    check();
     return () => clearTimeout(id);
   }, [timer, tick]);
 
