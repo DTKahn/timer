@@ -5,6 +5,7 @@ import { Keyboard, Platform, Pressable, StyleSheet, useWindowDimensions, View } 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FavoritesSection } from '@/components/favorites-section';
+import { Paper } from '@/components/paper';
 import { Screen } from '@/components/screen';
 import { CONTROLS_HEIGHT, TimerControls } from '@/components/timer-controls';
 import { EXTRAS_HEIGHT, READOUT_HEIGHT, TimerFace } from '@/components/timer-face';
@@ -72,7 +73,8 @@ function TopButton({ label, icon: Glyph, onPress }: { label: string; icon: Lucid
       accessibilityLabel={label}
       hitSlop={4}
       style={({ pressed }) => [styles.topButton, pressed && { opacity: 0.6 }]}>
-      <Glyph size={22} color={theme.textSecondary} />
+      <Paper color={theme.backgroundElement} seed={`top-${label}`} radius="round" />
+      <Glyph size={20} color={theme.text} />
     </Pressable>
   );
 }
@@ -87,7 +89,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingHorizontal: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    gap: Spacing.two + Spacing.one,
   },
-  topButton: { padding: Spacing.two },
+  topButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
 });

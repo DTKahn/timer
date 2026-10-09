@@ -2,8 +2,9 @@ import { Minus, Plus, Star } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { CHIP_HEIGHT, DurationChips } from '@/components/duration-chips';
+import { Paper } from '@/components/paper';
 import { Spacing } from '@/constants/theme';
-import { contentColorOn } from '@/constants/timer-colors';
+import { contentColorOn, paperColor } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
 import { useFavorites } from '@/store/favorites';
 import { formatShort } from '@/timer/engine';
@@ -26,6 +27,7 @@ export function FavoritesSection({ durationMs, color, disabled, onSelect }: Favo
   const favorite = favorites.find((f) => f.durationMs === durationMs);
   const label = formatShort(durationMs);
   const Sign = favorite ? Minus : Plus;
+  const paper = paperColor(color);
 
   return (
     <View style={styles.row}>
@@ -37,12 +39,13 @@ export function FavoritesSection({ durationMs, color, disabled, onSelect }: Favo
         accessibilityLabel={favorite ? `Remove ${label} from favorites` : `Add ${label} to favorites`}
         style={({ pressed }) => [
           styles.star,
-          { backgroundColor: theme.backgroundElement, opacity: disabled ? 0.4 : pressed ? 0.6 : 1 },
+          { opacity: disabled ? 0.4 : pressed ? 0.6 : 1 },
         ]}>
+        <Paper color={theme.backgroundElement} seed="star" radius="round" />
         {/* Saved times get a filled star with a minus; others an outline with a plus. */}
-        <Star size={30} color={favorite ? color : theme.text} fill={favorite ? color : 'none'} strokeWidth={1.75} />
+        <Star size={30} color={favorite ? paper : theme.text} fill={favorite ? paper : 'none'} strokeWidth={1.75} />
         <View style={styles.sign} pointerEvents="none">
-          <Sign size={13} strokeWidth={3} color={favorite ? contentColorOn(color) : theme.text} />
+          <Sign size={13} strokeWidth={3} color={favorite ? contentColorOn(paper) : theme.text} />
         </View>
       </Pressable>
       <DurationChips
@@ -67,7 +70,6 @@ const styles = StyleSheet.create({
   star: {
     width: CHIP_HEIGHT,
     height: CHIP_HEIGHT,
-    borderRadius: CHIP_HEIGHT / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

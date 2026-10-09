@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { SWATCH_GAP, SWATCH_SIZE } from '@/components/color-swatches';
+import { Paper } from '@/components/paper';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -43,7 +44,8 @@ export function PickerOverlay({ visible, title, label, onClose, children }: Pick
           onLayout={(e) => {
             if (top === null) setTop(e.nativeEvent.layout.y - OVERLAY_PADDING);
           }}
-          style={[styles.panel, { backgroundColor: theme.face }, top !== null && { marginTop: top }]}>
+          style={[styles.panel, top !== null && { marginTop: top }]}>
+          <Paper color={theme.face} seed={`overlay-${title}`} edge="torn" radius={6} elevation={3} tilt={0.4} />
           <ThemedText type="smallBold">{title}</ThemedText>
           {children}
         </View>
@@ -82,7 +84,6 @@ const styles = StyleSheet.create({
     width: 4 * SWATCH_SIZE + 3 * SWATCH_GAP + 2 * Spacing.four,
     maxWidth: '100%',
     padding: Spacing.four,
-    borderRadius: Spacing.four,
     gap: Spacing.three,
   },
 });

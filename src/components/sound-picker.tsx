@@ -3,12 +3,13 @@ import { Volume2, VolumeX } from 'lucide-react-native';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { SWATCH_GAP, SWATCH_SIZE } from '@/components/color-swatches';
+import { Paper } from '@/components/paper';
 import { PickerDone, PickerOverlay } from '@/components/picker-overlay';
 import { SoundIcon } from '@/components/sound-icon';
 import { ThemedText } from '@/components/themed-text';
 import { SOUNDS } from '@/constants/sounds';
 import { Spacing } from '@/constants/theme';
-import { contentColorOn } from '@/constants/timer-colors';
+import { contentColorOn, paperColor } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
 import { playSound, preloadSounds, stopSounds } from '@/platform/sounds';
 import { useSettings } from '@/store/settings';
@@ -42,9 +43,10 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
         accessibilityLabel="Change completion sound"
         style={({ pressed }) => [
           styles.button,
-          { width: size, height: size, borderRadius: size / 2, backgroundColor: theme.backgroundElement },
+          { width: size, height: size },
           pressed && styles.pressed,
         ]}>
+        <Paper color={theme.backgroundElement} seed="sound" radius="round" />
         {sound === 'silent' ? (
           <VolumeX size={iconSize} color={theme.text} />
         ) : (
@@ -58,7 +60,7 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
             <View key={i} style={styles.row}>
               {row.map((s) => {
                 const selected = s.id === sound;
-                const iconColor = selected ? contentColorOn(color) : theme.text;
+                const iconColor = selected ? contentColorOn(paperColor(color)) : theme.text;
                 return (
                   <Pressable
                     key={s.id}
@@ -70,12 +72,13 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
                     aria-checked={selected}
                     accessibilityLabel={s.name}
                     style={({ pressed }) => [styles.option, { width: swatch }, pressed && styles.pressed]}>
-                    <View
-                      style={[
-                        styles.circle,
-                        { width: swatch, height: swatch, borderRadius: swatch / 2 },
-                        { backgroundColor: selected ? color : theme.backgroundElement },
-                      ]}>
+                    <View style={[styles.circle, { width: swatch, height: swatch }]}>
+                      <Paper
+                        color={selected ? paperColor(color) : theme.backgroundElement}
+                        seed={`sound-${s.id}`}
+                        radius="round"
+                        elevation={selected ? 2 : 1}
+                      />
                       <SoundIcon id={s.id} size={Math.round(swatch * ICON_RATIO)} color={iconColor} />
                     </View>
                     <ThemedText type="smallBold" numberOfLines={1}>

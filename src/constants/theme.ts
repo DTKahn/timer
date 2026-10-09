@@ -1,26 +1,47 @@
 /**
- * App palette. The only accent is the user's timer color; everything else is
- * a quiet neutral so the dial carries the design.
+ * App palette: construction paper. Light mode is warm cream stock with oatmeal
+ * pieces; dark mode is black paper with charcoal pieces. The only accent is
+ * the user's timer color, cut from bright paper.
  */
 
 export const Colors = {
   light: {
-    text: '#16181C',
-    textSecondary: '#5A5F68',
-    background: '#E9ECEF',
-    backgroundElement: '#C4CAD1',
-    backgroundSelected: '#A9B1BA',
-    face: '#FFFFFF',
-    tick: '#16181C',
+    text: '#241F1A',
+    textSecondary: '#5B5248',
+    background: '#E9DFCB',
+    backgroundElement: '#D3C4A7',
+    backgroundSelected: '#BBA987',
+    face: '#FBF7EE',
+    tick: '#241F1A',
   },
   dark: {
-    text: '#EEF0F2',
-    textSecondary: '#9AA0A8',
-    background: '#141619',
-    backgroundElement: '#373C43',
-    backgroundSelected: '#4B525A',
-    face: '#1F2226',
-    tick: '#EEF0F2',
+    text: '#F1EDE6',
+    textSecondary: '#ADA69C',
+    background: '#1B1A19',
+    backgroundElement: '#3B3936',
+    backgroundSelected: '#504D49',
+    face: '#2C2B29',
+    tick: '#F1EDE6',
+  },
+} as const;
+
+/** How paper pieces are drawn in each scheme (see components/paper). */
+export const PaperLook = {
+  light: {
+    /** Opacity of the fiber texture laid over every piece. */
+    grain: 0.55,
+    /** Grain on the background paper, which covers the whole screen. */
+    backdropGrain: 0.55,
+    /** Shadow opacity for a piece one layer up; higher layers add a little. */
+    shadow: 0.2,
+    /** Pale fibers showing along torn edges. */
+    fringe: '#FFFDF7',
+  },
+  dark: {
+    grain: 0.5,
+    backdropGrain: 0.32,
+    shadow: 0.55,
+    fringe: '#625E58',
   },
 } as const;
 

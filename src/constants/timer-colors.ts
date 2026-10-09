@@ -22,6 +22,22 @@ export const TIMER_COLORS = [
   { name: 'Graphite', value: '#60646C' },
 ] as const;
 
+/**
+ * The timer color as construction paper: a touch less saturated and a hair
+ * warmer, the way dyed paper never quite matches a screen color. Works for any
+ * hex the person types in.
+ */
+export function paperColor(hex: string): string {
+  if (!isHexColor(hex)) return hex;
+  let h = hex.replace('#', '');
+  if (h.length === 3) h = [...h].map((c) => c + c).join('');
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const gray = 0.3 * r + 0.59 * g + 0.11 * b;
+  const warm = [1.02, 1, 0.95];
+  const out = [r, g, b].map((c, i) => Math.round(Math.min(255, (c * 0.84 + gray * 0.16) * warm[i] * 0.97)));
+  return `#${out.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
+}
+
 export function isHexColor(value: string): boolean {
   return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value);
 }
@@ -31,7 +47,7 @@ export function contentColorOn(hex: string): '#16181C' | '#FFFFFF' {
   return relativeLuminance(hex) > 0.45 ? '#16181C' : '#FFFFFF';
 }
 
-function relativeLuminance(hex: string): number {
+export function relativeLuminance(hex: string): number {
   let h = hex.replace('#', '');
   if (h.length === 3) h = [...h].map((c) => c + c).join('');
   const [r, g, b] = [0, 2, 4].map((i) => {

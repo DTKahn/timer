@@ -1,9 +1,10 @@
 import { Check } from 'lucide-react-native';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
+import { Paper } from '@/components/paper';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
-import { contentColorOn, TIMER_COLORS } from '@/constants/timer-colors';
+import { contentColorOn, paperColor, TIMER_COLORS } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
 
 export const SWATCH_SIZE = 60;
@@ -40,7 +41,8 @@ export function ColorSwatches({ value, multi = false, onPress }: ColorSwatchesPr
       {[...TIMER_COLORS, ...custom].map((c) => {
         const index = selected.indexOf(c.value.toLowerCase());
         const isSelected = index !== -1;
-        const content = contentColorOn(c.value);
+        const paper = paperColor(c.value);
+        const content = contentColorOn(paper);
         return (
           <Pressable
             key={c.value}
@@ -50,10 +52,17 @@ export function ColorSwatches({ value, multi = false, onPress }: ColorSwatchesPr
             accessibilityLabel={multi && isSelected ? `${c.name}, ring ${index + 1}` : c.name}
             style={({ pressed }) => [
               styles.swatch,
-              { width: size, height: size, borderRadius: size / 2 },
-              { backgroundColor: c.value, borderColor: isSelected ? theme.text : 'transparent' },
+              { width: size, height: size },
               pressed && styles.pressed,
             ]}>
+            {/* A picked color is mounted on a disc of dark paper, standing a layer higher. */}
+            {isSelected && <Paper color={theme.text} seed={`mat-${c.value}`} radius="round" elevation={2} />}
+            <Paper
+              color={paper}
+              seed={`swatch-${c.value}`}
+              radius="round"
+              style={isSelected && styles.mounted}
+            />
             {isSelected &&
               (multi && value.length > 1 ? (
                 <ThemedText type="smallBold" style={{ color: content }}>
@@ -83,7 +92,8 @@ export function ColorModeSwitch({ multi, accent, onChange }: ColorModeSwitchProp
     { label: 'Multiple', value: true },
   ];
   return (
-    <View style={[styles.segments, { backgroundColor: theme.backgroundElement }]} accessibilityRole="radiogroup">
+    <View style={styles.segments} accessibilityRole="radiogroup">
+      <Paper color={theme.backgroundElement} seed="mode-switch" radius="round" />
       {options.map((o) => {
         const active = o.value === multi;
         return (
@@ -95,10 +105,10 @@ export function ColorModeSwitch({ multi, accent, onChange }: ColorModeSwitchProp
             accessibilityLabel={o.value ? 'Multiple colors as rings' : 'Single color'}
             style={({ pressed }) => [
               styles.segment,
-              active && { backgroundColor: accent },
               pressed && styles.pressed,
             ]}>
-            <ThemedText type="smallBold" style={active && { color: contentColorOn(accent) }}>
+            {active && <Paper color={paperColor(accent)} seed={`mode-${o.label}`} radius="round" elevation={2} />}
+            <ThemedText type="smallBold" style={active && { color: contentColorOn(paperColor(accent)) }}>
               {o.label}
             </ThemedText>
           </Pressable>
@@ -110,17 +120,13 @@ export function ColorModeSwitch({ multi, accent, onChange }: ColorModeSwitchProp
 
 const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: SWATCH_GAP },
-  swatch: {
-    borderWidth: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  swatch: { alignItems: 'center', justifyContent: 'center' },
+  mounted: { top: 4, left: 4, right: 4, bottom: 4 },
   pressed: { opacity: 0.7 },
-  segments: { flexDirection: 'row', alignSelf: 'flex-start', borderRadius: 20, padding: Spacing.half },
+  segments: { flexDirection: 'row', alignSelf: 'flex-start', padding: Spacing.half },
   segment: {
     height: 36,
     paddingHorizontal: Spacing.three,
-    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },

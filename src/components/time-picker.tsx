@@ -2,6 +2,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useRef } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
+import { Paper } from '@/components/paper';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -62,7 +63,8 @@ function UnitField({
       <Pressable
         onPress={() => input.current?.focus()}
         accessible={false}
-        style={[styles.box, { backgroundColor: theme.face }]}>
+        style={styles.box}>
+        <Paper color={theme.face} seed={`unit-${short}`} radius={10} />
         <TextInput
           ref={input}
           value={String(value).padStart(2, '0')}
@@ -111,7 +113,6 @@ const styles = StyleSheet.create({
   box: {
     width: BOX_WIDTH,
     height: BOX_HEIGHT,
-    borderRadius: Spacing.three,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

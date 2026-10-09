@@ -2,9 +2,10 @@ import { Pause, Play, RotateCcw } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ColorButton } from '@/components/color-picker';
+import { Paper } from '@/components/paper';
 import { SoundButton } from '@/components/sound-picker';
 import { Spacing } from '@/constants/theme';
-import { contentColorOn } from '@/constants/timer-colors';
+import { contentColorOn, paperColor } from '@/constants/timer-colors';
 import { requestAlertPermission } from '@/platform/alerts';
 import { prepareSound } from '@/platform/sounds';
 import { useTheme } from '@/hooks/use-theme';
@@ -34,7 +35,8 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
   const primary = PRIMARY[timer.status];
   const canReset = timer.status !== 'idle';
   const primaryDisabled = !canStart && (timer.status === 'idle' || timer.status === 'finished');
-  const content = contentColorOn(color);
+  const paper = paperColor(color);
+  const content = contentColorOn(paper);
 
   const startWithAlerts = () => {
     // Ask on the first start, from the tap itself, so the prompt has context.
@@ -63,9 +65,10 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
           accessibilityLabel="Reset"
           style={({ pressed }) => [
             styles.circle,
-            { backgroundColor: theme.backgroundElement, opacity: canReset ? 1 : 0.35 },
+            { opacity: canReset ? 1 : 0.35 },
             pressed && styles.pressed,
           ]}>
+          <Paper color={theme.backgroundElement} seed="reset" radius="round" />
           <RotateCcw size={ICON} color={theme.text} />
         </Pressable>
       </View>
@@ -76,9 +79,10 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
         accessibilityLabel={primary.label}
         style={({ pressed }) => [
           styles.primary,
-          { backgroundColor: color, opacity: primaryDisabled ? 0.4 : 1 },
+          { opacity: primaryDisabled ? 0.4 : 1 },
           pressed && styles.primaryPressed,
         ]}>
+        <Paper color={paper} seed="primary" radius="round" elevation={2} tilt={0.6} />
         <primary.Glyph size={ICON} color={content} fill={content} />
       </Pressable>
     </View>
@@ -88,8 +92,8 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
 const styles = StyleSheet.create({
   container: { width: '100%', maxWidth: 420, alignSelf: 'center', paddingHorizontal: Spacing.four, gap: Spacing.three },
   row: { flexDirection: 'row', justifyContent: 'center', gap: Spacing.three },
-  circle: { width: SIZE, height: SIZE, borderRadius: SIZE / 2, alignItems: 'center', justifyContent: 'center' },
-  primary: { height: SIZE, borderRadius: SIZE / 2, alignItems: 'center', justifyContent: 'center' },
+  circle: { width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
+  primary: { height: SIZE, alignItems: 'center', justifyContent: 'center' },
   pressed: { transform: [{ scale: 0.94 }], opacity: 0.85 },
   // A gentler squeeze, since a wide button shrinking 6% moves its edges a lot.
   primaryPressed: { transform: [{ scale: 0.98 }], opacity: 0.85 },

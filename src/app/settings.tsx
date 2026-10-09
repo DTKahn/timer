@@ -5,10 +5,11 @@ import { Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } 
 import { useState } from 'react';
 
 import { ColorModeSwitch, ColorSwatches } from '@/components/color-swatches';
+import { Paper } from '@/components/paper';
 import { Sheet } from '@/components/sheet';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
-import { isHexColor } from '@/constants/timer-colors';
+import { isHexColor, paperColor } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
 import { useFavorites } from '@/store/favorites';
 import { useSettings } from '@/store/settings';
@@ -53,8 +54,17 @@ export default function SettingsScreen() {
             </ThemedText>
             ) : (
             <View style={styles.hexRow}>
-              <View style={[styles.hexPreview, { backgroundColor: isHexColor(hex) ? hex : 'transparent', borderColor: theme.backgroundSelected }]} />
-              <TextInput
+              <View style={styles.hexPreview}>
+                <Paper
+                  color={isHexColor(hex) ? paperColor(hex) : theme.face}
+                  seed="hex-preview"
+                  radius="round"
+                  elevation={isHexColor(hex) ? 1 : 0}
+                />
+              </View>
+              <View style={styles.hexField}>
+                <Paper color={theme.background} seed="hex-field" radius={6} elevation={0} />
+                <TextInput
                 value={hex}
                 onChangeText={(text) => {
                   const next = text.startsWith('#') ? text : `#${text}`;
@@ -65,8 +75,9 @@ export default function SettingsScreen() {
                 autoCorrect={false}
                 maxLength={7}
                 accessibilityLabel="Custom color hex code"
-                style={[styles.hexInput, { color: theme.text, backgroundColor: theme.face }]}
-              />
+                  style={[styles.hexInput, { color: theme.text }]}
+                />
+              </View>
               <ThemedText type="small" themeColor="textSecondary">
                 Custom color
               </ThemedText>
@@ -185,11 +196,11 @@ const styles = StyleSheet.create({
   container: { paddingHorizontal: Spacing.four, paddingBottom: Spacing.four, gap: Spacing.five },
   section: { gap: Spacing.three },
   hexRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
-  hexPreview: { width: 28, height: 28, borderRadius: 14, borderWidth: 1 },
+  hexPreview: { width: 28, height: 28 },
+  hexField: { width: 110, height: 40 },
   hexInput: {
     width: 110,
     height: 40,
-    borderRadius: Spacing.two,
     paddingHorizontal: Spacing.three,
     fontSize: 16,
     fontFamily: Fonts.regular,

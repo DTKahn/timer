@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 
+import { Paper } from '@/components/paper';
 import { Sheet } from '@/components/sheet';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
@@ -36,10 +37,8 @@ export default function HistoryScreen() {
             }}
             accessibilityRole="button"
             accessibilityLabel={`Set timer to ${formatShort(ms)}`}
-            style={({ pressed }) => [
-              styles.card,
-              { backgroundColor: pressed ? theme.backgroundElement : theme.face },
-            ]}>
+            style={({ pressed }) => [styles.card, pressed && { opacity: 0.7 }]}>
+            <Paper color={theme.backgroundElement} seed={`history-${ms}`} radius={6} />
             <ThemedText style={styles.duration}>{formatShort(ms)}</ThemedText>
           </Pressable>
         )}
@@ -54,7 +53,6 @@ const styles = StyleSheet.create({
   card: {
     paddingVertical: Spacing.three,
     paddingHorizontal: Spacing.four,
-    borderRadius: Spacing.three,
   },
   gap: { height: Spacing.two },
   duration: { fontSize: 20, lineHeight: 26, fontFamily: Fonts.bold },
