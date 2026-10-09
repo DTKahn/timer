@@ -2,7 +2,7 @@ import { useId, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Svg, { Defs, G, LinearGradient, Mask, Rect, Stop } from 'react-native-svg';
 
-import { GrainTiles, Paper, usePaperLook } from '@/components/paper';
+import { Grain, Paper } from '@/components/paper';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { contentColorOn, paperColor } from '@/constants/timer-colors';
@@ -65,7 +65,6 @@ export function DurationChips({ durations, selected, color, onSelect }: Duration
                 color={active ? paper : theme.backgroundElement}
                 seed={`chip-${ms}`}
                 radius="round"
-                elevation={active ? 2 : 1}
               />
               <ThemedText type="smallBold" style={active && { color: contentColorOn(paper) }}>
                 {formatShort(ms)}
@@ -85,7 +84,6 @@ export function DurationChips({ durations, selected, color, onSelect }: Duration
  * middle. It carries the paper's grain so it doesn't show as a flat band.
  */
 function Fade({ side, color }: { side: 'left' | 'right'; color: string }) {
-  const look = usePaperLook();
   // useId's colons aren't valid in an SVG url() reference.
   const id = `fade${useId().replace(/:/g, '')}`;
   const [from, to] = side === 'left' ? [1, 0] : [0, 1];
@@ -104,9 +102,7 @@ function Fade({ side, color }: { side: 'left' | 'right'; color: string }) {
         </Defs>
         <G mask={`url(#${id}m)`}>
           <Rect width={FADE_WIDTH} height={height} fill={color} />
-          <G opacity={look.grain}>
-            <GrainTiles width={FADE_WIDTH} height={height} seed={`fade-${side}`} />
-          </G>
+          <Grain color={color} width={FADE_WIDTH} height={height} seed={`fade-${side}`} />
         </G>
       </Svg>
     </View>

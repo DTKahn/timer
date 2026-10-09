@@ -59,11 +59,11 @@ export default function SettingsScreen() {
                   color={isHexColor(hex) ? paperColor(hex) : theme.face}
                   seed="hex-preview"
                   radius="round"
-                  elevation={isHexColor(hex) ? 1 : 0}
+                  lift={isHexColor(hex) ? 'raised' : 'glued'}
                 />
               </View>
               <View style={styles.hexField}>
-                <Paper color={theme.background} seed="hex-field" radius={6} elevation={0} />
+                <Paper color={theme.background} seed="hex-field" radius={6} lift="glued" />
                 <TextInput
                 value={hex}
                 onChangeText={(text) => {

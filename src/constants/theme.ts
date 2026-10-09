@@ -4,13 +4,14 @@
  * same grain; only the color differs.
  */
 export const PaperPack = {
-  white: '#FBF7EE',
+  // Real construction paper: white is a dull off-white and black a warm, faded charcoal.
+  white: '#EDEAE2',
   manila: '#EAE0CB',
   oatmeal: '#D7C7A7',
   kraft: '#B48C61',
   lightGray: '#C5C7C4',
-  charcoal: '#3A3937',
-  black: '#1D1D1C',
+  charcoal: '#4C4843',
+  black: '#38342F',
 } as const;
 
 /**
@@ -33,32 +34,60 @@ export const Colors = {
     textSecondary: '#AAA8A2',
     background: PaperPack.black,
     backgroundElement: PaperPack.charcoal,
-    backgroundSelected: '#55534F',
+    backgroundSelected: '#615C56',
     face: PaperPack.charcoal,
     tick: '#F1EFEA',
   },
 } as const;
 
+/**
+ * How high a piece sits on what's under it: glued flat (the dial face on the
+ * page), raised (a button), or lifted (a torn panel floating above everything).
+ */
+export type Lift = 'glued' | 'raised' | 'lifted';
+
+/** One shadow layer: drop in points, blur (standard deviation) in points, opacity. */
+type ShadowLayer = { dy: number; blur: number; opacity: number };
+
 /** How paper pieces are drawn in each scheme (see components/paper). */
-export const PaperLook = {
+export const PaperLook: Record<
+  'light' | 'dark',
+  { shadowColor: string; lifts: Record<Lift, ShadowLayer[]>; cutFibers: number }
+> = {
   light: {
-    /** Opacity of the fiber texture; the same on every sheet. */
-    grain: 1,
-    /** Shadow opacity for a piece one layer up; higher layers add a little. */
-    shadow: 0.2,
-    /** How far torn fibers are lightened from the sheet's own color, toward white. */
-    fringe: 0.6,
+    // A warm brown shadow, like daylight on paper, rather than gray.
+    shadowColor: '#2B1E0F',
+    lifts: {
+      glued: [{ dy: 0.5, blur: 0.2, opacity: 0.3 }],
+      raised: [
+        { dy: 1, blur: 0.5, opacity: 0.2 },
+        { dy: 3, blur: 2.5, opacity: 0.18 },
+      ],
+      lifted: [
+        { dy: 2, blur: 1, opacity: 0.16 },
+        { dy: 10, blur: 8, opacity: 0.22 },
+      ],
+    },
     /** Paleness of the cut fibers along scissor-cut edges. */
     cutFibers: 0.16,
   },
   dark: {
-    grain: 0.75,
-    shadow: 0.55,
-    // Black and charcoal paper tear to a grayish core, not a white one.
-    fringe: 0.1,
+    // Shadows need more weight to read at all on black paper.
+    shadowColor: '#000000',
+    lifts: {
+      glued: [{ dy: 0.6, blur: 0.25, opacity: 0.65 }],
+      raised: [
+        { dy: 1, blur: 0.5, opacity: 0.55 },
+        { dy: 3, blur: 3, opacity: 0.5 },
+      ],
+      lifted: [
+        { dy: 2, blur: 1, opacity: 0.5 },
+        { dy: 10, blur: 9, opacity: 0.6 },
+      ],
+    },
     cutFibers: 0.07,
   },
-} as const;
+};
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 

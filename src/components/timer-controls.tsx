@@ -82,7 +82,7 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
           { opacity: primaryDisabled ? 0.4 : 1 },
           pressed && styles.primaryPressed,
         ]}>
-        <Paper color={paper} seed="primary" radius="round" elevation={2} tilt={0.6} />
+        <Paper color={paper} seed="primary" radius="round" tilt={0.6} />
         <primary.Glyph size={ICON} color={content} fill={content} />
       </Pressable>
     </View>

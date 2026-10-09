@@ -2,16 +2,20 @@ import { memo, useId, useMemo, useState } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { ClipPath, Defs, FeGaussianBlur, Filter, G, Image, Path, Rect } from 'react-native-svg';
 
-import { PaperLook } from '@/constants/theme';
-import { isHexColor } from '@/constants/timer-colors';
+import { PaperLook, type Lift } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { edgeTones, fiberOpacity } from '@/paper/grain';
 import { cutOutline, hash, polygonPath, seededTilt, tornOutline } from '@/paper/outline';
+import { tornFibers } from '@/paper/torn';
 
-const GRAIN = require('@/assets/images/paper-grain.png');
-/** The grain image is 480px, drawn at 160pt per tile so fibers stay fine on 3x screens. */
+const FIBERS_LIGHT = require('@/assets/images/paper-fibers-light.png');
+const FIBERS_DARK = require('@/assets/images/paper-fibers-dark.png');
+/** The fiber images are 480px, drawn at 160pt per tile so fibers stay fine on 3x screens. */
 export const GRAIN_TILE = 160;
-/** Room around a piece for its shadow and edge; the drawing overflows the piece's box by this much. */
-const BLEED = 14;
+/** How many torn-edge strands to draw: at phone scale half the full count looks the same and halves the path data. */
+const TORN_DENSITY = 0.5;
+
+export type { Lift };
 
 export function usePaperLook() {
   return PaperLook[useColorScheme() === 'dark' ? 'dark' : 'light'];
@@ -22,11 +26,13 @@ export function useSvgId(prefix: string) {
   return `${prefix}${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
 }
 
-/**
- * Grain image tiles covering a w×h area, shifted by the seed so neighboring
- * pieces don't show the same fibers.
- */
-export function GrainTiles({ width, height, seed, x = 0, y = 0 }: { width: number; height: number; seed: string; x?: number; y?: number }) {
+/** Room around a piece for its shadow (and torn fibers) at this lift. */
+export function bleedFor(lift: Lift) {
+  const layers = [...PaperLook.light.lifts[lift], ...PaperLook.dark.lifts[lift]];
+  return Math.ceil(Math.max(...layers.map((l) => l.dy + l.blur * 3))) + 4;
+}
+
+function Tiles({ href, width, height, seed, x, y }: { href: number; width: number; height: number; seed: string; x: number; y: number }) {
   const h = hash(seed);
   const ox = x - (h % GRAIN_TILE);
   const oy = y - ((h >>> 9) % GRAIN_TILE);
@@ -34,19 +40,60 @@ export function GrainTiles({ width, height, seed, x = 0, y = 0 }: { width: numbe
   for (let ty = oy; ty < y + height; ty += GRAIN_TILE) {
     for (let tx = ox; tx < x + width; tx += GRAIN_TILE) {
       tiles.push(
-        <Image
-          key={`${tx},${ty}`}
-          href={GRAIN}
-          x={tx}
-          y={ty}
-          width={GRAIN_TILE}
-          height={GRAIN_TILE}
-          preserveAspectRatio="none"
-        />,
+        <Image key={`${tx},${ty}`} href={href} x={tx} y={ty} width={GRAIN_TILE} height={GRAIN_TILE} preserveAspectRatio="none" />,
       );
     }
   }
   return <>{tiles}</>;
+}
+
+/**
+ * The fiber grain of a sheet of `color`, covering a w×h area: lighter and
+ * darker fibers of the sheet's own color. The seed shifts it so neighboring
+ * pieces don't show the same fibers.
+ */
+export function Grain({ color, width, height, seed, x = 0, y = 0 }: { color: string; width: number; height: number; seed: string; x?: number; y?: number }) {
+  const { light, dark } = fiberOpacity(color);
+  return (
+    <>
+      <G opacity={light}>
+        <Tiles href={FIBERS_LIGHT} width={width} height={height} seed={seed} x={x} y={y} />
+      </G>
+      <G opacity={dark}>
+        <Tiles href={FIBERS_DARK} width={width} height={height} seed={`${seed}:dark`} x={x} y={y} />
+      </G>
+    </>
+  );
+}
+
+/**
+ * A piece's shadow for its lift: one or two blurred, offset copies of its
+ * silhouette. Needs the piece's coordinates (draw it inside the piece's G).
+ */
+export function PaperShadow({ d, lift, id, width, height }: { d: string; lift: Lift; id: string; width: number; height: number }) {
+  const bleed = bleedFor(lift);
+  const look = usePaperLook();
+  return (
+    <>
+      {look.lifts[lift].map((layer, i) => (
+        <G key={i} transform={`translate(0 ${layer.dy})`}>
+          {layer.blur >= 0.3 && (
+            <Defs>
+              <Filter id={`${id}s${i}`} filterUnits="userSpaceOnUse" x={-bleed} y={-bleed} width={width + bleed * 2} height={height + bleed * 2}>
+                <FeGaussianBlur stdDeviation={layer.blur} />
+              </Filter>
+            </Defs>
+          )}
+          <Path
+            d={d}
+            fill={look.shadowColor}
+            opacity={layer.opacity}
+            filter={layer.blur >= 0.3 ? `url(#${id}s${i})` : undefined}
+          />
+        </G>
+      ))}
+    </>
+  );
 }
 
 export type PaperProps = {
@@ -55,10 +102,10 @@ export type PaperProps = {
   seed: string;
   /** Corner radius; 'round' makes a circle or pill from the piece's shorter side. */
   radius?: number | 'round';
-  /** Scissor cut for small pieces, torn with a fiber fringe for big ones. */
+  /** Scissor cut for small pieces, torn by hand for big ones. */
   edge?: 'cut' | 'torn';
-  /** How many layers of paper it sits above what's under it; deeper casts a larger shadow. */
-  elevation?: 0 | 1 | 2 | 3;
+  /** Glued flat to what's under it, raised (a button), or lifted (a panel floating above). */
+  lift?: Lift;
   /** Largest tilt in degrees; the actual tilt is seeded and shrinks for wide pieces. */
   tilt?: number;
   /** Drawn inside the outline instead of the flat color (e.g. the rainbow), in the piece's coordinates. */
@@ -68,39 +115,39 @@ export type PaperProps = {
 
 /**
  * A piece of construction paper filling its parent: a seeded scissor-cut or
- * torn outline, flat paper color with fiber grain, and a short soft shadow.
- * Put it first inside a view; the view's other children sit on the paper.
+ * torn outline, the paper's color with its fiber grain, and a shadow for how
+ * high it sits. Put it first inside a view; the view's other children sit on
+ * the paper.
  */
 export const Paper = memo(function Paper({
   color,
   seed,
   radius = 12,
   edge = 'cut',
-  elevation = 1,
+  lift = 'raised',
   tilt = 1,
   art,
   style,
 }: PaperProps) {
-  const look = usePaperLook();
+  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const id = useSvgId('paper');
   const [size, setSize] = useState({ width: 0, height: 0 });
   const { width: w, height: h } = size;
+  const bleed = bleedFor(lift);
 
-  const outline = useMemo(() => {
+  const shape = useMemo(() => {
     if (w <= 0 || h <= 0) return null;
     const r = radius === 'round' ? Math.min(w, h) / 2 : radius;
     const options = { radius: r, seed, tilt: seededTilt(seed, Math.max(w, h), tilt) };
     if (edge === 'torn') {
       const { edge: main, fringe } = tornOutline(w, h, options);
-      return { main: polygonPath(main), fringe: polygonPath(fringe) };
+      return { main: polygonPath(main), silhouette: polygonPath(fringe), fibers: tornFibers(main, fringe, seed, TORN_DENSITY) };
     }
-    return { main: polygonPath(cutOutline(w, h, options)), fringe: null };
+    const main = polygonPath(cutOutline(w, h, options));
+    return { main, silhouette: main, fibers: null };
   }, [w, h, radius, edge, seed, tilt]);
 
-  // Short, soft shadow: paper resting on paper, a bit longer per layer.
-  const blur = 0.8 + elevation * 0.9;
-  const drop = 0.6 + elevation * 0.9;
-  const shadowOpacity = Math.min(0.9, look.shadow * (1 + (elevation - 1) * 0.25));
+  const tones = edgeTones(color, scheme === 'dark');
 
   return (
     <View
@@ -110,39 +157,35 @@ export const Paper = memo(function Paper({
         const { width, height } = e.nativeEvent.layout;
         setSize((s) => (s.width === width && s.height === height ? s : { width, height }));
       }}>
-      {outline && (
-        <Svg
-          width={w + BLEED * 2}
-          height={h + BLEED * 2}
-          style={{ position: 'absolute', left: -BLEED, top: -BLEED }}>
+      {shape && (
+        <Svg width={w + bleed * 2} height={h + bleed * 2} style={{ position: 'absolute', left: -bleed, top: -bleed }}>
           <Defs>
             <ClipPath id={`${id}c`}>
-              <Path d={outline.main} />
+              <Path d={shape.main} />
             </ClipPath>
-            {elevation > 0 && (
-              <Filter
-                id={`${id}s`}
-                filterUnits="userSpaceOnUse"
-                x={-BLEED}
-                y={-BLEED}
-                width={w + BLEED * 2}
-                height={h + BLEED * 2}>
-                <FeGaussianBlur stdDeviation={blur} />
-              </Filter>
-            )}
           </Defs>
-          <G transform={`translate(${BLEED} ${BLEED})`}>
-            {elevation > 0 && (
-              <G transform={`translate(${drop * 0.35} ${drop})`}>
-                <Path d={outline.fringe ?? outline.main} fill="#000" opacity={shadowOpacity} filter={`url(#${id}s)`} />
+          <G transform={`translate(${bleed} ${bleed})`}>
+            <PaperShadow d={shape.silhouette} lift={lift} id={id} width={w} height={h} />
+            {shape.fibers && (
+              <G strokeLinecap="round" fill="none">
+                <Path d={shape.fibers.mat[0]} stroke={tones[0]} strokeWidth={0.16} strokeOpacity={0.7} />
+                <Path d={shape.fibers.mat[1]} stroke={tones[1]} strokeWidth={0.2} strokeOpacity={0.85} />
+                <Path d={shape.fibers.mat[2]} stroke={tones[2]} strokeWidth={0.22} strokeOpacity={0.95} />
+                <Path d={shape.fibers.wisps} stroke={tones[1]} strokeWidth={0.14} strokeOpacity={0.6} />
               </G>
             )}
-            {outline.fringe && <Path d={outline.fringe} fill={mix(color, '#FFFFFF', look.fringe)} />}
-            {art ? <G clipPath={`url(#${id}c)`}>{art(w, h)}</G> : <Path d={outline.main} fill={color} />}
-            <G clipPath={`url(#${id}c)`} opacity={look.grain}>
-              <GrainTiles width={w + 8} height={h + 8} seed={seed} x={-4} y={-4} />
+            {art ? <G clipPath={`url(#${id}c)`}>{art(w, h)}</G> : <Path d={shape.main} fill={color} />}
+            <G clipPath={`url(#${id}c)`}>
+              <Grain color={color} width={w + 8} height={h + 8} seed={seed} x={-4} y={-4} />
             </G>
-            {edge === 'cut' && <CutEdge d={outline.main} clipId={`${id}c`} />}
+            {shape.fibers ? (
+              <G strokeLinecap="round" fill="none">
+                <Path d={shape.fibers.colored} stroke={tones[0]} strokeWidth={0.2} strokeOpacity={0.9} />
+                <Path d={shape.fibers.crossing} stroke={tones[1]} strokeWidth={0.16} strokeOpacity={0.6} />
+              </G>
+            ) : (
+              <CutEdge d={shape.main} clipId={`${id}c`} />
+            )}
           </G>
         </Svg>
       )}
@@ -173,21 +216,8 @@ export function CutEdge({ d, clipId }: { d: string; clipId: string }) {
   );
 }
 
-/** `color` moved `t` of the way toward `toward` (both hex). */
-function mix(color: string, toward: string, t: number) {
-  if (!isHexColor(color) || !isHexColor(toward)) return color;
-  const rgb = (hex: string) => {
-    let h = hex.replace('#', '');
-    if (h.length === 3) h = [...h].map((c) => c + c).join('');
-    return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
-  };
-  const [a, b] = [rgb(color), rgb(toward)];
-  return `#${a.map((c, i) => Math.round(c + (b[i] - c) * t).toString(16).padStart(2, '0')).join('')}`;
-}
-
 /** A full-size sheet of background paper with its grain, behind a whole screen. */
 export function PaperBackdrop({ color, seed = 'backdrop' }: { color: string; seed?: string }) {
-  const look = usePaperLook();
   const [size, setSize] = useState({ width: 0, height: 0 });
   return (
     <View
@@ -200,9 +230,7 @@ export function PaperBackdrop({ color, seed = 'backdrop' }: { color: string; see
       {size.width > 0 && (
         <Svg width={size.width} height={size.height}>
           <Rect width={size.width} height={size.height} fill={color} />
-          <G opacity={look.grain}>
-            <GrainTiles width={size.width} height={size.height} seed={seed} />
-          </G>
+          <Grain color={color} width={size.width} height={size.height} seed={seed} />
         </Svg>
       )}
     </View>

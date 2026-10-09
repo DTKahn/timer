@@ -77,7 +77,6 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
                         color={selected ? paperColor(color) : theme.backgroundElement}
                         seed={`sound-${s.id}`}
                         radius="round"
-                        elevation={selected ? 2 : 1}
                       />
                       <SoundIcon id={s.id} size={Math.round(swatch * ICON_RATIO)} color={iconColor} />
                     </View>

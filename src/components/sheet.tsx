@@ -28,7 +28,7 @@ export function Sheet({
       <PaperBackdrop color={theme.background} />
       <SafeAreaView style={styles.safe}>
         <View style={styles.inner}>
-          <Paper color={theme.face} seed={`sheet-${title}`} edge="torn" radius={4} elevation={2} tilt={0.3} />
+          <Paper color={theme.face} seed={`sheet-${title}`} edge="torn" radius={4} lift="lifted" tilt={0.3} />
           <View style={styles.header}>
             <View style={styles.side}>{onBack && <HeaderButton label="Back" icon={ChevronLeft} onPress={onBack} />}</View>
             <ThemedText type="smallBold" style={styles.title} numberOfLines={1}>

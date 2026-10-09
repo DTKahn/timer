@@ -56,7 +56,7 @@ export function ColorSwatches({ value, multi = false, onPress }: ColorSwatchesPr
               pressed && styles.pressed,
             ]}>
             {/* A picked color is mounted on a disc of dark paper, standing a layer higher. */}
-            {isSelected && <Paper color={theme.text} seed={`mat-${c.value}`} radius="round" elevation={2} />}
+            {isSelected && <Paper color={theme.text} seed={`mat-${c.value}`} radius="round" />}
             <Paper
               color={paper}
               seed={`swatch-${c.value}`}
@@ -93,7 +93,7 @@ export function ColorModeSwitch({ multi, accent, onChange }: ColorModeSwitchProp
   ];
   return (
     <View style={styles.segments} accessibilityRole="radiogroup">
-      <Paper color={theme.backgroundElement} seed="mode-switch" radius="round" />
+      <Paper color={theme.backgroundElement} seed="mode-switch" radius="round" lift="glued" />
       {options.map((o) => {
         const active = o.value === multi;
         return (
@@ -107,7 +107,7 @@ export function ColorModeSwitch({ multi, accent, onChange }: ColorModeSwitchProp
               styles.segment,
               pressed && styles.pressed,
             ]}>
-            {active && <Paper color={paperColor(accent)} seed={`mode-${o.label}`} radius="round" elevation={2} />}
+            {active && <Paper color={paperColor(accent)} seed={`mode-${o.label}`} radius="round" />}
             <ThemedText type="smallBold" style={active && { color: contentColorOn(paperColor(accent)) }}>
               {o.label}
             </ThemedText>

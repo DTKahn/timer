@@ -1,8 +1,8 @@
 import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { ClipPath, Defs, FeGaussianBlur, Filter, G, Line, Path } from 'react-native-svg';
+import Svg, { ClipPath, Defs, G, Line, Path } from 'react-native-svg';
 
-import { CutEdge, GrainTiles, usePaperLook, useSvgId } from '@/components/paper';
+import { bleedFor, CutEdge, Grain, PaperShadow, usePaperLook, useSvgId } from '@/components/paper';
 import { paperColor } from '@/constants/timer-colors';
 import { useTheme } from '@/hooks/use-theme';
 import { polar, ringBands } from '@/timer/dial-geometry';
@@ -18,7 +18,7 @@ type PieDialProps = {
 
 const TICKS = Array.from({ length: 60 }, (_, i) => i);
 /** The drawing overflows the dial's box by this much so the face's shadow isn't clipped. */
-const BLEED = 12;
+const BLEED = bleedFor('glued');
 
 type Ring = { inner: number; outer: number; color: string; outerCut: CircleCut; innerCut: CircleCut };
 
@@ -55,7 +55,6 @@ export function PieDial({ fraction, colors, size }: PieDialProps) {
 
 const DialFace = memo(function DialFace({ size, rings }: { size: number; rings: Ring[] }) {
   const theme = useTheme();
-  const look = usePaperLook();
   const id = useSvgId('face');
   const c = size / 2;
   const face = c - 3;
@@ -67,17 +66,13 @@ const DialFace = memo(function DialFace({ size, rings }: { size: number; rings: 
         <ClipPath id={`${id}c`}>
           <Path d={outline} />
         </ClipPath>
-        <Filter id={`${id}s`} filterUnits="userSpaceOnUse" x={0} y={0} width={size + BLEED * 2} height={size + BLEED * 2}>
-          <FeGaussianBlur stdDeviation={3} />
-        </Filter>
       </Defs>
       <G transform={`translate(${BLEED} ${BLEED})`}>
-        <G transform="translate(1 3)">
-          <Path d={outline} fill="#000" opacity={look.shadow * 1.3} filter={`url(#${id}s)`} />
-        </G>
+        {/* Glued flat to the page: only a hairline of shadow where the paper's thickness meets it. */}
+        <PaperShadow d={outline} lift="glued" id={id} width={size} height={size} />
         <Path d={outline} fill={theme.face} />
-        <G clipPath={`url(#${id}c)`} opacity={look.grain}>
-          <GrainTiles width={size} height={size} seed="dial-face" />
+        <G clipPath={`url(#${id}c)`}>
+          <Grain color={theme.face} width={size} height={size} seed="dial-face" />
         </G>
         <CutEdge d={outline} clipId={`${id}c`} />
         {/* Faint full-size ghost of the wedge so an empty dial still shows its colors. */}
@@ -124,6 +119,7 @@ function Wedge({ size, rings, fraction }: { size: number; rings: Ring[]; fractio
   }));
   const all = paths.map((p) => p.d).join('');
   if (!all) return null;
+  const glued = look.lifts.glued[0];
 
   return (
     <Svg width={size} height={size} style={styles.layer}>
@@ -132,18 +128,15 @@ function Wedge({ size, rings, fraction }: { size: number; rings: Ring[]; fractio
           <Path d={all} clipRule="evenodd" />
         </ClipPath>
       </Defs>
-      {/* A soft-edged shadow from two stacked offsets rather than a blur, which would be redone every frame. */}
-      <G transform="translate(0.4 1.6)">
-        <Path d={all} fill="#000" fillRule="evenodd" opacity={look.shadow * 0.45} />
-      </G>
-      <G transform="translate(0.2 0.7)">
-        <Path d={all} fill="#000" fillRule="evenodd" opacity={look.shadow * 0.5} />
+      {/* Glued to the face: a hairline offset shadow, with no blur to redo every frame. */}
+      <G transform={`translate(0 ${glued.dy})`}>
+        <Path d={all} fill={look.shadowColor} fillRule="evenodd" opacity={glued.opacity} />
       </G>
       {paths.map((p, i) => (
         <Path key={i} d={p.d} fill={p.color} fillRule="evenodd" />
       ))}
-      <G clipPath={`url(#${id}c)`} opacity={look.grain}>
-        <GrainTiles width={size} height={size} seed="dial-wedge" />
+      <G clipPath={`url(#${id}c)`}>
+        <Grain color={rings[0].color} width={size} height={size} seed="dial-wedge" />
       </G>
       {paths.map((p, i) => (
         <CutEdge key={i} d={p.d} clipId={`${id}c`} />

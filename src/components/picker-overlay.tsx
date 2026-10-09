@@ -45,7 +45,7 @@ export function PickerOverlay({ visible, title, label, onClose, children }: Pick
             if (top === null) setTop(e.nativeEvent.layout.y - OVERLAY_PADDING);
           }}
           style={[styles.panel, top !== null && { marginTop: top }]}>
-          <Paper color={theme.face} seed={`overlay-${title}`} edge="torn" radius={6} elevation={3} tilt={0.4} />
+          <Paper color={theme.face} seed={`overlay-${title}`} edge="torn" radius={6} lift="lifted" tilt={0.4} />
           <ThemedText type="smallBold">{title}</ThemedText>
           {children}
         </View>
