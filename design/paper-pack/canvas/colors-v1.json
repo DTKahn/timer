@@ -1,0 +1,255 @@
+{
+ "timer": [
+  {
+   "name": "Red",
+   "screen": "#E5484D",
+   "paper": "#D14D4D",
+   "shades": [
+    "#D76262",
+    "#923636"
+   ]
+  },
+  {
+   "name": "Tomato",
+   "screen": "#E54D2E",
+   "paper": "#D15135",
+   "shades": [
+    "#D7664D",
+    "#923925"
+   ]
+  },
+  {
+   "name": "Orange",
+   "screen": "#F76B15",
+   "paper": "#E36D25",
+   "shades": [
+    "#E67F3F",
+    "#9F4C1A"
+   ]
+  },
+  {
+   "name": "Amber",
+   "screen": "#FFB224",
+   "paper": "#F1AE37",
+   "shades": [
+    "#F3B84F",
+    "#B7842A"
+   ]
+  },
+  {
+   "name": "Yellow",
+   "screen": "#FFE629",
+   "paper": "#F6DD40",
+   "shades": [
+    "#F7E157",
+    "#D2BD37"
+   ]
+  },
+  {
+   "name": "Lime",
+   "screen": "#BDEE63",
+   "paper": "#BEE26B",
+   "shades": [
+    "#C6E57D",
+    "#9EBC59"
+   ]
+  },
+  {
+   "name": "Grass",
+   "screen": "#46A758",
+   "paper": "#4F9C57",
+   "shades": [
+    "#64A86B",
+    "#376D3D"
+   ]
+  },
+  {
+   "name": "Green",
+   "screen": "#30A46C",
+   "paper": "#3B9966",
+   "shades": [
+    "#53A578",
+    "#296B47"
+   ]
+  },
+  {
+   "name": "Teal",
+   "screen": "#12A594",
+   "paper": "#229984",
+   "shades": [
+    "#3DA593",
+    "#186B5C"
+   ]
+  },
+  {
+   "name": "Cyan",
+   "screen": "#00A2C7",
+   "paper": "#1396AB",
+   "shades": [
+    "#2FA3B5",
+    "#0D6978"
+   ]
+  },
+  {
+   "name": "Sky",
+   "screen": "#7CE2FE",
+   "paper": "#86D7E2",
+   "shades": [
+    "#95DCE5",
+    "#6BACB5"
+   ]
+  },
+  {
+   "name": "Blue",
+   "screen": "#0090FF",
+   "paper": "#1287D6",
+   "shades": [
+    "#2E95DB",
+    "#0D5E96"
+   ]
+  },
+  {
+   "name": "Indigo",
+   "screen": "#3E63DD",
+   "paper": "#4460BA",
+   "shades": [
+    "#5972C2",
+    "#304382"
+   ]
+  },
+  {
+   "name": "Violet",
+   "screen": "#6E56CF",
+   "paper": "#6C57B0",
+   "shades": [
+    "#7C6AB9",
+    "#4C3D7B"
+   ]
+  },
+  {
+   "name": "Purple",
+   "screen": "#8E4EC6",
+   "paper": "#8751AA",
+   "shades": [
+    "#9565B4",
+    "#5E3977"
+   ]
+  },
+  {
+   "name": "Plum",
+   "screen": "#AB4ABA",
+   "paper": "#A04EA1",
+   "shades": [
+    "#AB63AC",
+    "#703771"
+   ]
+  },
+  {
+   "name": "Pink",
+   "screen": "#D6409F",
+   "paper": "#C5478D",
+   "shades": [
+    "#CC5D9B",
+    "#8A3263"
+   ]
+  },
+  {
+   "name": "Ruby",
+   "screen": "#E54666",
+   "paper": "#D24C61",
+   "shades": [
+    "#D76174",
+    "#933544"
+   ]
+  },
+  {
+   "name": "Brown",
+   "screen": "#AD7F58",
+   "paper": "#A57D58",
+   "shades": [
+    "#B08D6C",
+    "#73583E"
+   ]
+  },
+  {
+   "name": "Graphite",
+   "screen": "#60646C",
+   "paper": "#606162",
+   "shades": [
+    "#717172",
+    "#434445"
+   ]
+  }
+ ],
+ "pack": [
+  {
+   "name": "White",
+   "paper": "#FBF7EE",
+   "mode": "light",
+   "shades": [
+    "#FBF8F0",
+    "#E4E1D9"
+   ]
+  },
+  {
+   "name": "Manila",
+   "paper": "#EAE0CB",
+   "mode": "light",
+   "shades": [
+    "#EDE4D1",
+    "#CBC3B0"
+   ]
+  },
+  {
+   "name": "Oatmeal",
+   "paper": "#D7C7A7",
+   "mode": "light",
+   "shades": [
+    "#DCCEB2",
+    "#AB9F85"
+   ]
+  },
+  {
+   "name": "Kraft",
+   "paper": "#B48C61",
+   "mode": "light",
+   "shades": [
+    "#BD9A74",
+    "#7E6244"
+   ]
+  },
+  {
+   "name": "Light Gray",
+   "paper": "#C5C7C4",
+   "mode": "light",
+   "shades": [
+    "#CCCECB",
+    "#9C9D9B"
+   ]
+  },
+  {
+   "name": "Charcoal",
+   "paper": "#3A3937",
+   "mode": "dark",
+   "shades": [
+    "#464644",
+    "#292826"
+   ]
+  },
+  {
+   "name": "Black",
+   "paper": "#1D1D1C",
+   "mode": "dark",
+   "shades": [
+    "#282827",
+    "#141414"
+   ]
+  }
+ ],
+ "extra": {
+  "#D24A4E": [
+   "#D76063",
+   "#933437"
+  ]
+ }
+}

@@ -1,0 +1,5 @@
+# Generated: rebuild with `node canvas/gen.js` and `python3 canvas/check/build.py ...`
+canvas/project/
+canvas/check/*.html
+canvas/check/*.png
+__pycache__/

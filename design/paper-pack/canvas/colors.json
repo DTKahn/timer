@@ -1,0 +1,282 @@
+{
+ "timer": [
+  {
+   "name": "Red",
+   "screen": "#E5484D",
+   "paper": "#D14D4D",
+   "shades": [
+    "#DA7171",
+    "#923636"
+   ],
+   "now": "#D14D4D"
+  },
+  {
+   "name": "Tomato",
+   "screen": "#E54D2E",
+   "paper": "#D15135",
+   "shades": [
+    "#DA745D",
+    "#923925"
+   ],
+   "now": "#D15135"
+  },
+  {
+   "name": "Orange",
+   "screen": "#F76B15",
+   "paper": "#E36D25",
+   "shades": [
+    "#E98A51",
+    "#9F4C1A"
+   ],
+   "now": "#E36D25"
+  },
+  {
+   "name": "Amber",
+   "screen": "#FFB224",
+   "paper": "#F1AE37",
+   "shades": [
+    "#F4BE5F",
+    "#B7842A"
+   ],
+   "now": "#F1AE37"
+  },
+  {
+   "name": "Yellow",
+   "screen": "#FFE629",
+   "paper": "#F6DD40",
+   "shades": [
+    "#F8E466",
+    "#D2BD37"
+   ],
+   "now": "#F6DD40"
+  },
+  {
+   "name": "Lime",
+   "screen": "#BDEE63",
+   "paper": "#BEE26B",
+   "shades": [
+    "#CBE889",
+    "#9EBC59"
+   ],
+   "now": "#BEE26B"
+  },
+  {
+   "name": "Grass",
+   "screen": "#46A758",
+   "paper": "#4F9C57",
+   "shades": [
+    "#72B079",
+    "#376D3D"
+   ],
+   "now": "#4F9C57"
+  },
+  {
+   "name": "Green",
+   "screen": "#30A46C",
+   "paper": "#3B9966",
+   "shades": [
+    "#62AD85",
+    "#296B47"
+   ],
+   "now": "#3B9966"
+  },
+  {
+   "name": "Teal",
+   "screen": "#12A594",
+   "paper": "#229984",
+   "shades": [
+    "#4EAD9D",
+    "#186B5C"
+   ],
+   "now": "#229984"
+  },
+  {
+   "name": "Cyan",
+   "screen": "#00A2C7",
+   "paper": "#1396AB",
+   "shades": [
+    "#42ABBC",
+    "#0D6978"
+   ],
+   "now": "#1396AB"
+  },
+  {
+   "name": "Sky",
+   "screen": "#7CE2FE",
+   "paper": "#86D7E2",
+   "shades": [
+    "#9EDFE8",
+    "#6BACB5"
+   ],
+   "now": "#86D7E2"
+  },
+  {
+   "name": "Blue",
+   "screen": "#0090FF",
+   "paper": "#1287D6",
+   "shades": [
+    "#419FDE",
+    "#0D5E96"
+   ],
+   "now": "#1287D6"
+  },
+  {
+   "name": "Indigo",
+   "screen": "#3E63DD",
+   "paper": "#4460BA",
+   "shades": [
+    "#667DC7",
+    "#304382"
+   ],
+   "now": "#4460BA"
+  },
+  {
+   "name": "Violet",
+   "screen": "#6E56CF",
+   "paper": "#6C57B0",
+   "shades": [
+    "#8776BF",
+    "#4C3D7B"
+   ],
+   "now": "#6C57B0"
+  },
+  {
+   "name": "Purple",
+   "screen": "#8E4EC6",
+   "paper": "#8751AA",
+   "shades": [
+    "#9E72BA",
+    "#5E3977"
+   ],
+   "now": "#8751AA"
+  },
+  {
+   "name": "Plum",
+   "screen": "#AB4ABA",
+   "paper": "#A04EA1",
+   "shades": [
+    "#B371B4",
+    "#703771"
+   ],
+   "now": "#A04EA1"
+  },
+  {
+   "name": "Pink",
+   "screen": "#D6409F",
+   "paper": "#C5478D",
+   "shades": [
+    "#D16CA4",
+    "#8A3263"
+   ],
+   "now": "#C5478D"
+  },
+  {
+   "name": "Ruby",
+   "screen": "#E54666",
+   "paper": "#D24C61",
+   "shades": [
+    "#DB7081",
+    "#933544"
+   ],
+   "now": "#D24C61"
+  },
+  {
+   "name": "Brown",
+   "screen": "#AD7F58",
+   "paper": "#A57D58",
+   "shades": [
+    "#B79779",
+    "#73583E"
+   ],
+   "now": "#A57D58"
+  },
+  {
+   "name": "Graphite",
+   "screen": "#60646C",
+   "paper": "#606162",
+   "shades": [
+    "#7C7C7D",
+    "#434445"
+   ],
+   "now": "#606162"
+  }
+ ],
+ "pack": [
+  {
+   "name": "White",
+   "paper": "#EDEAE2",
+   "mode": "light",
+   "shades": [
+    "#F1EEE8",
+    "#D5D2CB"
+   ],
+   "now": "#FBF7EE"
+  },
+  {
+   "name": "Manila",
+   "paper": "#EAE0CB",
+   "mode": "light",
+   "shades": [
+    "#EEE6D5",
+    "#CBC3B0"
+   ],
+   "now": "#EAE0CB"
+  },
+  {
+   "name": "Oatmeal",
+   "paper": "#D7C7A7",
+   "mode": "light",
+   "shades": [
+    "#DFD2B9",
+    "#AB9F85"
+   ],
+   "now": "#D7C7A7"
+  },
+  {
+   "name": "Kraft",
+   "paper": "#B48C61",
+   "mode": "light",
+   "shades": [
+    "#C3A381",
+    "#7E6244"
+   ],
+   "now": "#B48C61"
+  },
+  {
+   "name": "Light Gray",
+   "paper": "#C5C7C4",
+   "mode": "light",
+   "shades": [
+    "#D1D2D0",
+    "#9C9D9B"
+   ],
+   "now": "#C5C7C4"
+  },
+  {
+   "name": "Charcoal",
+   "paper": "#4C4843",
+   "mode": "dark",
+   "shades": [
+    "#635F5B",
+    "#35322F"
+   ],
+   "now": "#3A3937"
+  },
+  {
+   "name": "Black",
+   "paper": "#38342F",
+   "mode": "dark",
+   "shades": [
+    "#4C4844",
+    "#272421"
+   ],
+   "now": "#1D1D1C"
+  }
+ ],
+ "extra": {
+  "#D24A4E": [
+   "#D76063",
+   "#933437"
+  ]
+ }
+}

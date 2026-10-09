@@ -1,0 +1,372 @@
+<title>Paper Collage Trials</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a quiet studio desk — three phones side by side, a switch for which screen, then close-ups and the trade-off ledger. */
+:root {
+  --bg: #e7e9e4;
+  --surface: #f5f6f2;
+  --ink: #1d211c;
+  --muted: #5d645b;
+  --line: #c9cdc4;
+  --accent: #c2412d;
+  --a: #2f6f5e;
+  --b: #7a4bb0;
+  --c: #b06a1e;
+  --good: #2f6f3a;
+  --bad: #a3342a;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171a17; --surface: #212521; --ink: #e9ece6; --muted: #9ba399; --line: #343a33;
+    --accent: #e8735f; --a: #6cc2a8; --b: #b994e6; --c: #e3a35c; --good: #7cc98a; --bad: #ef8a7d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171a17; --surface: #212521; --ink: #e9ece6; --muted: #9ba399; --line: #343a33;
+  --accent: #e8735f; --a: #6cc2a8; --b: #b994e6; --c: #e3a35c; --good: #7cc98a; --bad: #ef8a7d;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.55 var(--body); margin: 0; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 64px; display: grid; gap: 44px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.1; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.5rem; font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 700; }
+p { margin: 0; }
+.lede { max-width: 64ch; color: var(--muted); margin-top: 12px; }
+code, .mono { font-family: var(--mono); font-size: 0.84em; }
+header { display: grid; gap: 4px; }
+.eyebrow { font: 500 0.78rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+
+section { display: grid; gap: 18px; }
+.section-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button {
+  font: 700 0.86rem/1 var(--body); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.seg button:focus-visible, .shot:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.scroller { overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -20px; padding-inline: 20px; padding-bottom: 6px; }
+.trio { display: grid; grid-template-columns: repeat(3, minmax(250px, 1fr)); gap: 20px; }
+.col { scroll-snap-align: start; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.tag { display: flex; align-items: baseline; gap: 10px; }
+.letter { font: 700 1.6rem/1 var(--display); }
+.col[data-k="a"] .letter { color: var(--a); }
+.col[data-k="b"] .letter { color: var(--b); }
+.col[data-k="c"] .letter { color: var(--c); }
+.tag small { color: var(--muted); font-size: 0.86rem; }
+.shot {
+  display: block; width: 100%; padding: 0; border: 1px solid var(--line); border-radius: 22px; overflow: hidden;
+  background: var(--surface); cursor: zoom-in;
+}
+.shot img { display: block; width: 100%; height: auto; }
+.phone { aspect-ratio: 390 / 844; }
+.phone img { height: 100%; object-fit: cover; }
+.crop { border-radius: 12px; }
+.crops { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.hint { color: var(--muted); font-size: 0.9rem; }
+
+table { border-collapse: collapse; width: 100%; min-width: 760px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+th, td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 0.93rem; }
+tr:last-child td { border-bottom: 0; }
+thead th { font: 700 0.95rem/1.2 var(--display); }
+thead th:nth-child(2) { color: var(--a); } thead th:nth-child(3) { color: var(--b); } thead th:nth-child(4) { color: var(--c); }
+tbody th { color: var(--muted); font-weight: 700; width: 15%; }
+td ul { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
+.num { font-variant-numeric: tabular-nums; }
+.good { color: var(--good); font-weight: 700; }
+.bad { color: var(--bad); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+
+.verdict { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--a); border-radius: 14px; padding: 22px 24px; display: grid; gap: 10px; max-width: 78ch; }
+.verdict ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+
+.branches { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.branch { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 4px; min-width: 0; }
+.branch .mono { overflow-wrap: anywhere; color: var(--muted); }
+
+figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+figcaption { color: var(--muted); font-size: 0.92rem; max-width: 70ch; }
+.credit { display: block; font-size: 0.8rem; margin-top: 2px; }
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+dialog { border: 0; padding: 0; background: transparent; max-width: min(96vw, 900px); max-height: 94vh; }
+dialog::backdrop { background: rgba(0,0,0,0.75); }
+dialog img { display: block; max-width: 100%; max-height: 94vh; border-radius: 14px; }
+@media (prefers-reduced-motion: no-preference) { .shot img { transition: opacity .15s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Timer · design spike</span>
+    <h1>Paper Collage Trials</h1>
+    <p class="lede">Three builds of the same brief: construction paper, scissor-cut small pieces, torn large panels, short soft shadows, black paper in dark mode. Each was built on its own branch and photographed in a 390-point-wide web view. Tap any screenshot to enlarge it.</p>
+  </header>
+
+  <section aria-labelledby="r3-h">
+    <div>
+      <span class="eyebrow">Round 3 · texture study</span>
+      <h2 id="r3-h">What real construction paper looks like</h2>
+      <p class="hint">Photos of real construction paper next to the current grain and a prototype of the proposed one.</p>
+    </div>
+    <div class="refs">
+      <figure>
+        <button type="button" class="shot crop" data-zoom="img/ref-macro.jpg" aria-label="Enlarge: macro photo of cut yellow construction paper"><img src="img/ref-macro.jpg" alt="Macro photo of cut yellow construction paper over green paper" loading="lazy"></button>
+        <figcaption>Up close the surface is a soft felt. The fibers are the paper's own color, a shade lighter or darker, with the odd dark fiber bit. At the cut, a few same-color fibers stick out past the edge. <span class="credit">Photo: Quinn Dombrowski, CC BY-SA 2.0, via Wikimedia Commons.</span></figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot crop" data-zoom="img/ref-torn.jpg" aria-label="Enlarge: stack of torn construction paper"><img src="img/ref-torn.jpg" alt="Stack of colored construction paper sheets with torn edges" loading="lazy"></button>
+        <figcaption>At arm's length each sheet is a nearly flat, slightly dusty color with no blotches. Torn edges show a paler band of the same hue. <span class="credit">Photo: Todd Van Hoosear, CC BY-SA 2.0, via Wikimedia Commons.</span></figcaption>
+      </figure>
+    </div>
+    <figure>
+      <button type="button" class="shot crop" data-zoom="img/texture-compare.jpg" aria-label="Enlarge: reference, current grain, proposed grain"><img src="img/texture-compare.jpg" alt="Three columns: reference photo, current grain, proposed grain, on red, manila and black" loading="lazy"></button>
+      <figcaption>Left to right: the reference photo, the current grain, the proposed grain. Rows are red, manila and black paper. The current grain lays white and black specks over every color, so red gets pink salt and manila gets gray pepper. The proposed one makes each sheet's fibers from its own color.</figcaption>
+    </figure>
+    <figure>
+      <button type="button" class="shot crop" data-zoom="img/texture-proposed.jpg" aria-label="Enlarge: proposed grain at phone scale"><img src="img/texture-proposed.jpg" alt="Proposed grain on red, manila, oatmeal, blue and black at phone scale" loading="lazy"></button>
+      <figcaption>The prototype at phone scale. Red and blue already look right. Manila and oatmeal still show a lacy dark pattern, and black still shows light clouds, so light and dark sheets need gentler contrast.</figcaption>
+    </figure>
+  </section>
+
+  <section aria-labelledby="r2-h">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Round 2</span>
+        <h2 id="r2-h">A, revised</h2>
+        <p class="hint">A's approach with C's grain, hand-cut curves, a visible cut edge on every piece, and one pack of paper colors: white and oatmeal pieces on manila, charcoal on black. Cut edges are a hairline of pale fibers.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Round 2 screen" id="r2-seg">
+        <button type="button" data-s="main-light" aria-pressed="true">Timer · light</button>
+        <button type="button" data-s="main-dark" aria-pressed="false">Timer · dark</button>
+        <button type="button" data-s="running-light" aria-pressed="false">Running</button>
+        <button type="button" data-s="picker-light" aria-pressed="false">Color picker</button>
+        <button type="button" data-s="settings-light" aria-pressed="false">Settings · light</button>
+        <button type="button" data-s="settings-dark" aria-pressed="false">Settings · dark</button>
+      </div>
+    </div>
+    <div class="scroller">
+      <div class="trio" id="r2-screens"></div>
+    </div>
+    <div class="section-head">
+      <h3>Up close</h3>
+      <div class="seg" role="group" aria-label="Round 2 theme" id="r2-zoom-seg">
+        <button type="button" data-t="light" aria-pressed="true">Light</button>
+        <button type="button" data-t="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
+    <div class="scroller">
+      <div class="trio" id="r2-crops"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="screens-h">
+    <div class="section-head">
+      <div><span class="eyebrow">Round 1</span><h2 id="screens-h">Side by side</h2></div>
+      <div class="seg" role="group" aria-label="Screen" id="screen-seg">
+        <button type="button" data-s="main-light" aria-pressed="true">Timer · light</button>
+        <button type="button" data-s="main-dark" aria-pressed="false">Timer · dark</button>
+        <button type="button" data-s="running-light" aria-pressed="false">Running</button>
+        <button type="button" data-s="picker-light" aria-pressed="false">Color picker</button>
+        <button type="button" data-s="settings-light" aria-pressed="false">Settings · light</button>
+        <button type="button" data-s="settings-dark" aria-pressed="false">Settings · dark</button>
+      </div>
+    </div>
+    <div class="scroller">
+      <div class="trio" id="screens"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="close-h">
+    <div class="section-head">
+      <div>
+        <h2 id="close-h">Round 1 up close</h2>
+        <p class="hint">At phone size the three look nearly the same. The texture, edges and shadows differ when you zoom in.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Theme" id="zoom-seg">
+        <button type="button" data-t="light" aria-pressed="true">Light</button>
+        <button type="button" data-t="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
+    <div class="scroller">
+      <div class="trio" id="crops"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="ledger-h">
+    <h2 id="ledger-h">What each one costs</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col"></th><th scope="col">A · SVG + grain image</th><th scope="col">B · Skia</th><th scope="col">C · Pre-drawn images</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Look</th>
+            <td>Most visible fibers: white flecks like real construction paper. Crisp faceted scissor cuts. Can read slightly hairy up close.</td>
+            <td>Smoothest and most refined. Felted grain, a faint lit edge that suggests paper thickness, kraft background gives the most depth.</td>
+            <td>Softest, mottled grain. Torn sheets look most like real torn paper. Rainbow button is a smooth gradient, not paper slices.</td>
+          </tr>
+          <tr>
+            <th scope="row">New dependency</th>
+            <td class="good">None</td>
+            <td class="bad">@shopify/react-native-skia</td>
+            <td class="good">None</td>
+          </tr>
+          <tr>
+            <th scope="row">Web download</th>
+            <td class="num"><span class="good">+313 KB</span> (one grain image)</td>
+            <td class="num"><span class="bad">+3.5 MB gzip</span>: JS 566 → 866 KB, plus 3.24 MB wasm. Export grows 5.4 → 14.7 MB.</td>
+            <td class="num"><span class="good">+507 KB</span> (22 images)</td>
+          </tr>
+          <tr>
+            <th scope="row">Startup</th>
+            <td>Unchanged; pieces appear one frame after layout.</td>
+            <td><span class="bad">Blank until wasm loads.</span> Localhost 180 → 580 ms to full paper; estimated about 3 s extra on 4G.</td>
+            <td>Unchanged; measured pieces appear one frame late.</td>
+          </tr>
+          <tr>
+            <th scope="row">Code change</th>
+            <td class="num">24 files, +1,055 / −173</td>
+            <td class="num">31 files, +1,380 / −229. New app entry files and Metro config; web workaround for the browser's 16-canvas limit.</td>
+            <td class="num">47 files, +1,448 / −199. Generator script writes a slicing table.</td>
+          </tr>
+          <tr>
+            <th scope="row">Weak spots</th>
+            <td><ul><li>Chip ends a bit lumpy</li><li>Time boxes' corners show double cuts</li><li>Dark torn edge reads like a gray outline</li></ul></td>
+            <td><ul><li>Chip ends a bit lumpy</li><li>Torn fibers faint on cream</li><li>Dark torn edge reads like a gray border</li><li>Disabled buttons look like faded paper</li></ul></td>
+            <td><ul><li>Texture tile repeats every 160 pt on big sheets</li><li>Wedge's straight edge looks like vector art</li><li>Torn fringe repeats the same segments</li><li>100–150 image views on the timer screen</li></ul></td>
+          </tr>
+          <tr>
+            <th scope="row">Untested on phones</th>
+            <td>Shadows drawn outside each box (Android clipping); blur cost with ~15 pieces.</td>
+            <td>Skia install script was blocked by npm; up to ~40 Skia views per screen. Listed as included in Expo Go for SDK 57.</td>
+            <td>Image tinting and clipping on iOS/Android.</td>
+          </tr>
+          <tr>
+            <th scope="row">Tests</th>
+            <td class="num">61 pass, lint and types clean</td>
+            <td class="num">59 pass, lint and types clean</td>
+            <td class="num">55 pass, lint and types clean</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="pick-h">
+    <h2 id="pick-h">Round 1 pick</h2>
+    <div class="verdict">
+      <h3>A, with two ideas borrowed from B</h3>
+      <p>A gets most of the look for the least cost: no new library, a 313 KB image, and nothing changes about how the app starts. B looks the most polished, but every web visit waits for a 3 MB download before anything draws, which is a lot for a timer. C needs the most code and its repeating textures show on large sheets.</p>
+      <ul>
+        <li>Take B's kraft background. It separates the cream pieces from the page better than A's cream-on-cream.</li>
+        <li>Take B's faint lit top edge. It is a thin highlight path, so SVG can draw it too.</li>
+        <li>Tone down A's fibers a little, and fix its chip ends and dark-mode torn edge.</li>
+        <li>Check shadows and performance on a real Android phone before going further.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="br-h">
+    <h2 id="br-h">Branches</h2>
+    <div class="branches">
+      <div class="branch"><h3 style="color:var(--a)">A · SVG (revised)</h3><span class="mono">paper-a-svg</span><span class="mono">.claude/worktrees/agent-a55316904a38ff3c8</span></div>
+      <div class="branch"><h3 style="color:var(--b)">B · Skia</h3><span class="mono">paper-b-skia</span><span class="mono">.claude/worktrees/agent-adb9dc68b31b1800e</span></div>
+      <div class="branch"><h3 style="color:var(--c)">C · Images</h3><span class="mono">paper-c-images</span><span class="mono">.claude/worktrees/agent-a0bc1a73f458cc0de</span></div>
+    </div>
+  </section>
+</div>
+
+<dialog id="zoom" aria-label="Enlarged screenshot"><img alt=""></dialog>
+
+<script>
+const APPROACHES = [
+  { k: 'a', letter: 'A', name: 'SVG + grain image' },
+  { k: 'b', letter: 'B', name: 'Skia' },
+  { k: 'c', letter: 'C', name: 'Pre-drawn images' },
+];
+const ROUND2 = [
+  { k: 'a', letter: 'A', name: 'Before' },
+  { k: 'a2', letter: 'A', name: 'Revised', col: 'a' },
+  { k: 'c', letter: 'C', name: 'Texture reference' },
+];
+const SCREEN_NAMES = {
+  'main-light': 'Timer, light', 'main-dark': 'Timer, dark', 'running-light': 'Timer running',
+  'picker-light': 'Color picker', 'settings-light': 'Settings, light', 'settings-dark': 'Settings, dark',
+};
+const dlg = document.getElementById('zoom');
+const dlgImg = dlg.querySelector('img');
+dlg.addEventListener('click', () => dlg.close());
+document.querySelectorAll('[data-zoom]').forEach((b) =>
+  b.addEventListener('click', () => { dlgImg.src = b.dataset.zoom; dlgImg.alt = b.querySelector('img').alt; dlg.showModal(); }));
+
+function shotButton(src, alt, cls) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'shot ' + cls;
+  b.setAttribute('aria-label', 'Enlarge: ' + alt);
+  const img = document.createElement('img');
+  img.src = src; img.alt = alt; img.loading = 'lazy';
+  b.append(img);
+  b.addEventListener('click', () => { dlgImg.src = src; dlgImg.alt = alt; dlg.showModal(); });
+  return b;
+}
+function head(a) {
+  const d = document.createElement('div');
+  d.className = 'tag';
+  d.innerHTML = `<span class="letter">${a.letter}</span><small>${a.name}</small>`;
+  return d;
+}
+
+function renderScreens(s, set = APPROACHES, rootId = 'screens') {
+  const root = document.getElementById(rootId);
+  root.replaceChildren(...set.map((a) => {
+    const col = document.createElement('div');
+    col.className = 'col'; col.dataset.k = a.col ?? a.k;
+    col.append(head(a), shotButton(`img/${a.k}-${s}.jpg`, `${a.name}: ${SCREEN_NAMES[s]}`, 'phone'));
+    return col;
+  }));
+}
+function renderCrops(t, set = APPROACHES, rootId = 'crops') {
+  const root = document.getElementById(rootId);
+  root.replaceChildren(...set.map((a) => {
+    const col = document.createElement('div');
+    col.className = 'col'; col.dataset.k = a.col ?? a.k;
+    const crops = document.createElement('div');
+    crops.className = 'crops';
+    crops.append(
+      shotButton(`img/${a.k}-zoom-dial-${t}.jpg`, `${a.name}: dial edge, ${t}`, 'crop'),
+      shotButton(`img/${a.k}-zoom-controls-${t}.jpg`, `${a.name}: chips and buttons, ${t}`, 'crop'),
+    );
+    col.append(head(a), crops);
+    return col;
+  }));
+}
+function wire(segId, attr, render) {
+  const seg = document.getElementById(segId);
+  seg.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+    render(btn.dataset[attr]);
+  });
+}
+wire('screen-seg', 's', (s) => renderScreens(s));
+wire('zoom-seg', 't', (t) => renderCrops(t));
+wire('r2-seg', 's', (s) => renderScreens(s, ROUND2, 'r2-screens'));
+wire('r2-zoom-seg', 't', (t) => renderCrops(t, ROUND2, 'r2-crops'));
+renderScreens('main-light');
+renderCrops('light');
+renderScreens('main-light', ROUND2, 'r2-screens');
+renderCrops('light', ROUND2, 'r2-crops');
+</script>
