@@ -12,7 +12,7 @@ export type Release = {
 export const RELEASES: Release[] = [
   {
     version: '0.12.0',
-    date: 'Nov 11, 2026, 12:00',
+    date: 'Nov 11, 2026, 04:11',
     name: 'Turn your phone sideways',
     changes: [
       'Turning your phone sideways now shows the timer on the left, at the same size as when your phone is upright, with the time and buttons beside it.',
