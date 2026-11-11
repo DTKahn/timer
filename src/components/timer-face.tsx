@@ -25,13 +25,16 @@ type TimerFaceProps = {
   onDraftEmptyChange: (empty: boolean) => void;
   /** Shown under the editor only while the time is editable, e.g. favorites. */
   editingExtras?: React.ReactNode;
+  /** Arranges the three parts; by default they're stacked as siblings. */
+  children?: (parts: { dial: React.ReactNode; readout: React.ReactNode; extras: React.ReactNode }) => React.ReactNode;
 };
 
 /**
  * The dial, the time (editor or countdown), and the favorites as three
- * siblings, so the screen can space them like its other sections.
+ * siblings, so the screen can space them like its other sections, or place
+ * them itself through `children`.
  */
-export function TimerFace({ size, onDraftEmptyChange, editingExtras }: TimerFaceProps) {
+export function TimerFace({ size, onDraftEmptyChange, editingExtras, children }: TimerFaceProps) {
   const timer = useTimer((s) => s.timer);
   const colors = useSettings(useShallow(dialColors));
   // Frame-by-frame clock while counting down and during the completion flash.
@@ -52,24 +55,33 @@ export function TimerFace({ size, onDraftEmptyChange, editingExtras }: TimerFace
     .filter(Boolean)
     .join(' ');
 
+  const dial = (
+    <View
+      accessible
+      accessibilityRole="timer"
+      accessibilityLabel={`${spoken} remaining`}
+      style={styles.dial}>
+      <PieDial fraction={fraction} colors={colors} size={size} />
+    </View>
+  );
+  const readout = (
+    <View style={styles.readout}>
+      {editable ? (
+        <DurationEditor onEmptyChange={onDraftEmptyChange} />
+      ) : (
+        <ThemedText style={styles.countdown}>{formatDuration(remaining)}</ThemedText>
+      )}
+    </View>
+  );
+  // Space stays reserved so the dial doesn't move when the extras hide.
+  const extras = <View style={styles.extras}>{editable && editingExtras}</View>;
+
+  if (children) return children({ dial, readout, extras });
   return (
     <>
-      <View
-        accessible
-        accessibilityRole="timer"
-        accessibilityLabel={`${spoken} remaining`}
-        style={styles.dial}>
-        <PieDial fraction={fraction} colors={colors} size={size} />
-      </View>
-      <View style={styles.readout}>
-        {editable ? (
-          <DurationEditor onEmptyChange={onDraftEmptyChange} />
-        ) : (
-          <ThemedText style={styles.countdown}>{formatDuration(remaining)}</ThemedText>
-        )}
-      </View>
-      {/* Space stays reserved so the dial doesn't move when the extras hide. */}
-      <View style={styles.extras}>{editable && editingExtras}</View>
+      {dial}
+      {readout}
+      {extras}
     </>
   );
 }
