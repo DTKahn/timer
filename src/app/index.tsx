@@ -5,6 +5,7 @@ import { Keyboard, Platform, Pressable, StyleSheet, useWindowDimensions, View } 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FavoritesSection } from '@/components/favorites-section';
+import { ScaledView } from '@/components/scaled-view';
 import { Screen } from '@/components/screen';
 import { CONTROLS_HEIGHT, TimerControls } from '@/components/timer-controls';
 import { EXTRAS_HEIGHT, READOUT_HEIGHT, TimerFace } from '@/components/timer-face';
@@ -20,14 +21,38 @@ const MIN_GAP = Spacing.four;
 const AROUND_DIAL = TOP_BAR_HEIGHT + READOUT_HEIGHT + EXTRAS_HEIGHT + MIN_GAP * 3 + Spacing.four;
 /** Landscape phones are shorter than this; taller windows (tablets, desktops) keep the stacked layout. */
 const LANDSCAPE_MAX_HEIGHT = 600;
-/** Narrowest the column beside the dial can be and still fit the time and buttons. */
+/** Narrowest the time and buttons fit, stacked or in the column beside the dial. */
 const SIDE_MIN_WIDTH = 340;
 const DIAL_MARGIN = Spacing.three;
+const MIN_DIAL = 160;
+const MAX_DIAL = 460;
+/** Smallest window area each layout fits at full size; smaller ones shrink everything evenly. */
+const STACKED_MIN_HEIGHT = AROUND_DIAL + CONTROLS_HEIGHT + MIN_DIAL;
+const LANDSCAPE_MIN_WIDTH = MIN_DIAL + DIAL_MARGIN * 2 + SIDE_MIN_WIDTH;
+const LANDSCAPE_MIN_HEIGHT = TOP_BAR_HEIGHT + READOUT_HEIGHT + EXTRAS_HEIGHT + CONTROLS_HEIGHT + Spacing.three;
 
-/** Dial size with everything stacked under it in a window of this size. */
-function stackedDial(width: number, height: number, insetTop: number, insetBottom: number) {
-  const available = height - insetTop - insetBottom - AROUND_DIAL - CONTROLS_HEIGHT;
-  return Math.max(160, Math.min(width - Spacing.four * 2, available, 460));
+/**
+ * Stacked layout for an area of this size: how much to shrink it (1 when it
+ * fits) and the dial size before shrinking.
+ */
+function stackedLayout(width: number, height: number) {
+  const scale = Math.min(1, width / SIDE_MIN_WIDTH, height / STACKED_MIN_HEIGHT);
+  const w = width / scale;
+  const h = height / scale;
+  const dial = Math.max(MIN_DIAL, Math.min(w - Spacing.four * 2, h - AROUND_DIAL - CONTROLS_HEIGHT, MAX_DIAL));
+  return { scale, dial };
+}
+
+/** Side-by-side layout; `uprightDial` is how big the dial shows on screen with the phone upright. */
+function landscapeLayout(width: number, height: number, uprightDial: number) {
+  const scale = Math.min(1, width / LANDSCAPE_MIN_WIDTH, height / LANDSCAPE_MIN_HEIGHT);
+  const w = width / scale;
+  const h = height / scale;
+  const dial = Math.max(
+    MIN_DIAL,
+    Math.min(uprightDial / scale, h - DIAL_MARGIN * 2, w - SIDE_MIN_WIDTH - DIAL_MARGIN * 2),
+  );
+  return { scale, dial };
 }
 
 export default function TimerScreen() {
@@ -38,19 +63,24 @@ export default function TimerScreen() {
   const setDuration = useTimer((s) => s.setDuration);
   const [draftEmpty, setDraftEmpty] = useState(false);
 
+  // The area inside the safe insets, capped like the screen's content.
+  const areaWidth = Math.min(width - insets.left - insets.right, MaxContentWidth);
+  const areaHeight = height - insets.top - insets.bottom;
+
   // A phone on its side: the dial goes on the left, the same size as when upright.
   const landscape = width > height && height < LANDSCAPE_MAX_HEIGHT;
-  const dial = landscape
-    ? Math.max(
-        160,
-        Math.min(
-          // Upright, the notch side becomes the top and the home indicator stays at the bottom.
-          stackedDial(height, width, Math.max(insets.left, insets.right), insets.bottom),
-          height - insets.top - insets.bottom - DIAL_MARGIN * 2,
-          Math.min(width - insets.left - insets.right, MaxContentWidth) - SIDE_MIN_WIDTH - DIAL_MARGIN * 2,
-        ),
-      )
-    : stackedDial(width, height, insets.top, insets.bottom);
+  let layout;
+  if (landscape) {
+    // Upright, the notch side becomes the top and the home indicator stays at the bottom.
+    const upright = stackedLayout(
+      Math.min(height, MaxContentWidth),
+      width - Math.max(insets.left, insets.right) - insets.bottom,
+    );
+    layout = landscapeLayout(areaWidth, areaHeight, upright.dial * upright.scale);
+  } else {
+    layout = stackedLayout(areaWidth, areaHeight);
+  }
+  const { scale, dial } = layout;
 
   const topBar = (
     <View style={styles.topBar}>
@@ -64,30 +94,34 @@ export default function TimerScreen() {
   const controls = <TimerControls canStart={!draftEmpty} />;
 
   const content = landscape ? (
-    <Screen style={styles.landscape}>
-      <TimerFace size={dial} onDraftEmptyChange={setDraftEmpty} editingExtras={favorites}>
-        {({ dial: dialView, readout, extras }) => (
-          <>
-            <View style={styles.dialColumn}>{dialView}</View>
-            <View style={styles.side}>
-              {topBar}
-              <View style={styles.sections}>
-                {readout}
-                {extras}
-                {controls}
+    <Screen>
+      <ScaledView scale={scale} width={areaWidth} height={areaHeight} style={styles.landscape}>
+        <TimerFace size={dial} onDraftEmptyChange={setDraftEmpty} editingExtras={favorites}>
+          {({ dial: dialView, readout, extras }) => (
+            <>
+              <View style={styles.dialColumn}>{dialView}</View>
+              <View style={styles.side}>
+                {topBar}
+                <View style={styles.sections}>
+                  {readout}
+                  {extras}
+                  {controls}
+                </View>
               </View>
-            </View>
-          </>
-        )}
-      </TimerFace>
+            </>
+          )}
+        </TimerFace>
+      </ScaledView>
     </Screen>
   ) : (
-    <Screen style={styles.screen}>
-      {topBar}
-      <View style={styles.sections}>
-        <TimerFace size={dial} onDraftEmptyChange={setDraftEmpty} editingExtras={favorites} />
-        {controls}
-      </View>
+    <Screen>
+      <ScaledView scale={scale} width={areaWidth} height={areaHeight} style={styles.screen}>
+        {topBar}
+        <View style={styles.sections}>
+          <TimerFace size={dial} onDraftEmptyChange={setDraftEmpty} editingExtras={favorites} />
+          {controls}
+        </View>
+      </ScaledView>
     </Screen>
   );
 
