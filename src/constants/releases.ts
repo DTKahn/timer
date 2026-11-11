@@ -15,6 +15,7 @@ export const RELEASES: Release[] = [
     date: 'Nov 11, 2026, 05:08',
     name: 'Fits small screens',
     changes: [
+      'Turning your phone sideways in the browser now always switches to the sideways layout, instead of sometimes keeping the upright one and cutting off the bottom.',
       'On small screens, like the outer screen of a folding phone, the timer now shrinks to fit instead of getting cut off, upright or sideways.',
       'The area around the timer no longer shows white in the web app; it matches the light or dark background.',
     ],

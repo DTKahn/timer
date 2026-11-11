@@ -1,7 +1,15 @@
 import { router } from 'expo-router';
 import { History, Settings, type LucideIcon } from 'lucide-react-native';
 import { useState } from 'react';
-import { Keyboard, Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  Keyboard,
+  type LayoutChangeEvent,
+  Platform,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FavoritesSection } from '@/components/favorites-section';
@@ -63,18 +71,24 @@ export default function TimerScreen() {
   const setDuration = useTimer((s) => s.setDuration);
   const [draftEmpty, setDraftEmpty] = useState(false);
 
-  // The area inside the safe insets, capped like the screen's content.
-  const areaWidth = Math.min(width - insets.left - insets.right, MaxContentWidth);
-  const areaHeight = height - insets.top - insets.bottom;
+  // The area inside the safe insets, capped like the screen's content. It's measured, because on the
+  // web the reported window size can lag behind or disagree with the page (e.g. Safari after rotating).
+  const [measured, setMeasured] = useState<{ width: number; height: number } | null>(null);
+  const areaWidth = measured?.width ?? Math.min(width - insets.left - insets.right, MaxContentWidth);
+  const areaHeight = measured?.height ?? height - insets.top - insets.bottom;
+  const onLayout = (e: LayoutChangeEvent) => {
+    const { width: w, height: h } = e.nativeEvent.layout;
+    if (w !== measured?.width || h !== measured?.height) setMeasured({ width: w, height: h });
+  };
 
   // A phone on its side: the dial goes on the left, the same size as when upright.
-  const landscape = width > height && height < LANDSCAPE_MAX_HEIGHT;
+  const landscape = areaWidth > areaHeight && areaHeight < LANDSCAPE_MAX_HEIGHT;
   let layout;
   if (landscape) {
     // Upright, the notch side becomes the top and the home indicator stays at the bottom.
     const upright = stackedLayout(
-      Math.min(height, MaxContentWidth),
-      width - Math.max(insets.left, insets.right) - insets.bottom,
+      Math.min(areaHeight + insets.top + insets.bottom, MaxContentWidth),
+      areaWidth + Math.min(insets.left, insets.right) - insets.bottom,
     );
     layout = landscapeLayout(areaWidth, areaHeight, upright.dial * upright.scale);
   } else {
@@ -94,7 +108,7 @@ export default function TimerScreen() {
   const controls = <TimerControls canStart={!draftEmpty} />;
 
   const content = landscape ? (
-    <Screen>
+    <Screen onLayout={onLayout}>
       <ScaledView scale={scale} width={areaWidth} height={areaHeight} style={styles.landscape}>
         <TimerFace size={dial} onDraftEmptyChange={setDraftEmpty} editingExtras={favorites}>
           {({ dial: dialView, readout, extras }) => (
@@ -114,7 +128,7 @@ export default function TimerScreen() {
       </ScaledView>
     </Screen>
   ) : (
-    <Screen>
+    <Screen onLayout={onLayout}>
       <ScaledView scale={scale} width={areaWidth} height={areaHeight} style={styles.screen}>
         {topBar}
         <View style={styles.sections}>
