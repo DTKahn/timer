@@ -2,8 +2,22 @@ import { useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { ColorModeSwitch, ColorSwatches } from '@/components/color-swatches';
-import { PickerDone, PickerOverlay } from '@/components/picker-overlay';
+import {
+  ColorModeSwitch,
+  ColorSwatches,
+  gridWidth,
+  MODE_SWITCH_HEIGHT,
+  swatchOptions,
+  useSwatchLayout,
+} from '@/components/color-swatches';
+import {
+  PICKER_DONE_HEIGHT,
+  PICKER_GAP,
+  PICKER_HEADER_INLINE_HEIGHT,
+  PICKER_TITLE_HEIGHT,
+  PickerOverlay,
+  usePickerHeaderInline,
+} from '@/components/picker-overlay';
 import { useSettings } from '@/store/settings';
 import { sectorPath } from '@/timer/dial-geometry';
 
@@ -15,6 +29,13 @@ export function ColorButton({ size = 52 }: { size?: number }) {
   const { color, multiColor, colors, setColor, toggleColor, setMultiColor } = useSettings();
   const [open, setOpen] = useState(false);
   const r = size / 2;
+  const value = multiColor ? colors : [color];
+  // Everything in the panel besides the circles, so they can size themselves to what's left.
+  const inline = usePickerHeaderInline();
+  const reserved = inline
+    ? PICKER_HEADER_INLINE_HEIGHT + PICKER_GAP
+    : PICKER_TITLE_HEIGHT + MODE_SWITCH_HEIGHT + 2 * PICKER_GAP + (multiColor ? PICKER_GAP + PICKER_DONE_HEIGHT : 0);
+  const layout = useSwatchLayout(swatchOptions(value).length, reserved);
 
   return (
     <>
@@ -31,19 +52,25 @@ export function ColorButton({ size = 52 }: { size?: number }) {
         </Svg>
       </Pressable>
 
-      <PickerOverlay visible={open} title="Color" label="color picker" onClose={() => setOpen(false)}>
-        <ColorModeSwitch multi={multiColor} accent={color} onChange={setMultiColor} />
+      <PickerOverlay
+        visible={open}
+        title="Color"
+        label="color picker"
+        onClose={() => setOpen(false)}
+        accessory={<ColorModeSwitch multi={multiColor} accent={color} onChange={setMultiColor} />}
+        // Picking several colors takes several taps, so closing is explicit.
+        onDone={multiColor ? () => setOpen(false) : undefined}
+        contentWidth={gridWidth(layout)}>
         <ColorSwatches
-          value={multiColor ? colors : [color]}
+          value={value}
           multi={multiColor}
+          layout={layout}
           onPress={(c) => {
             if (multiColor) return toggleColor(c);
             setColor(c);
             setOpen(false);
           }}
         />
-        {/* Picking several colors takes several taps, so closing is explicit. */}
-        {multiColor && <PickerDone onPress={() => setOpen(false)} />}
       </PickerOverlay>
     </>
   );
