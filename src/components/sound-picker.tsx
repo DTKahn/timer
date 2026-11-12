@@ -3,7 +3,7 @@ import { Volume2, VolumeX } from 'lucide-react-native';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { SWATCH_GAP, SWATCH_SIZE } from '@/components/color-swatches';
-import { PickerDone, PickerOverlay } from '@/components/picker-overlay';
+import { PickerOverlay, usePickerHeaderInline } from '@/components/picker-overlay';
 import { SoundIcon } from '@/components/sound-icon';
 import { ThemedText } from '@/components/themed-text';
 import { SOUNDS } from '@/constants/sounds';
@@ -23,8 +23,15 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
   const { width } = useWindowDimensions();
   const content = Math.min(4 * SWATCH_SIZE + 3 * SWATCH_GAP, width - 4 * Spacing.four);
   const swatch = Math.floor((content - (PER_TOP_ROW - 1) * SWATCH_GAP) / PER_TOP_ROW);
-  // Three on top, the rest centered below, so the last option isn't orphaned.
-  const rows = [SOUNDS.slice(0, PER_TOP_ROW), SOUNDS.slice(PER_TOP_ROW)];
+  // Three on top, the rest centered below, so the last option isn't orphaned. On a short screen
+  // (like a phone on its side) they all go in one row, as wide as the screen allows.
+  const inline = usePickerHeaderInline();
+  const rows = inline ? [SOUNDS] : [SOUNDS.slice(0, PER_TOP_ROW), SOUNDS.slice(PER_TOP_ROW)];
+  const wideSwatch = Math.min(
+    swatch,
+    Math.floor((width - 4 * Spacing.four - (SOUNDS.length - 1) * SWATCH_GAP) / SOUNDS.length),
+  );
+  const option = inline ? wideSwatch : swatch;
 
   const close = () => {
     stopSounds();
@@ -52,7 +59,13 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
         )}
       </Pressable>
 
-      <PickerOverlay visible={open} title="Sound" label="sound picker" onClose={close}>
+      <PickerOverlay
+        visible={open}
+        title="Sound"
+        label="sound picker"
+        onClose={close}
+        onDone={close}
+        contentWidth={inline ? SOUNDS.length * option + (SOUNDS.length - 1) * SWATCH_GAP : content}>
         <View accessibilityRole="radiogroup" style={styles.list}>
           {rows.map((row, i) => (
             <View key={i} style={styles.row}>
@@ -69,14 +82,14 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
                     accessibilityRole="radio"
                     aria-checked={selected}
                     accessibilityLabel={s.name}
-                    style={({ pressed }) => [styles.option, { width: swatch }, pressed && styles.pressed]}>
+                    style={({ pressed }) => [styles.option, { width: option }, pressed && styles.pressed]}>
                     <View
                       style={[
                         styles.circle,
-                        { width: swatch, height: swatch, borderRadius: swatch / 2 },
+                        { width: option, height: option, borderRadius: option / 2 },
                         { backgroundColor: selected ? color : theme.backgroundElement },
                       ]}>
-                      <SoundIcon id={s.id} size={Math.round(swatch * ICON_RATIO)} color={iconColor} />
+                      <SoundIcon id={s.id} size={Math.round(option * ICON_RATIO)} color={iconColor} />
                     </View>
                     <ThemedText type="smallBold" numberOfLines={1}>
                       {s.name}
@@ -87,7 +100,6 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
             </View>
           ))}
         </View>
-        <PickerDone onPress={close} />
       </PickerOverlay>
     </>
   );
