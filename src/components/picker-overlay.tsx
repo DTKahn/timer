@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Modal, type ModalProps, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { SWATCH_GAP, SWATCH_SIZE } from '@/components/color-swatches';
 import { ThemedText } from '@/components/themed-text';
@@ -62,7 +62,13 @@ export function PickerOverlay({
   }
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+      // iPhones otherwise keep a modal in portrait, so on a phone held sideways it doesn't take taps.
+      supportedOrientations={ORIENTATIONS}>
       <View style={[styles.overlay, top !== null && { justifyContent: 'flex-start' }]}>
         <Pressable
           style={[StyleSheet.absoluteFill, styles.backdrop]}
@@ -111,6 +117,13 @@ function PickerDone({ onPress, inline = false }: { onPress: () => void; inline?:
     </Pressable>
   );
 }
+
+const ORIENTATIONS: ModalProps['supportedOrientations'] = [
+  'portrait',
+  'portrait-upside-down',
+  'landscape-left',
+  'landscape-right',
+];
 
 // ColorSwatches assumes these when shrinking swatches to fit.
 const OVERLAY_PADDING = Spacing.four;
