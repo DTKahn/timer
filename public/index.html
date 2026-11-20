@@ -24,10 +24,8 @@
         height: 100%;
       }
       /* These styles disable body scrolling if you are using <ScrollView> */
-      html,
       body {
         overflow: hidden;
-        overscroll-behavior: none;
       }
       /* These styles make the root element full-height */
       #root {
@@ -58,8 +56,9 @@
       // From the home screen, iOS can leave the page scrolled after turning the phone sideways
       // and back, showing everything shifted up by the status bar's height with a gap at the
       // bottom. The app never scrolls the page itself, only views inside it, so any page scroll
-      // is put back at the top. (Pinning the body with position: fixed instead made iOS give the
-      // page less than the full screen height, shrinking the dial.)
+      // is put back at the top. Leave the page's CSS as Expo set it: pinning the body
+      // (position: fixed) or clipping html (overflow: hidden) both made iOS give the page less
+      // than the full screen height, shrinking the dial.
       (function () {
         function reset() {
           if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
