@@ -11,6 +11,14 @@ export type Release = {
 /** Newest first. Add an entry for every release and match `version` in app.json. */
 export const RELEASES: Release[] = [
   {
+    version: '0.12.6',
+    date: 'Nov 20, 2026, 13:28',
+    name: 'Timer back to full size',
+    changes: [
+      'Fixed the timer and buttons coming out smaller than before, with a gap at the bottom of the screen, when the app is opened from the home screen.',
+    ],
+  },
+  {
     version: '0.12.5',
     date: 'Nov 20, 2026, 13:13',
     name: 'Screen stays in place after turning your phone',
