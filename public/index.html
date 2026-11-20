@@ -24,8 +24,19 @@
         height: 100%;
       }
       /* These styles disable body scrolling if you are using <ScrollView> */
+      html,
       body {
         overflow: hidden;
+        overscroll-behavior: none;
+      }
+      /*
+        Pinned to the screen: from the home screen, iOS can leave the page scrolled after turning
+        the phone sideways and back, showing everything shifted up by the status bar's height with
+        a gap at the bottom. A fixed body can't be scrolled that way.
+      */
+      body {
+        position: fixed;
+        inset: 0;
       }
       /* These styles make the root element full-height */
       #root {
@@ -52,5 +63,27 @@
     </noscript>
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
+    <script>
+      // Backstop for the fixed body above: if iOS still leaves the page scrolled after the
+      // screen changes size (like turning the phone), put it back at the top. The app never
+      // scrolls the page itself, only views inside it.
+      (function () {
+        function reset() {
+          if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
+          var el = document.scrollingElement || document.documentElement;
+          if (el.scrollTop) el.scrollTop = 0;
+          if (document.body.scrollTop) document.body.scrollTop = 0;
+        }
+        function settle() {
+          reset();
+          // iOS finishes the rotation over a few frames; check again once it's done.
+          requestAnimationFrame(reset);
+          setTimeout(reset, 300);
+        }
+        window.addEventListener('resize', settle);
+        window.addEventListener('orientationchange', settle);
+        if (window.visualViewport) window.visualViewport.addEventListener('resize', settle);
+      })();
+    </script>
   </body>
 </html>
