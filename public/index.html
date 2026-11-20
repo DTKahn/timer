@@ -29,15 +29,6 @@
         overflow: hidden;
         overscroll-behavior: none;
       }
-      /*
-        Pinned to the screen: from the home screen, iOS can leave the page scrolled after turning
-        the phone sideways and back, showing everything shifted up by the status bar's height with
-        a gap at the bottom. A fixed body can't be scrolled that way.
-      */
-      body {
-        position: fixed;
-        inset: 0;
-      }
       /* These styles make the root element full-height */
       #root {
         display: flex;
@@ -64,9 +55,11 @@
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
     <script>
-      // Backstop for the fixed body above: if iOS still leaves the page scrolled after the
-      // screen changes size (like turning the phone), put it back at the top. The app never
-      // scrolls the page itself, only views inside it.
+      // From the home screen, iOS can leave the page scrolled after turning the phone sideways
+      // and back, showing everything shifted up by the status bar's height with a gap at the
+      // bottom. The app never scrolls the page itself, only views inside it, so any page scroll
+      // is put back at the top. (Pinning the body with position: fixed instead made iOS give the
+      // page less than the full screen height, shrinking the dial.)
       (function () {
         function reset() {
           if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
@@ -80,6 +73,7 @@
           requestAnimationFrame(reset);
           setTimeout(reset, 300);
         }
+        window.addEventListener('scroll', reset, { passive: true });
         window.addEventListener('resize', settle);
         window.addEventListener('orientationchange', settle);
         if (window.visualViewport) window.visualViewport.addEventListener('resize', settle);
