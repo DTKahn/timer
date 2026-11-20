@@ -52,14 +52,25 @@ export function PickerOverlay({
 }: PickerOverlayProps) {
   const theme = useTheme();
   const inline = usePickerHeaderInline();
-  // Distance from the top of the padded area where the panel first landed.
-  const [top, setTop] = useState<number | null>(null);
+  const { width, height } = useWindowDimensions();
+  // The panel's height when it first landed, and the height the overlay has inside its padding.
+  // Sizes, not the panel's position: on the web, a view that only moves doesn't report where to.
+  const [landedHeight, setLandedHeight] = useState<number | null>(null);
+  const [room, setRoom] = useState<number | null>(null);
   // Re-center on each open, not on close, so the panel holds still while it fades out.
   const [wasVisible, setWasVisible] = useState(visible);
   if (visible !== wasVisible) {
     setWasVisible(visible);
-    if (visible) setTop(null);
+    if (visible) setLandedHeight(null);
   }
+  // And when the screen changes shape (like turning the phone), since what's in it changes too.
+  const [screen, setScreen] = useState({ width, height });
+  if (screen.width !== width || screen.height !== height) {
+    setScreen({ width, height });
+    setLandedHeight(null);
+  }
+  // Distance from the top of the padded area where the panel first landed, centered.
+  const top = landedHeight !== null && room !== null ? Math.max(0, (room - landedHeight) / 2) : null;
 
   return (
     <Modal
@@ -69,7 +80,9 @@ export function PickerOverlay({
       onRequestClose={onClose}
       // iPhones otherwise keep a modal in portrait, so on a phone held sideways it doesn't take taps.
       supportedOrientations={ORIENTATIONS}>
-      <View style={[styles.overlay, top !== null && { justifyContent: 'flex-start' }]}>
+      <View
+        onLayout={(e) => setRoom(e.nativeEvent.layout.height - 2 * OVERLAY_PADDING)}
+        style={[styles.overlay, top !== null && { justifyContent: 'flex-start' }]}>
         <Pressable
           style={[StyleSheet.absoluteFill, styles.backdrop]}
           onPress={onClose}
@@ -78,7 +91,7 @@ export function PickerOverlay({
         />
         <View
           onLayout={(e) => {
-            if (top === null) setTop(e.nativeEvent.layout.y - OVERLAY_PADDING);
+            if (landedHeight === null) setLandedHeight(e.nativeEvent.layout.height);
           }}
           style={[
             styles.panel,

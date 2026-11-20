@@ -64,38 +64,30 @@ export default function TimerScreen() {
   const controls = <TimerControls canStart={!draftEmpty} scale={layout.scale} />;
   const spacing = { gap: layout.gap, paddingBottom: layout.bottom };
 
+  // Both arrangements share one tree, only restyled, so turning the phone keeps what's on screen
+  // (like an open picker) instead of rebuilding it.
+  const { sideways } = layout;
   const content = (
-    <Screen style={layout.sideways && styles.row} onLayout={onLayout}>
+    <Screen onLayout={onLayout}>
+      {/* Sideways, it sits in the screen's corner, over the space the column leaves at its top. */}
+      <View style={sideways && styles.corner}>{topBar}</View>
       <TimerFace
         size={layout.dial}
         scale={layout.scale}
         gap={layout.gap}
         onDraftEmptyChange={setDraftEmpty}
         editingExtras={favorites}>
-        {({ dial, time }) =>
-          layout.sideways ? (
-            <>
-              <View style={[styles.center, { width: layout.dialBox, height: layout.dialBox }]}>{dial}</View>
-              <View style={[styles.side, spacing, { width: layout.sideWidth }]}>
-                {time}
-                {controls}
-              </View>
-              {/* In the screen's corner, over the space the column leaves at its top. */}
-              <View style={styles.corner}>{topBar}</View>
-            </>
-          ) : (
-            <>
-              {topBar}
-              <View style={[styles.stacked, spacing]}>
-                <View style={[styles.center, styles.stackedDial, { width: layout.dialBox, height: layout.dialBox }]}>
-                  {dial}
-                </View>
-                <View style={styles.timeArea}>{time}</View>
-                {controls}
-              </View>
-            </>
-          )
-        }
+        {({ dial, time }) => (
+          <View style={[styles.body, sideways ? styles.row : { gap: layout.gap }]}>
+            <View style={[styles.center, styles.dialBox, { width: layout.dialBox, height: layout.dialBox }]}>
+              {dial}
+            </View>
+            <View style={[spacing, sideways ? [styles.side, { width: layout.sideWidth }] : styles.below]}>
+              <View style={!sideways && styles.timeArea}>{time}</View>
+              {controls}
+            </View>
+          </View>
+        )}
       </TimerFace>
     </Screen>
   );
@@ -125,16 +117,18 @@ function TopButton({ label, icon: Glyph, onPress }: { label: string; icon: Lucid
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  body: { flex: 1 },
   // Sideways, the dial and the column sit together in the middle, with any spare width outside them.
   row: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   center: { alignItems: 'center', justifyContent: 'center' },
-  stacked: { flex: 1 },
-  stackedDial: { alignSelf: 'center' },
+  dialBox: { alignSelf: 'center' },
+  below: { flex: 1 },
   // Stacked, the time is centered in all the height between the dial and the buttons. A minimum
   // of 0 keeps it from pushing them aside for the moment before the dial resizes.
   timeArea: { flex: 1, minHeight: 0, justifyContent: 'center' },
   side: { alignSelf: 'stretch', justifyContent: 'center', paddingTop: TOP_BAR_HEIGHT },
-  corner: { position: 'absolute', top: 0, right: 0 },
+  // Above the dial and column, which come after it but mustn't cover its buttons.
+  corner: { position: 'absolute', top: 0, right: 0, zIndex: 1 },
   topBar: {
     height: TOP_BAR_HEIGHT,
     flexDirection: 'row',
