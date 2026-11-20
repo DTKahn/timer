@@ -18,15 +18,18 @@ const PRIMARY = {
   finished: { label: 'Start again', Glyph: Play },
 };
 
-/** The circles and the start button share one height. */
+/** The circles and the start button share one height. Sizes at full scale. */
 const SIZE = 72;
 const ICON = 30;
 
-/** Height of the controls block, so the timer screen can size the dial around it. */
+/** Height of the controls block at full scale, so the timer screen can size the dial around it. */
 export const CONTROLS_HEIGHT = SIZE * 2 + Spacing.three;
 
-/** Color, sound, and reset as circles on top; an icon-only start/pause fills the bottom row. */
-export function TimerControls({ canStart }: { canStart: boolean }) {
+/**
+ * Color, sound, and reset as circles on top; an icon-only start/pause fills the bottom row.
+ * `scale` multiplies their size, so they fit small screens.
+ */
+export function TimerControls({ canStart, scale = 1 }: { canStart: boolean; scale?: number }) {
   const theme = useTheme();
   const color = useSettings((s) => s.color);
   const sound = useSettings((s) => s.sound);
@@ -35,6 +38,9 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
   const canReset = timer.status !== 'idle';
   const primaryDisabled = !canStart && (timer.status === 'idle' || timer.status === 'finished');
   const content = contentColorOn(color);
+  const size = SIZE * scale;
+  const icon = ICON * scale;
+  const gap = { gap: Spacing.three * scale };
 
   const startWithAlerts = () => {
     // Ask on the first start, from the tap itself, so the prompt has context.
@@ -52,10 +58,10 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
   ];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.row}>
-        <ColorButton size={SIZE} />
-        <SoundButton size={SIZE} iconSize={ICON} />
+    <View style={[styles.container, gap]}>
+      <View style={[styles.row, gap]}>
+        <ColorButton size={size} />
+        <SoundButton size={size} iconSize={icon} />
         <Pressable
           onPress={reset}
           disabled={!canReset}
@@ -63,10 +69,11 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
           accessibilityLabel="Reset"
           style={({ pressed }) => [
             styles.circle,
+            { width: size, height: size, borderRadius: size / 2 },
             { backgroundColor: theme.backgroundElement, opacity: canReset ? 1 : 0.35 },
             pressed && styles.pressed,
           ]}>
-          <RotateCcw size={ICON} color={theme.text} />
+          <RotateCcw size={icon} color={theme.text} />
         </Pressable>
       </View>
       <Pressable
@@ -76,20 +83,21 @@ export function TimerControls({ canStart }: { canStart: boolean }) {
         accessibilityLabel={primary.label}
         style={({ pressed }) => [
           styles.primary,
+          { height: size, borderRadius: size / 2 },
           { backgroundColor: color, opacity: primaryDisabled ? 0.4 : 1 },
           pressed && styles.primaryPressed,
         ]}>
-        <primary.Glyph size={ICON} color={content} fill={content} />
+        <primary.Glyph size={icon} color={content} fill={content} />
       </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { width: '100%', maxWidth: 420, alignSelf: 'center', paddingHorizontal: Spacing.four, gap: Spacing.three },
-  row: { flexDirection: 'row', justifyContent: 'center', gap: Spacing.three },
-  circle: { width: SIZE, height: SIZE, borderRadius: SIZE / 2, alignItems: 'center', justifyContent: 'center' },
-  primary: { height: SIZE, borderRadius: SIZE / 2, alignItems: 'center', justifyContent: 'center' },
+  container: { width: '100%', maxWidth: 420, alignSelf: 'center', paddingHorizontal: Spacing.four },
+  row: { flexDirection: 'row', justifyContent: 'center' },
+  circle: { alignItems: 'center', justifyContent: 'center' },
+  primary: { alignItems: 'center', justifyContent: 'center' },
   pressed: { transform: [{ scale: 0.94 }], opacity: 0.85 },
   // A gentler squeeze, since a wide button shrinking 6% moves its edges a lot.
   primaryPressed: { transform: [{ scale: 0.98 }], opacity: 0.85 },

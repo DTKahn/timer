@@ -13,18 +13,26 @@ const UNITS = [
   { key: 'seconds', label: 'seconds', short: 's', max: 59 },
 ] as const;
 
-/** Each box holds two digits and the unit letter, beside a column of up and down arrows. */
+/** Each box holds two digits and the unit letter, beside a column of up and down arrows. Sizes at full scale. */
 const BOX_WIDTH = 72;
 const STEP_SIZE = 28;
 const STEP_HEIGHT = 32;
 const BOX_HEIGHT = STEP_HEIGHT * 2 + Spacing.one;
+const UNITS_GAP = Spacing.two + Spacing.one;
 export const TIME_PICKER_HEIGHT = BOX_HEIGHT;
+export const TIME_PICKER_WIDTH = UNITS.length * (BOX_WIDTH + Spacing.one + STEP_SIZE) + (UNITS.length - 1) * UNITS_GAP;
 
-type TimePickerProps = { value: DurationParts; onChange: (value: DurationParts) => void };
+type TimePickerProps = {
+  value: DurationParts;
+  onChange: (value: DurationParts) => void;
+  /** Multiplies every size, so the picker fits small screens. */
+  scale?: number;
+};
 
-export function TimePicker({ value, onChange }: TimePickerProps) {
+export function TimePicker({ value, onChange, scale = 1 }: TimePickerProps) {
+  const sized = sizes(scale);
   return (
-    <View style={[styles.row, styles.units]}>
+    <View style={[styles.row, sized.units]}>
       {UNITS.map((unit) => (
         <UnitField
           key={unit.key}
@@ -33,11 +41,28 @@ export function TimePicker({ value, onChange }: TimePickerProps) {
           max={unit.max}
           value={value[unit.key]}
           onChange={(n) => onChange({ ...value, [unit.key]: n })}
+          sized={sized}
         />
       ))}
     </View>
   );
 }
+
+function sizes(scale: number) {
+  return {
+    units: { gap: UNITS_GAP * scale },
+    unit: { gap: Spacing.one * scale },
+    box: { width: BOX_WIDTH * scale, height: BOX_HEIGHT * scale, borderRadius: Spacing.three * scale },
+    short: { fontSize: 22 * scale, lineHeight: 28 * scale },
+    // Just wide enough for two digits, so the letter sits right after them.
+    input: { width: 42 * scale, height: BOX_HEIGHT * scale, fontSize: 34 * scale },
+    steps: { gap: Spacing.one * scale },
+    step: { width: STEP_SIZE * scale, height: STEP_HEIGHT * scale, borderRadius: (STEP_SIZE * scale) / 2 },
+    chevron: 22 * scale,
+  };
+}
+
+type Sizes = ReturnType<typeof sizes>;
 
 function UnitField({
   label,
@@ -45,24 +70,26 @@ function UnitField({
   max,
   value,
   onChange,
+  sized,
 }: {
   label: string;
   short: string;
   max: number;
   value: number;
   onChange: (n: number) => void;
+  sized: Sizes;
 }) {
   const theme = useTheme();
   const input = useRef<TextInput>(null);
   const step = (delta: number) => onChange((value + delta + max + 1) % (max + 1));
 
   return (
-    <View style={styles.unit}>
+    <View style={[styles.unit, sized.unit]}>
       {/* Tapping the letter (or anywhere in the box) types into the number. */}
       <Pressable
         onPress={() => input.current?.focus()}
         accessible={false}
-        style={[styles.box, { backgroundColor: theme.face }]}>
+        style={[styles.box, sized.box, { backgroundColor: theme.face }]}>
         <TextInput
           ref={input}
           value={String(value).padStart(2, '0')}
@@ -74,22 +101,22 @@ function UnitField({
           keyboardType="number-pad"
           maxLength={3}
           accessibilityLabel={label}
-          style={[styles.input, { color: theme.text }]}
+          style={[styles.input, sized.input, { color: theme.text }]}
         />
         {/* The input carries the full name for screen readers. */}
-        <ThemedText themeColor="textSecondary" style={styles.short} accessible={false}>
+        <ThemedText themeColor="textSecondary" style={sized.short} accessible={false}>
           {short}
         </ThemedText>
       </Pressable>
-      <View style={styles.steps}>
-        <StepButton label={`More ${label}`} onPress={() => step(1)} up />
-        <StepButton label={`Fewer ${label}`} onPress={() => step(-1)} />
+      <View style={sized.steps}>
+        <StepButton label={`More ${label}`} onPress={() => step(1)} sized={sized} up />
+        <StepButton label={`Fewer ${label}`} onPress={() => step(-1)} sized={sized} />
       </View>
     </View>
   );
 }
 
-function StepButton({ label, onPress, up }: { label: string; onPress: () => void; up?: boolean }) {
+function StepButton({ label, onPress, sized, up }: { label: string; onPress: () => void; sized: Sizes; up?: boolean }) {
   const theme = useTheme();
   return (
     <Pressable
@@ -97,41 +124,30 @@ function StepButton({ label, onPress, up }: { label: string; onPress: () => void
       accessibilityRole="button"
       accessibilityLabel={label}
       hitSlop={{ left: 4, right: 8 }}
-      style={({ pressed }) => [styles.step, pressed && { backgroundColor: theme.backgroundElement }]}>
-      {up ? <ChevronUp size={22} color={theme.textSecondary} /> : <ChevronDown size={22} color={theme.textSecondary} />}
+      style={({ pressed }) => [styles.step, sized.step, pressed && { backgroundColor: theme.backgroundElement }]}>
+      {up ? (
+        <ChevronUp size={sized.chevron} color={theme.textSecondary} />
+      ) : (
+        <ChevronDown size={sized.chevron} color={theme.textSecondary} />
+      )}
     </Pressable>
   );
 }
 
+// Sizes come from `sizes`, scaled to the screen.
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  units: { gap: Spacing.two + Spacing.one },
-  unit: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
-  steps: { gap: Spacing.one },
+  unit: { flexDirection: 'row', alignItems: 'center' },
   box: {
-    width: BOX_WIDTH,
-    height: BOX_HEIGHT,
-    borderRadius: Spacing.three,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.half,
   },
-  short: { fontSize: 22, lineHeight: 28 },
-  step: {
-    width: STEP_SIZE,
-    height: STEP_HEIGHT,
-    borderRadius: STEP_SIZE / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  step: { alignItems: 'center', justifyContent: 'center' },
   input: {
-    // Just wide enough for two digits, so the letter sits right after them.
-    width: 42,
-    height: BOX_HEIGHT,
     padding: 0,
     textAlign: 'center',
-    fontSize: 34,
     fontFamily: Fonts.bold,
     fontVariant: ['tabular-nums'],
   },
