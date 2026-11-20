@@ -12,7 +12,7 @@ export type Release = {
 export const RELEASES: Release[] = [
   {
     version: '0.12.5',
-    date: 'Nov 20, 2026, 13:15',
+    date: 'Nov 20, 2026, 13:13',
     name: 'Screen stays in place after turning your phone',
     changes: [
       'Fixed the screen sitting too high, with its top buttons under the clock, after turning your phone sideways and back when the app is opened from the home screen.',
