@@ -12,7 +12,7 @@ export type Release = {
 export const RELEASES: Release[] = [
   {
     version: '0.12.6',
-    date: 'Nov 20, 2026, 13:28',
+    date: 'Nov 20, 2026, 13:29',
     name: 'Timer back to full size',
     changes: [
       'Fixed the timer and buttons coming out smaller than before, with a gap at the bottom of the screen, when the app is opened from the home screen.',
