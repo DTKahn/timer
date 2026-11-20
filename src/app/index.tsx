@@ -1,56 +1,50 @@
 import { router } from 'expo-router';
 import { History, Settings, type LucideIcon } from 'lucide-react-native';
 import { useState } from 'react';
-import { Keyboard, Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  Keyboard,
+  type LayoutChangeEvent,
+  Platform,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FavoritesSection } from '@/components/favorites-section';
 import { Screen } from '@/components/screen';
 import { CONTROLS_HEIGHT, TimerControls } from '@/components/timer-controls';
-import { EXTRAS_HEIGHT, READOUT_HEIGHT, TimerFace } from '@/components/timer-face';
+import { EXTRAS_HEIGHT, READOUT_HEIGHT, READOUT_WIDTH, TimerFace } from '@/components/timer-face';
+import { TOP_BAR_HEIGHT, timerLayout } from '@/components/timer-layout';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useSettings } from '@/store/settings';
 import { useTimer } from '@/store/timer';
 
-const TOP_BAR_HEIGHT = 48;
-/** Smallest gap between the dial, time, favorites, and buttons; any spare height is shared evenly between them. */
-const MIN_GAP = Spacing.four;
-// Everything stacked with the dial except the controls: top bar, time, favorites, gaps, bottom padding.
-const AROUND_DIAL = TOP_BAR_HEIGHT + READOUT_HEIGHT + EXTRAS_HEIGHT + MIN_GAP * 3 + Spacing.four;
-/** Landscape phones are shorter than this; taller windows (tablets, desktops) keep the stacked layout. */
-const LANDSCAPE_MAX_HEIGHT = 600;
-/** Narrowest the column beside the dial can be and still fit the time and buttons. */
-const SIDE_MIN_WIDTH = 340;
-const DIAL_MARGIN = Spacing.three;
+type Size = { width: number; height: number };
 
-/** Dial size with everything stacked under it in a window of this size. */
-function stackedDial(width: number, height: number, insetTop: number, insetBottom: number) {
-  const available = height - insetTop - insetBottom - AROUND_DIAL - CONTROLS_HEIGHT;
-  return Math.max(160, Math.min(width - Spacing.four * 2, available, 460));
-}
+/** The time, favorites, and buttons at full size, which the layout shrinks to fit. */
+const SECTIONS: Size = { width: READOUT_WIDTH, height: READOUT_HEIGHT + EXTRAS_HEIGHT + CONTROLS_HEIGHT };
 
 export default function TimerScreen() {
   const insets = useSafeAreaInsets();
-  const { width, height } = useWindowDimensions();
+  const window = useWindowDimensions();
   const color = useSettings((s) => s.color);
   const timer = useTimer((s) => s.timer);
   const setDuration = useTimer((s) => s.setDuration);
   const [draftEmpty, setDraftEmpty] = useState(false);
 
-  // A phone on its side: the dial goes on the left, the same size as when upright.
-  const landscape = width > height && height < LANDSCAPE_MAX_HEIGHT;
-  const dial = landscape
-    ? Math.max(
-        160,
-        Math.min(
-          // Upright, the notch side becomes the top and the home indicator stays at the bottom.
-          stackedDial(height, width, Math.max(insets.left, insets.right), insets.bottom),
-          height - insets.top - insets.bottom - DIAL_MARGIN * 2,
-          Math.min(width - insets.left - insets.right, MaxContentWidth) - SIDE_MIN_WIDTH - DIAL_MARGIN * 2,
-        ),
-      )
-    : stackedDial(width, height, insets.top, insets.bottom);
+  // Everything is sized to the space the screen actually gets, measured after every change. The
+  // window's size is only a first guess: in iOS Safari it can lag behind after turning the phone.
+  const [measured, setMeasured] = useState<Size | null>(null);
+  const space = measured ?? {
+    width: Math.min(window.width - insets.left - insets.right, MaxContentWidth),
+    height: window.height - insets.top - insets.bottom,
+  };
+  const layout = timerLayout(space, SECTIONS);
+  const onLayout = ({ nativeEvent: { layout: box } }: LayoutChangeEvent) =>
+    setMeasured((m) => (m?.width === box.width && m.height === box.height ? m : { width: box.width, height: box.height }));
 
   const topBar = (
     <View style={styles.topBar}>
@@ -59,35 +53,50 @@ export default function TimerScreen() {
     </View>
   );
   const favorites = (
-    <FavoritesSection durationMs={timer.durationMs} color={color} disabled={draftEmpty} onSelect={setDuration} />
+    <FavoritesSection
+      durationMs={timer.durationMs}
+      color={color}
+      disabled={draftEmpty}
+      onSelect={setDuration}
+      scale={layout.scale}
+    />
   );
-  const controls = <TimerControls canStart={!draftEmpty} />;
+  const controls = <TimerControls canStart={!draftEmpty} scale={layout.scale} />;
+  const spacing = { gap: layout.gap, paddingBottom: layout.bottom };
 
-  const content = landscape ? (
-    <Screen style={styles.landscape}>
-      <TimerFace size={dial} onDraftEmptyChange={setDraftEmpty} editingExtras={favorites}>
-        {({ dial: dialView, readout, extras }) => (
-          <>
-            <View style={styles.dialColumn}>{dialView}</View>
-            <View style={styles.side}>
-              {topBar}
-              <View style={styles.sections}>
-                {readout}
-                {extras}
+  const content = (
+    <Screen style={layout.sideways && styles.row} onLayout={onLayout}>
+      <TimerFace
+        size={layout.dial}
+        scale={layout.scale}
+        gap={layout.gap}
+        onDraftEmptyChange={setDraftEmpty}
+        editingExtras={favorites}>
+        {({ dial, time }) =>
+          layout.sideways ? (
+            <>
+              <View style={[styles.center, { width: layout.dialBox, height: layout.dialBox }]}>{dial}</View>
+              <View style={[styles.side, spacing, { width: layout.sideWidth }]}>
+                {time}
                 {controls}
               </View>
-            </View>
-          </>
-        )}
+              {/* In the screen's corner, over the space the column leaves at its top. */}
+              <View style={styles.corner}>{topBar}</View>
+            </>
+          ) : (
+            <>
+              {topBar}
+              <View style={[styles.stacked, spacing]}>
+                <View style={[styles.center, styles.stackedDial, { width: layout.dialBox, height: layout.dialBox }]}>
+                  {dial}
+                </View>
+                <View style={styles.timeArea}>{time}</View>
+                {controls}
+              </View>
+            </>
+          )
+        }
       </TimerFace>
-    </Screen>
-  ) : (
-    <Screen style={styles.screen}>
-      {topBar}
-      <View style={styles.sections}>
-        <TimerFace size={dial} onDraftEmptyChange={setDraftEmpty} editingExtras={favorites} />
-        {controls}
-      </View>
     </Screen>
   );
 
@@ -116,12 +125,16 @@ function TopButton({ label, icon: Glyph, onPress }: { label: string; icon: Lucid
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  screen: { paddingBottom: Spacing.four },
-  landscape: { flexDirection: 'row', paddingBottom: Spacing.three },
-  dialColumn: { justifyContent: 'center', paddingHorizontal: DIAL_MARGIN },
-  side: { flex: 1 },
-  // The dial sits right under the top bar; the dial, time, favorites, and buttons share the spare height evenly.
-  sections: { flex: 1, justifyContent: 'space-between' },
+  // Sideways, the dial and the column sit together in the middle, with any spare width outside them.
+  row: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  center: { alignItems: 'center', justifyContent: 'center' },
+  stacked: { flex: 1 },
+  stackedDial: { alignSelf: 'center' },
+  // Stacked, the time is centered in all the height between the dial and the buttons. A minimum
+  // of 0 keeps it from pushing them aside for the moment before the dial resizes.
+  timeArea: { flex: 1, minHeight: 0, justifyContent: 'center' },
+  side: { alignSelf: 'stretch', justifyContent: 'center', paddingTop: TOP_BAR_HEIGHT },
+  corner: { position: 'absolute', top: 0, right: 0 },
   topBar: {
     height: TOP_BAR_HEIGHT,
     flexDirection: 'row',

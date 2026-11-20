@@ -6,7 +6,7 @@ import { DurationEditor } from '@/components/duration-editor';
 import { FAVORITES_SECTION_HEIGHT } from '@/components/favorites-section';
 import { PieDial } from '@/components/pie-dial';
 import { ThemedText } from '@/components/themed-text';
-import { TIME_PICKER_HEIGHT } from '@/components/time-picker';
+import { TIME_PICKER_HEIGHT, TIME_PICKER_WIDTH } from '@/components/time-picker';
 import { Fonts } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { dialColors, useSettings } from '@/store/settings';
@@ -14,27 +14,34 @@ import { useTimer } from '@/store/timer';
 import { formatDuration, progress, remainingMs, splitDuration } from '@/timer/engine';
 import { finishFlash } from '@/timer/finish-flash';
 
-/** Height of the editor, reserved in every state so the dial never jumps. */
+/** Height of the editor at full scale, reserved in every state so the dial never jumps. */
 export const READOUT_HEIGHT = TIME_PICKER_HEIGHT;
 
-/** Height reserved for the editing extras (favorites), shown or not. */
+/** Height reserved for the editing extras (favorites) at full scale, shown or not. */
 export const EXTRAS_HEIGHT = FAVORITES_SECTION_HEIGHT;
+
+/** Width of the editor at full scale; the countdown fits in it too. */
+export const READOUT_WIDTH = TIME_PICKER_WIDTH;
 
 type TimerFaceProps = {
   size: number;
+  /** Multiplies the size of the time and the space reserved for the extras, to fit small screens. */
+  scale?: number;
+  /** Space between the editor and the extras. */
+  gap?: number;
   onDraftEmptyChange: (empty: boolean) => void;
   /** Shown under the editor only while the time is editable, e.g. favorites. */
   editingExtras?: React.ReactNode;
-  /** Arranges the three parts; by default they're stacked as siblings. */
-  children?: (parts: { dial: React.ReactNode; readout: React.ReactNode; extras: React.ReactNode }) => React.ReactNode;
+  /** Arranges the two parts; by default they're stacked as siblings. */
+  children?: (parts: { dial: React.ReactNode; time: React.ReactNode }) => React.ReactNode;
 };
 
 /**
- * The dial, the time (editor or countdown), and the favorites as three
+ * The dial, and the time (editor and favorites, or countdown) as two
  * siblings, so the screen can space them like its other sections, or place
  * them itself through `children`.
  */
-export function TimerFace({ size, onDraftEmptyChange, editingExtras, children }: TimerFaceProps) {
+export function TimerFace({ size, scale = 1, gap = 0, onDraftEmptyChange, editingExtras, children }: TimerFaceProps) {
   const timer = useTimer((s) => s.timer);
   const colors = useSettings(useShallow(dialColors));
   // Frame-by-frame clock while counting down and during the completion flash.
@@ -64,36 +71,41 @@ export function TimerFace({ size, onDraftEmptyChange, editingExtras, children }:
       <PieDial fraction={fraction} colors={colors} size={size} />
     </View>
   );
-  const readout = (
-    <View style={styles.readout}>
+  // The same height in every state, so nothing around it moves when the extras hide.
+  const time = (
+    <View style={[styles.time, { height: (READOUT_HEIGHT + EXTRAS_HEIGHT) * scale + gap, gap }]}>
       {editable ? (
-        <DurationEditor onEmptyChange={onDraftEmptyChange} />
+        <>
+          <View style={[styles.editor, { height: READOUT_HEIGHT * scale }]}>
+            <DurationEditor onEmptyChange={onDraftEmptyChange} scale={scale} />
+          </View>
+          <View style={[styles.extras, { height: EXTRAS_HEIGHT * scale }]}>{editingExtras}</View>
+        </>
       ) : (
-        <ThemedText style={styles.countdown}>{formatDuration(remaining)}</ThemedText>
+        // Counting down, there are no extras, so the time is centered in the whole space.
+        <ThemedText style={[styles.countdown, { fontSize: 72 * scale, lineHeight: 84 * scale }]}>
+          {formatDuration(remaining)}
+        </ThemedText>
       )}
     </View>
   );
-  // Space stays reserved so the dial doesn't move when the extras hide.
-  const extras = <View style={styles.extras}>{editable && editingExtras}</View>;
 
-  if (children) return children({ dial, readout, extras });
+  if (children) return children({ dial, time });
   return (
     <>
       {dial}
-      {readout}
-      {extras}
+      {time}
     </>
   );
 }
 
 const styles = StyleSheet.create({
   dial: { alignSelf: 'center' },
-  readout: { height: READOUT_HEIGHT, alignSelf: 'center', justifyContent: 'center' },
+  time: { alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' },
+  editor: { justifyContent: 'center' },
   // Full width (not sized to content) so the favorites row scrolls inside it.
-  extras: { height: EXTRAS_HEIGHT, alignSelf: 'stretch' },
+  extras: { alignSelf: 'stretch' },
   countdown: {
-    fontSize: 72,
-    lineHeight: 84,
     fontFamily: Fonts.bold,
     fontVariant: ['tabular-nums'],
   },

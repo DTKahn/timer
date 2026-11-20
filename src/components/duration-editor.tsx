@@ -9,7 +9,13 @@ import { joinDuration, splitDuration } from '@/timer/engine';
  * apply immediately; an all-zero entry stays local (a timer can't be 0s) and
  * is reported through `onEmptyChange` so Start can be disabled.
  */
-export function DurationEditor({ onEmptyChange }: { onEmptyChange: (empty: boolean) => void }) {
+export function DurationEditor({
+  onEmptyChange,
+  scale,
+}: {
+  onEmptyChange: (empty: boolean) => void;
+  scale?: number;
+}) {
   const durationMs = useTimer((s) => s.timer.durationMs);
   const setDuration = useTimer((s) => s.setDuration);
   const [draft, setDraft] = useState({ parts: splitDuration(durationMs), from: durationMs });
@@ -26,6 +32,7 @@ export function DurationEditor({ onEmptyChange }: { onEmptyChange: (empty: boole
   return (
     <TimePicker
       value={draft.parts}
+      scale={scale}
       onChange={(parts) => {
         const ms = joinDuration(parts);
         if (ms > 0 && ms !== durationMs) setDuration(ms);
