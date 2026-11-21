@@ -12,7 +12,7 @@ export type Release = {
 export const RELEASES: Release[] = [
   {
     version: '0.12.7',
-    date: 'Nov 20, 2026, 13:50',
+    date: 'Nov 20, 2026, 21:02',
     name: 'Timer fills the screen again',
     changes: [
       'Fixed the timer still coming out smaller than it should, with a gap at the bottom of the screen, when the app is opened from the home screen.',
