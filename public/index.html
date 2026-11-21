@@ -33,6 +33,18 @@
         height: 100%;
         flex: 1;
       }
+      /*
+        iOS 26 Home Screen apps can get a window shorter than the screen by the status bar's
+        height (WebKit bug 301108), leaving a gap at the bottom. The script below measures what's
+        missing into --ios-shim (0 everywhere else) and these extend the page, and the pickers'
+        overlays, which are pinned to the window's edges, down to the real bottom.
+      */
+      html {
+        height: calc(100% + var(--ios-shim, 0px));
+      }
+      [aria-modal='true'] {
+        bottom: calc(0px - var(--ios-shim, 0px)) !important;
+      }
       /* Matches the app's background (constants/theme.ts), so any edge iOS shows while rotating blends in. */
       html {
         background-color: #e9ecef;
@@ -53,25 +65,42 @@
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
     <script>
-      // From the home screen, iOS can leave the page scrolled after turning the phone sideways
-      // and back, showing everything shifted up by the status bar's height with a gap at the
-      // bottom. The app never scrolls the page itself, only views inside it, so any page scroll
-      // is put back at the top. Leave the page's CSS as Expo set it: pinning the body
-      // (position: fixed) or clipping html (overflow: hidden) both made iOS give the page less
-      // than the full screen height, shrinking the dial.
       (function () {
+        // How much shorter than the screen iOS made the window (see --ios-shim above). Only in
+        // Home Screen apps that span the screen's full width, and only for a status-bar-sized
+        // gap, so iPad windows and anything unexpected are left alone.
+        function shim() {
+          var gap = 0;
+          if (navigator.standalone && window.screen) {
+            var sideways = window.innerWidth > window.innerHeight;
+            var long = Math.max(screen.width, screen.height);
+            var short = Math.min(screen.width, screen.height);
+            var fullWidth = sideways ? long : short;
+            var fullHeight = sideways ? short : long;
+            var missing = fullHeight - window.innerHeight;
+            if (Math.abs(window.innerWidth - fullWidth) <= 1 && missing > 0 && missing <= 80) gap = missing;
+          }
+          document.documentElement.style.setProperty('--ios-shim', gap + 'px');
+        }
+        // The page is never scrolled by the app, only views inside it. iOS can leave it scrolled
+        // after turning the phone, shifting everything up, so put it back at the top.
         function reset() {
           if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
           var el = document.scrollingElement || document.documentElement;
           if (el.scrollTop) el.scrollTop = 0;
           if (document.body.scrollTop) document.body.scrollTop = 0;
         }
-        function settle() {
+        function update() {
+          shim();
           reset();
-          // iOS finishes the rotation over a few frames; check again once it's done.
-          requestAnimationFrame(reset);
-          setTimeout(reset, 300);
         }
+        function settle() {
+          update();
+          // iOS finishes the rotation over a few frames; check again once it's done.
+          requestAnimationFrame(update);
+          setTimeout(update, 300);
+        }
+        update();
         window.addEventListener('scroll', reset, { passive: true });
         window.addEventListener('resize', settle);
         window.addEventListener('orientationchange', settle);
