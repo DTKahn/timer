@@ -35,12 +35,16 @@
       }
       /*
         iOS 26 Home Screen apps can get a window shorter than the screen by the status bar's
-        height (WebKit bug 301108), leaving a gap at the bottom. The script below measures what's
-        missing into --ios-shim (0 everywhere else) and these extend the page, and the pickers'
-        overlays, which are pinned to the window's edges, down to the real bottom.
+        height (WebKit bug 301108), leaving a gap at the bottom. The script below sets
+        --ios-full-height to the screen's height there (unset everywhere else) and --ios-shim to
+        the gap. The page takes the screen's height from the screen itself, not from the window:
+        iOS gets the window right again once the page is that tall, so sizing the page from the
+        gap would undo itself and the page would jump back and forth. The pickers' overlays are
+        pinned to the window's edges and don't change the page's height, so they are extended by
+        whatever gap iOS currently leaves.
       */
       html {
-        height: calc(100% + var(--ios-shim, 0px));
+        height: max(100%, var(--ios-full-height, 0px));
       }
       [aria-modal='true'] {
         bottom: calc(0px - var(--ios-shim, 0px)) !important;
@@ -66,10 +70,12 @@
     <div id="root"></div>
     <script>
       (function () {
-        // How much shorter than the screen iOS made the window (see --ios-shim above). Only in
-        // Home Screen apps that span the screen's full width, and only for a status-bar-sized
-        // gap, so iPad windows and anything unexpected are left alone.
+        // The screen's height and the gap iOS left (see --ios-full-height above). Only in Home
+        // Screen apps that span the screen's full width, and only when the window is within a
+        // status bar's height of the screen, so iPad windows and anything unexpected are left alone.
         function shim() {
+          var root = document.documentElement.style;
+          var full = 0;
           var gap = 0;
           if (navigator.standalone && window.screen) {
             var sideways = window.innerWidth > window.innerHeight;
@@ -78,9 +84,14 @@
             var fullWidth = sideways ? long : short;
             var fullHeight = sideways ? short : long;
             var missing = fullHeight - window.innerHeight;
-            if (Math.abs(window.innerWidth - fullWidth) <= 1 && missing > 0 && missing <= 80) gap = missing;
+            if (Math.abs(window.innerWidth - fullWidth) <= 1 && missing >= 0 && missing <= 80) {
+              full = fullHeight;
+              gap = missing;
+            }
           }
-          document.documentElement.style.setProperty('--ios-shim', gap + 'px');
+          if (full) root.setProperty('--ios-full-height', full + 'px');
+          else root.removeProperty('--ios-full-height');
+          root.setProperty('--ios-shim', gap + 'px');
         }
         // The page is never scrolled by the app, only views inside it. iOS can leave it scrolled
         // after turning the phone, shifting everything up, so put it back at the top.
