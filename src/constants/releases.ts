@@ -12,7 +12,7 @@ export type Release = {
 export const RELEASES: Release[] = [
   {
     version: '0.12.9',
-    date: 'Nov 20, 2026, 21:40',
+    date: 'Nov 20, 2026, 21:22',
     name: 'Timer no longer jumps between sizes',
     changes: [
       'Fixed the timer flickering between a smaller and a full-screen size when the app is opened from the home screen.',
