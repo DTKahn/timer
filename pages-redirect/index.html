@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Timer has moved</title>
+    <link rel="canonical" href="https://colorchime.com/" />
+    <!-- Fallback for visitors without JavaScript; the script below keeps the path. -->
+    <meta http-equiv="refresh" content="2; url=https://colorchime.com/" />
+    <script>
+      // redirectTarget:start
+      function redirectTarget(loc) {
+        var path = loc.pathname.replace(/^\/timer(?=\/|$)/, '') || '/';
+        return 'https://colorchime.com' + path + loc.search + loc.hash;
+      }
+      // redirectTarget:end
+      location.replace(redirectTarget(location));
+    </script>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <p>Timer has moved to <a href="https://colorchime.com/">colorchime.com</a>.</p>
+  </body>
+</html>
