@@ -4,6 +4,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
+import { startAnalytics } from '@/analytics/start-analytics';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useStoresHydrated } from '@/hooks/use-stores-hydrated';
@@ -22,6 +23,10 @@ export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({ Lato_400Regular, Lato_700Bold });
   // A font failure falls back to system fonts rather than blocking the app.
   const ready = hydrated && (fontsLoaded || !!fontError);
+
+  useEffect(() => {
+    startAnalytics();
+  }, []);
 
   // Keep the splash up until fonts and saved timers load, so nothing flashes.
   useEffect(() => {
