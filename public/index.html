@@ -15,7 +15,45 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>%WEB_TITLE%</title>
+    <!--
+      What search engines, AI tools, and link previews (iMessage, WhatsApp, social apps) read.
+      None of it shows on the page. The title must match SITE_TITLE in src/constants/site.ts,
+      which the app puts back in the tab whenever the timer is idle.
+    -->
+    <title>Color Chime – Visual Timer for Kids</title>
+    <meta name="description" content="A free, colorful visual timer for kids. Pick a color and a sound, watch the color shrink as time runs out, and hear a chime when time’s up." />
+    <link rel="canonical" href="https://colorchime.com/" />
+    <meta name="apple-mobile-web-app-title" content="Color Chime" />
+    <meta name="application-name" content="Color Chime" />
+    <meta name="theme-color" content="#E9ECEF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#141619" media="(prefers-color-scheme: dark)" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Color Chime" />
+    <meta property="og:url" content="https://colorchime.com/" />
+    <meta property="og:title" content="Color Chime – Visual Timer for Kids" />
+    <meta property="og:description" content="Pick a color and a sound, watch the color shrink as time runs out, and hear a chime when time’s up. Free, no ads, no sign-up." />
+    <meta property="og:image" content="https://colorchime.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A timer dial two-thirds full of red, next to the words Color Chime, a colorful visual timer for kids." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Color Chime",
+        "url": "https://colorchime.com/",
+        "description": "A free, colorful visual timer for kids. Pick a color and a sound, watch the color shrink as time runs out, and hear a chime when time’s up.",
+        "image": "https://colorchime.com/og-image.png",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
     <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
     <style id="expo-reset">
       /* These styles make the body full-height */

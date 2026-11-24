@@ -3,6 +3,7 @@ import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useEffect, useRef } from 'react';
 import { AppState, Platform } from 'react-native';
 
+import { SITE_TITLE } from '@/constants/site';
 import { cancelTimerAlert, scheduleTimerAlert } from '@/platform/alerts';
 import { playSound } from '@/platform/sounds';
 import { useSettings } from '@/store/settings';
@@ -75,7 +76,7 @@ export function TimerEffects() {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     if (timer.status !== 'running') {
-      document.title = timer.status === 'finished' ? 'Time’s up' : 'Timer';
+      document.title = timer.status === 'finished' ? 'Time’s up' : SITE_TITLE;
       return;
     }
     const update = () => (document.title = `${formatDuration(timer.endAt - Date.now())} left`);
