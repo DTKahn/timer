@@ -42,4 +42,4 @@ Docs: https://docs.expo.dev/eas/index.md
 
 ## Releases
 
-Every merge to `main` deploys to GitHub Pages and is a release. Before merging, add an entry at the top of `src/constants/releases.ts` and set the same `version` in `app.json`: bump the middle number for new features, the last number for fixes only. Set `date` to the merge time. Write the name and changes in plain, non-technical language about what's different for the person using the app — the name is the most important change or changes, and each change is one sentence.
+Every merge to `main` deploys to production on Vercel (https://colorchime.com) and is a release. Try changes first on the branch's Vercel preview link, or on the `staging` branch's fixed link, before merging. Before merging, add an entry at the top of `src/constants/releases.ts` and set the same `version` in `app.json`: bump the middle number for new features, the last number for fixes only. Set `date` to the merge time. Write the name and changes in plain, non-technical language about what's different for the person using the app — the name is the most important change or changes, and each change is one sentence.
