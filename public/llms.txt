@@ -1,0 +1,29 @@
+# Color Chime
+
+> Color Chime is a free, colorful visual timer for kids, made for parents and teachers. You pick a time, a color, and a sound. A colored dial shrinks as time runs out, so children who can't read a clock yet can see how much time is left, and a chime plays when time is up.
+
+It runs in any web browser at https://colorchime.com, on phones, tablets, computers, and classroom screens. There's nothing to install, no account, and no ads. On a phone or tablet it can be added to the home screen and opened like an app.
+
+## What it does
+
+- Set any time in hours, minutes, and seconds, or tap a favorite such as 1, 2, 5, 10, or 30 minutes. Favorites can be added and removed.
+- Choose from 20 colors for the dial or make a custom one, or pick several colors at once, which split the dial into rings.
+- Choose the sound for when time is up: bell, bird, guitar, watch, or silent.
+- Pause, resume, and reset at any time. The time left also shows in the browser tab.
+- An optional setting keeps the screen on while the timer runs.
+- A history shows timers that were run before.
+- Follows the device's light or dark mode.
+
+## Good for
+
+- Routines with young children (about ages 2 to 10): tidying up, brushing teeth, getting dressed, bedtime, screen time, taking turns.
+- Classrooms: transitions, centers, tests, and clean-up, shown on a projector or smart board.
+- Anyone who finds it easier to see time pass than to read numbers.
+
+## Privacy
+
+Color Chime has no accounts and no ads. Settings, favorites, and history are saved only in the browser on the device being used. The site counts visits anonymously, without cookies.
+
+## Links
+
+- [Color Chime](https://colorchime.com): open the timer

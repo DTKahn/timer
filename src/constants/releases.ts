@@ -11,6 +11,16 @@ export type Release = {
 /** Newest first. Add an entry for every release and match `version` in app.json. */
 export const RELEASES: Release[] = [
   {
+    version: '0.13.0',
+    date: 'Nov 24, 2026, 13:30',
+    name: 'Links to the timer show a preview',
+    changes: [
+      'When you share a link to the timer in a message or on social media, it now shows a picture and a short description.',
+      'The browser tab shows the name Color Chime and a timer icon instead of the old placeholder.',
+      'Adding the timer to your home screen now uses the Color Chime name and icon.',
+    ],
+  },
+  {
     version: '0.12.10',
     date: 'Nov 23, 2026, 16:41',
     name: 'Timer has a new home',
