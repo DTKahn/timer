@@ -1,8 +1,9 @@
 name: Redirect old GitHub Pages address
 
 # The web app now lives on Vercel at https://colorchime.com (see vercel.json).
-# This only publishes a redirect page, so old dtkahn.github.io/timer links and
-# home-screen icons land on the same page at the new address.
+# This only publishes a redirect page: old dtkahn.github.io/timer links land on
+# the same page at the new address, and old home-screen icons show how to
+# re-add the app from colorchime.com (leaving would drop them out of full screen).
 
 on:
   push:

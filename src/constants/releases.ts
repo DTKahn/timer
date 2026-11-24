@@ -16,6 +16,8 @@ export const RELEASES: Release[] = [
     name: 'Timer has a new home',
     changes: [
       'The timer now lives at colorchime.com, and the old address takes you there automatically, to the same page.',
+      'Your favorites, history, and settings start fresh at the new address.',
+      'If you open the timer from your home screen, the old icon explains how to add the new one.',
     ],
   },
   {
