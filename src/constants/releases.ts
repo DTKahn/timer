@@ -11,13 +11,21 @@ export type Release = {
 /** Newest first. Add an entry for every release and match `version` in app.json. */
 export const RELEASES: Release[] = [
   {
-    version: '0.13.0',
-    date: 'Nov 24, 2026, 13:30',
+    version: '0.14.0',
+    date: 'Nov 24, 2026, 14:34',
     name: 'Links to the timer show a preview',
     changes: [
       'When you share a link to the timer in a message or on social media, it now shows a picture and a short description.',
       'The browser tab shows the name Color Chime and a timer icon instead of the old placeholder.',
       'Adding the timer to your home screen now uses the Color Chime name and icon.',
+    ],
+  },
+  {
+    version: '0.13.0',
+    date: 'Nov 24, 2026, 13:47',
+    name: 'Adding PostHog analytics to the web version',
+    changes: [
+      'The web version of the timer now uses PostHog, an analytics service, to learn how the timer is used so we can find what is confusing.',
     ],
   },
   {

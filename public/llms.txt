@@ -22,7 +22,7 @@ It runs in any web browser at https://colorchime.com, on phones, tablets, comput
 
 ## Privacy
 
-Color Chime has no accounts and no ads. Settings, favorites, and history are saved only in the browser on the device being used. The site counts visits anonymously, without cookies.
+Color Chime has no accounts and no ads. Settings, favorites, and history are saved only in the browser on the device being used. The site uses analytics services (Vercel Web Analytics and PostHog) to learn how the timer is used, such as which buttons are tapped, so confusing parts can be fixed.
 
 ## Links
 
