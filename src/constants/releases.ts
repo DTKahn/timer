@@ -12,7 +12,7 @@ export type Release = {
 export const RELEASES: Release[] = [
   {
     version: '0.13.0',
-    date: 'Nov 24, 2026, 13:45',
+    date: 'Nov 24, 2026, 13:47',
     name: 'Adding PostHog analytics to the web version',
     changes: [
       'The web version of the timer now uses PostHog, an analytics service, to learn how the timer is used so we can find what is confusing.',
