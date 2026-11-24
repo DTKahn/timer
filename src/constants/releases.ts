@@ -11,6 +11,14 @@ export type Release = {
 /** Newest first. Add an entry for every release and match `version` in app.json. */
 export const RELEASES: Release[] = [
   {
+    version: '0.13.0',
+    date: 'Nov 24, 2026, 13:47',
+    name: 'Adding PostHog analytics to the web version',
+    changes: [
+      'The web version of the timer now uses PostHog, an analytics service, to learn how the timer is used so we can find what is confusing.',
+    ],
+  },
+  {
     version: '0.12.10',
     date: 'Nov 23, 2026, 16:41',
     name: 'Timer has a new home',
