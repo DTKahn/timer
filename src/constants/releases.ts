@@ -13,10 +13,11 @@ export const RELEASES: Release[] = [
   {
     version: '0.13.0',
     date: 'Nov 24, 2026, 13:45',
-    name: 'Helping us improve the timer',
+    name: 'Adding PostHog analytics to the web version',
     changes: [
-      'The site now notes how the timer is used, such as which buttons get tapped and roughly which city visitors are in, without collecting names or accounts, so we can find what is confusing.',
-      'This loads after the timer appears, so the timer opens just as quickly as before.',
+      'The web version of the timer now uses PostHog, an analytics service, to learn how the timer is used so we can find what is confusing.',
+      'PostHog sees which pages are visited, where people tap, recordings of visits, and roughly which city visitors are in, but not who they are.',
+      'This only applies to the web version, and PostHog loads after the timer appears, so the timer opens just as quickly as before.',
     ],
   },
   {
