@@ -16,7 +16,6 @@ export const RELEASES: Release[] = [
     name: 'Adding PostHog analytics to the web version',
     changes: [
       'The web version of the timer now uses PostHog, an analytics service, to learn how the timer is used so we can find what is confusing.',
-      'PostHog sees which pages are visited, where people tap, recordings of visits, and roughly which city visitors are in, but not who they are.',
       'This only applies to the web version, and PostHog loads after the timer appears, so the timer opens just as quickly as before.',
     ],
   },
