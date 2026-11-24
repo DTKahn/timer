@@ -11,6 +11,16 @@ export type Release = {
 /** Newest first. Add an entry for every release and match `version` in app.json. */
 export const RELEASES: Release[] = [
   {
+    version: '0.12.10',
+    date: 'Nov 23, 2026, 16:41',
+    name: 'Timer has a new home',
+    changes: [
+      'The timer now lives at colorchime.com, and the old address takes you there automatically, to the same page.',
+      'Your favorites, history, and settings start fresh at the new address.',
+      'If you open the timer from your home screen, the old icon explains how to add the new one.',
+    ],
+  },
+  {
     version: '0.12.9',
     date: 'Nov 20, 2026, 21:22',
     name: 'Timer no longer jumps between sizes',

@@ -23,11 +23,18 @@ not Expo Go: `npx expo run:ios` locally, or `npx eas-cli@latest build --profile 
 
 ## Web deployment
 
-Every push to `main` deploys the web app to GitHub Pages at
-https://dtkahn.github.io/timer/ (see `.github/workflows/deploy-pages.yml`).
-Because the site lives under `/timer`, `app.json` sets `experiments.baseUrl`.
-That only affects the exported build; the dev server still serves the app at
-http://localhost:8081/.
+The web app is hosted on Vercel (see `vercel.json`), which builds every push:
+
+- `main` deploys to production at https://colorchime.com. colourchime.com and
+  the `www.` addresses redirect there.
+- Every other branch gets its own preview link, and the `staging` branch keeps a
+  fixed one. Use these to try changes before merging.
+- The build runs the tests first, so a failing test blocks the deploy.
+- Vercel Web Analytics runs on production only (`src/analytics/`).
+
+The old GitHub Pages address (https://dtkahn.github.io/timer/) now only
+redirects to colorchime.com, keeping the path
+(see `.github/workflows/deploy-pages.yml` and `pages-redirect/`).
 
 ## How it works
 
