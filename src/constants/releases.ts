@@ -12,7 +12,7 @@ export type Release = {
 export const RELEASES: Release[] = [
   {
     version: '0.12.10',
-    date: 'Nov 23, 2026, 15:30',
+    date: 'Nov 23, 2026, 16:41',
     name: 'Timer has a new home',
     changes: [
       'The timer now lives at colorchime.com, and the old address takes you there automatically, to the same page.',
