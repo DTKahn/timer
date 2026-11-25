@@ -4,6 +4,7 @@ import { CircleMinus, type LucideIcon } from 'lucide-react-native';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { useState } from 'react';
 
+import { SHOW_IN_REPLAYS } from '@/analytics/show-in-replays';
 import { ColorModeSwitch, ColorSwatches } from '@/components/color-swatches';
 import { Sheet } from '@/components/sheet';
 import { ThemedText } from '@/components/themed-text';
@@ -56,6 +57,7 @@ export default function SettingsScreen() {
               <View style={[styles.hexPreview, { backgroundColor: isHexColor(hex) ? hex : 'transparent', borderColor: theme.backgroundSelected }]} />
               <TextInput
                 value={hex}
+                {...SHOW_IN_REPLAYS}
                 onChangeText={(text) => {
                   const next = text.startsWith('#') ? text : `#${text}`;
                   setHex(next);
