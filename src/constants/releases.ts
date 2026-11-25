@@ -14,7 +14,7 @@ export const RELEASES: Release[] = [
     version: '0.14.1',
     date: 'Nov 25, 2026',
     name: 'Analytics update',
-    changes: ['A small update to how we learn which parts of the timer are confusing.'],
+    changes: ['Update to analytics to understand timer duration data.'],
   },
   {
     version: '0.14.0',
