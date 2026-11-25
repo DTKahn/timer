@@ -13,10 +13,8 @@ export const RELEASES: Release[] = [
   {
     version: '0.14.1',
     date: 'Nov 25, 2026',
-    name: 'Analytics can see the timer length you type',
-    changes: [
-      'PostHog recordings of visits now show the timer length and custom color you type, while anything else typed stays hidden.',
-    ],
+    name: 'Analytics update',
+    changes: ['A small update to how we learn which parts of the timer are confusing.'],
   },
   {
     version: '0.14.0',
