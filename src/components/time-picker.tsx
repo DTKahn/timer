@@ -2,6 +2,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useRef } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
+import { SHOW_IN_REPLAYS } from '@/analytics/show-in-replays';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -92,6 +93,7 @@ function UnitField({
         style={[styles.box, sized.box, { backgroundColor: theme.face }]}>
         <TextInput
           ref={input}
+          {...SHOW_IN_REPLAYS}
           value={String(value).padStart(2, '0')}
           onChangeText={(text) => {
             const digits = text.replace(/\D/g, '').slice(-2);

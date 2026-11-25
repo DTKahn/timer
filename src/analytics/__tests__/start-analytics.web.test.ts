@@ -51,3 +51,16 @@ test('only starts once', async () => {
   expect(inject).toHaveBeenCalledTimes(1);
   expect(posthogInit).toHaveBeenCalledTimes(1);
 });
+
+test('hides typed text in recordings, except in marked inputs', async () => {
+  const { startAnalytics, posthogInit } = load();
+  await startAnalytics('production');
+  const { session_recording } = posthogInit.mock.calls[0][1];
+  expect(session_recording.maskAllInputs).toBe(true);
+
+  const maskInput = session_recording.maskInputFn;
+  const element = (dataset: Record<string, string>) => ({ dataset }) as unknown as HTMLElement;
+  expect(maskInput('05', element({ phUnmask: 'true' }))).toBe('05');
+  expect(maskInput('secret', element({}))).toBe('******');
+  expect(maskInput('secret', undefined)).toBe('******');
+});

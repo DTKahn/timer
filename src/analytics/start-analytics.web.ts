@@ -12,13 +12,23 @@ const POSTHOG_HOST = 'https://us.i.posthog.com';
 let started = false;
 
 /**
+ * Hides typed text in session recordings unless the input is marked as holding
+ * nothing personal (see SHOW_IN_REPLAYS). Runs in the visitor's browser, so
+ * hidden text never reaches PostHog.
+ */
+function maskInput(text: string, element?: HTMLElement): string {
+  return element?.dataset.phUnmask === 'true' ? text : '*'.repeat(text.length);
+}
+
+/**
  * Turns on Vercel Web Analytics and PostHog, on the production site only, so
  * preview and staging links, and local dev, never count as visitors. The
  * Vercel build sets EXPO_PUBLIC_VERCEL_ENV from VERCEL_ENV (see vercel.json).
  *
  * PostHog autocaptures pageviews and taps, and records heatmaps, rage clicks
  * (repeated taps in one spot) and dead clicks (taps where nothing happened).
- * Session recordings are switched on in the PostHog project settings.
+ * Session recordings are switched on in the PostHog project settings. They
+ * hide what people type, except in inputs marked with SHOW_IN_REPLAYS.
  */
 export function startAnalytics(
   vercelEnv: string | undefined = process.env.EXPO_PUBLIC_VERCEL_ENV,
@@ -33,6 +43,10 @@ export function startAnalytics(
         defaults: '2026-08-30',
         capture_heatmaps: true,
         capture_dead_clicks: true,
+        session_recording: {
+          maskAllInputs: true,
+          maskInputFn: maskInput,
+        },
       });
     })
     // A failed download only means this visit isn't counted.
