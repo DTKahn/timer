@@ -52,8 +52,8 @@ Docs: https://docs.expo.dev/eas/index.md
 6. **Release.** Follow **Releases** below. In the same branch, move the item to **Done** with its version and date.
 
 **Departing from this process.** These steps are the default for all work. Skipping one or doing it differently is a deliberate choice, never a shortcut taken silently:
-- **For one item** (for example, no design doc for a feature, or merging without trying the preview): say which step you'd skip and why, and go ahead only once Daniel agrees. Note it in the item.
-- **For good** (changing how the team plans or releases): agree the change with Daniel, update this section, and record it in the **Decision log**.
+- **Skipping a step for one item** (for example, no design doc for a feature, or merging without trying the preview): say which step you'd skip and why, and go ahead only once Daniel agrees. Note it in the item.
+- **Changing this process** (the steps in this section, how work moves through `ROADMAP.md`, or how releases work): agree the change with Daniel, update this section, and record it in the **Decision log**.
 
 **Capture, don't drop.** Follow-ups found along the way go into the roadmap: **Next** or **Later** if Daniel agrees they should happen, **Ideas** otherwise. That includes review findings left for later and anything else said to be "for later". Don't fix them unasked inside another item, and don't leave them only in a conversation.
 
