@@ -44,8 +44,8 @@ Docs: https://docs.expo.dev/eas/index.md
 
 `ROADMAP.md` is the one list of planned work. Every change that ships comes from an item there, and the roadmap is updated in the same branch as the work, so merging to `main` keeps it current. Follow these steps for every item.
 
-1. **Pick.** Take the top item in **Next**, unless Daniel names a different one. If the work isn't on the roadmap yet, add it before starting, even a small fix. Starting anything other than the top of **Next** is a change of order: record it in the **Decision log**.
-2. **Start.** Move the item to **In progress** and work on a branch named after its slug, in a worktree.
+1. **Pick.** Work on any item in **Next**, or anything else Daniel asks for. If he hasn't named one, suggest an item from **Next** and say why. Work that isn't on the roadmap, even a small fix, is added to **In progress** as it starts.
+2. **Start.** Move the item to **In progress**, give it a slug if it doesn't have one, and work on a branch named after that slug, in a worktree.
 3. **Design.** For features, or anything with more than one reasonable approach, agree on the approach with Daniel and write a design doc at `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`. Daniel approves it before any code is written. For a fix with one obvious approach, a few lines in the roadmap item are enough. If the scope or approach needs to change after approval, check with Daniel first, then update the design doc and record the change in the **Decision log**.
 4. **Plan.** For work with more than a couple of steps, write `docs/superpowers/plans/YYYY-MM-DD-<slug>.md` from the design doc before building.
 5. **Build and check.** Write tests first. Run lint, typecheck and tests. Try the branch's Vercel preview link before merging.
