@@ -9,7 +9,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 - **Later:** agreed to do, but not yet ordered.
 - **Ideas:** worth remembering, not yet agreed.
 - **Done:** shipped. The newest is at the top, with the release it went out in. The full history is in `src/constants/releases.ts`.
-- **Decision log:** every change of order, scope or approach, and why.
+- **Decision log:** every change of order, scope or approach, and every change to the planning process itself, and why.
 
 ## In progress
 
@@ -68,7 +68,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## Decision log
 
-Newest first. Add an entry whenever the order, scope or approach of an item changes, or work goes ahead that isn't on the roadmap.
+Newest first. Add an entry whenever the order, scope or approach of an item changes, or the planning process in `AGENTS.md` changes.
 
 - **2026-11-25: roadmap created.** Gathered from the Vercel move, the releases since then, the README roadmap and the open branches. The order of **Next** is Claude's proposal (privacy first, because session recordings on a kids' site carry the most risk), pending Daniel's review.
 - **2026-11-24: PostHog added.** It had been held for "decide later" on Nov 23, and shipped in 0.13.0, with session recordings.

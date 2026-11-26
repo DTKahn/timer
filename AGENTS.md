@@ -42,20 +42,18 @@ Docs: https://docs.expo.dev/eas/index.md
 
 ## Planning and the roadmap
 
-`ROADMAP.md` is the one list of planned work. Every change that ships comes from an item there, and the roadmap is updated in the same branch as the work, so merging to `main` keeps it current. Follow these steps for every item. Skipping or changing one is a decision for Daniel, not for the agent.
+`ROADMAP.md` is the one list of planned work. Every change that ships comes from an item there, and the roadmap is updated in the same branch as the work, so merging to `main` keeps it current. Follow these steps for every item.
 
 1. **Pick.** Take the top item in **Next**, unless Daniel names a different one. If the work isn't on the roadmap yet, add it before starting, even a small fix. Starting anything other than the top of **Next** is a change of order: record it in the **Decision log**.
 2. **Start.** Move the item to **In progress** and work on a branch named after its slug, in a worktree.
-3. **Design.** For features, or anything with more than one reasonable approach, agree on the approach with Daniel and write a design doc at `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`. Daniel approves it before any code is written. For a fix with one obvious approach, a few lines in the roadmap item are enough.
+3. **Design.** For features, or anything with more than one reasonable approach, agree on the approach with Daniel and write a design doc at `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`. Daniel approves it before any code is written. For a fix with one obvious approach, a few lines in the roadmap item are enough. If the scope or approach needs to change after approval, check with Daniel first, then update the design doc and record the change in the **Decision log**.
 4. **Plan.** For work with more than a couple of steps, write `docs/superpowers/plans/YYYY-MM-DD-<slug>.md` from the design doc before building.
 5. **Build and check.** Write tests first. Run lint, typecheck and tests. Try the branch's Vercel preview link before merging.
 6. **Release.** Follow **Releases** below. In the same branch, move the item to **Done** with its version and date.
 
-**Changing course deliberately.** If the order, scope or approach should change, whether that's a different priority, cutting or adding scope, or a different approach from the design doc:
-- stop and tell Daniel what you'd change and why;
-- once he agrees, record it in the **Decision log** (date, what changed, why), and update the item and its design doc to match.
-
-Never change course silently, and never let the roadmap and the work disagree.
+**Departing from this process.** These steps are the default for all work. Skipping one or doing it differently is a deliberate choice, never a shortcut taken silently:
+- **For one item** (for example, no design doc for a feature, or merging without trying the preview): say which step you'd skip and why, and go ahead only once Daniel agrees. Note it in the item.
+- **For good** (changing how the team plans or releases): agree the change with Daniel, update this section, and record it in the **Decision log**.
 
 **Capture, don't drop.** Follow-ups found along the way go into the roadmap: **Next** or **Later** if Daniel agrees they should happen, **Ideas** otherwise. That includes review findings left for later and anything else said to be "for later". Don't fix them unasked inside another item, and don't leave them only in a conversation.
 
