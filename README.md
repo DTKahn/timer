@@ -50,6 +50,5 @@ redirects to colorchime.com, keeping the path
 
 ## Roadmap
 
-- Ship iOS through TestFlight via EAS.
-- Live Activity (Dynamic Island + Lock Screen) and home-screen widget via a Swift
-  WidgetKit target added with `@bacons/apple-targets`.
+See [ROADMAP.md](ROADMAP.md) for what's in progress, what's next, and the
+decisions behind the order. `AGENTS.md` describes how work moves through it.
