@@ -5,7 +5,7 @@ The single list of what's being worked on, what's next, and what's been decided.
 Each item has a short **slug**. That slug is also the item's branch name and appears in its spec and plan file names (`docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`, `docs/superpowers/plans/YYYY-MM-DD-<slug>.md`).
 
 - **In progress:** being worked on now, with a branch.
-- **Next:** agreed and coming soon, in no particular order. Any of them can be picked up.
+- **Next:** agreed and coming soon, loosely in priority order, most important first. Any of them can be picked up, not only the first.
 - **Later:** agreed to do, but not yet ordered.
 - **Ideas:** worth remembering, not yet agreed.
 - **Done:** shipped. The newest is at the top, with the release it went out in. The full history is in `src/constants/releases.ts`.
@@ -70,10 +70,10 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 Newest first. Add an entry whenever an item's scope or approach changes after it's agreed, or the planning process in `AGENTS.md` changes.
 
-- **2026-11-25: Next is not ordered.**
-  - Any item in **Next** can be picked up, not only the first one.
+- **2026-11-25: Next is loosely ordered.**
+  - Items are listed roughly by priority, but any item in **Next** can be picked up, not only the first one.
   - Work that isn't on the roadmap is added to **In progress** when it starts.
-  - Choosing an item doesn't need an entry here.
+  - Choosing an item, or reordering **Next**, doesn't need an entry here.
 - **2026-11-25: docs-only changes aren't releases.** Changes that only touch `ROADMAP.md`, `docs/`, `AGENTS.md` or `README.md` need no release entry or version bump.
 - **2026-11-25: roadmap created.** Gathered from the Vercel move, the releases since then, the README roadmap and the open branches. Claude suggested starting with `analytics-privacy`, because session recordings on a kids' site carry the most risk.
 - **2026-11-24: PostHog added.** It had been held for "decide later" on Nov 23, and shipped in 0.13.0, with session recordings.
