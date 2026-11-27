@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react-native';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
+import { soundChoice } from '@/analytics/picker-choices';
+import { track } from '@/analytics/start-analytics';
 import { SWATCH_GAP, SWATCH_SIZE } from '@/components/color-swatches';
 import { PickerOverlay, usePickerHeaderInline } from '@/components/picker-overlay';
 import { SoundIcon } from '@/components/sound-icon';
@@ -33,9 +35,11 @@ export function SoundButton({ size = 52, iconSize = 22 }: { size?: number; iconS
   );
   const option = inline ? wideSwatch : swatch;
 
+  // Every way of closing comes through here, so analytics sees what was chosen.
   const close = () => {
     stopSounds();
     setOpen(false);
+    track('sound picker closed', soundChoice(useSettings.getState().sound));
   };
 
   return (

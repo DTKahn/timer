@@ -10,6 +10,8 @@ const POSTHOG_TOKEN = 'phc_xXcjCagFnqQ6TGASjDj6BP37n3ECkHAh6nkVHc5wCgrN';
 const POSTHOG_HOST = 'https://us.i.posthog.com';
 
 let started = false;
+/** Set once PostHog has loaded and started; events before then are dropped. */
+let posthog: { capture: (event: string, properties: Record<string, unknown>) => unknown } | null = null;
 
 /**
  * Hides typed text in session recordings unless the input is marked as holding
@@ -37,8 +39,8 @@ export function startAnalytics(
   started = true;
   inject({ mode: 'production' });
   return loadPosthog()
-    .then((posthog) => {
-      posthog.init(POSTHOG_TOKEN, {
+    .then((instance) => {
+      instance.init(POSTHOG_TOKEN, {
         api_host: POSTHOG_HOST,
         defaults: '2026-08-30',
         capture_heatmaps: true,
@@ -48,7 +50,13 @@ export function startAnalytics(
           maskInputFn: maskInput,
         },
       });
+      posthog = instance;
     })
     // A failed download only means this visit isn't counted.
     .catch(() => {});
+}
+
+/** Sends an event to PostHog, once it has started on the production site. */
+export function track(event: string, properties: Record<string, unknown>): void {
+  posthog?.capture(event, properties);
 }
