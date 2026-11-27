@@ -20,14 +20,11 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## Next
 
-- **`dependency-refresh`: bring SDK 57 packages up to date.** A dependency release (see AGENTS.md).
-  - `npx expo install --fix` for the 10 Expo packages behind SDK 57's expected versions.
-  - `npm audit fix` without `--force`, then `npx expo install --check` must be clean.
-  - Write down which remaining `npm audit --omit=dev` findings are accepted because they're only in build tools.
 - **`expo-sdk-58`: upgrade to Expo SDK 58** (`latest` since before Nov 27; supports Node 26).
   - Follow Expo's upgrade guide, with a plan doc. Clears findings that only SDK 58 fixes, such as `decode-uri-component` through `expo-router`'s `query-string`, which ships in the web bundle.
   - Daniel tries the preview on his phone (home screen, sounds, rotation) before merging.
   - **Must happen before** `ios-testflight`, since Expo Go and EAS follow the newest SDK.
+  - Afterwards `npm audit --omit=dev` should no longer list `decode-uri-component` (accepted in `dependency-refresh` until this upgrade). Check whether `minimatch` through `@expo/fingerprint` is still listed.
 - **`analytics-privacy`: privacy and consent for analytics.**
   - **Why:** PostHog stores a lasting ID on each device and records sessions on a site aimed at kids. The site also serves the UK and Canada through colourchime.com, and UK and EU rules generally require consent for non-essential analytics IDs. US rules for child-directed sites (COPPA) treat a lasting ID as personal information. The only privacy statement today is in `public/llms.txt`.
   - **Decide:** run PostHog without cookies (cookieless or memory-only), ask for consent, or both. Whether to keep Vercel Web Analytics alongside PostHog.
@@ -85,6 +82,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## Done
 
+- **`dependency-refresh`** (0.14.5, Nov 27, 2026): 10 Expo packages brought to SDK 57's expected versions and `npm audit fix` (no `--force`) applied; `expo-doctor` passes 21/21. `npm audit` went from 21 findings to 2, both accepted: `decode-uri-component` (high, ships in the web bundle through `expo-router`; only a crafted link freezing the visitor's own tab; fixed by `expo-sdk-58`, and an override isn't possible because the fixed version can't be loaded by `query-string` 7) and `minimatch` (moderate, only in Expo's native build tooling).
 - **`dependency-guardrails`** (0.14.4, Nov 27, 2026): Vercel runs `npm run check` (lint, typecheck, tests) before every build; `npm run deps:report`; one lockfile; install-script denials; other worktrees ignored; the dated monthly reminder and dependency rules in AGENTS.md. Spec and plan are in `docs/superpowers/`.
 - **`node-version`** (0.14.3, Nov 27, 2026): `package.json` sets Node to `26.x`, and Vercel builds with it. A test fails if the tests run on another major version. A fix with one obvious approach, so no design doc. Daniel's Mac moved from Node 23 to 26 the same day.
 - **`search-registration`** (no release, Nov 27, 2026): colorchime.com is verified in Google Search Console and Bing Webmaster Tools, and the sitemap is submitted to both. Link previews checked: Facebook, X, WhatsApp and Slack get the title and image.
