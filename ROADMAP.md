@@ -17,7 +17,6 @@ Each item has a short **slug**. That slug is also the item's branch name and app
   - Spikes on `paper-a-svg` (SVG paper pieces), `paper-b-skia` (Skia) and `paper-c-images` (pre-drawn images). `paper-collage` is ahead of them.
   - No spec yet.
   - **Paused since Oct 9:** decide whether to resume, and write the spec before building further.
-- **`dependency-guardrails`: keep versions current without breaking things.** One package manager, one `npm run check` that Vercel runs before every build, a `deps:report` command, Dependabot alerts and secret scanning, and the rules and dated monthly reminder in AGENTS.md. Spec and plan are in `docs/superpowers/`.
 
 ## Next
 
@@ -86,6 +85,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## Done
 
+- **`dependency-guardrails`** (0.14.4, Nov 27, 2026): Vercel runs `npm run check` (lint, typecheck, tests) before every build; `npm run deps:report`; one lockfile; install-script denials; other worktrees ignored; the dated monthly reminder and dependency rules in AGENTS.md. Spec and plan are in `docs/superpowers/`.
 - **`node-version`** (0.14.3, Nov 27, 2026): `package.json` sets Node to `26.x`, and Vercel builds with it. A test fails if the tests run on another major version. A fix with one obvious approach, so no design doc. Daniel's Mac moved from Node 23 to 26 the same day.
 - **`search-registration`** (no release, Nov 27, 2026): colorchime.com is verified in Google Search Console and Bing Webmaster Tools, and the sitemap is submitted to both. Link previews checked: Facebook, X, WhatsApp and Slack get the title and image.
 - **`picker-choice-analytics`** (0.14.2, Nov 26, 2026): PostHog gets the color or sound selected each time a picker closes. Spec and plan are in `docs/superpowers/`.
