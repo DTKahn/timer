@@ -76,7 +76,6 @@ Each item has a short **slug**. That slug is also the item's branch name and app
   - Needs no sign-in. Does need a privacy page, a support contact, screenshots, and verification on the OpenAI Platform.
   - A timer inside a chat is weaker than the app, so it's mostly a way to be discovered.
 - **Voice assistants:** "Hey Siri, start a Color Chime timer" through App Intents, and Gemini on Android through AppFunctions (Android 16 and up). Both need native code added to the Expo app, so they come after the store apps ship.
-- **AI training crawlers:** decide whether `public/robots.txt` keeps AI *training* crawlers out (such as GPTBot) while letting AI *search* crawlers in (such as OAI-SearchBot), so assistants can still find and recommend the site. Today it allows all of them. Left open when `search-registration` finished.
 
 ## Done
 
@@ -90,6 +89,11 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 ## Decision log
 
 Newest first. Add an entry whenever an item's scope or approach changes after it's agreed, or the planning process in `AGENTS.md` changes.
+
+- **2026-11-27: AI crawlers are all allowed, including training crawlers.**
+  - `public/robots.txt` lets every crawler in: search crawlers (such as OAI-SearchBot, Claude-SearchBot, Googlebot, Bingbot) and training crawlers (such as GPTBot, ClaudeBot, Google-Extended, CCBot).
+  - Why: models that learn about Color Chime can recommend it even without a live search, and the site has no writing worth protecting. Visitors' settings and data never appear on public pages.
+  - Can be revisited, for example if the content pages grow into substantial original writing. Blocking would only affect future crawling, and search crawlers should stay allowed either way.
 
 - **2026-11-25: Next is loosely ordered.**
   - Items are listed roughly by priority, but any item in **Next** can be picked up, not only the first one.
