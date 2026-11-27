@@ -17,9 +17,18 @@ Each item has a short **slug**. That slug is also the item's branch name and app
   - Spikes on `paper-a-svg` (SVG paper pieces), `paper-b-skia` (Skia) and `paper-c-images` (pre-drawn images). `paper-collage` is ahead of them.
   - No spec yet.
   - **Paused since Oct 9:** decide whether to resume, and write the spec before building further.
+- **`dependency-guardrails`: keep versions current without breaking things.** One package manager, one `npm run check` that Vercel runs before every build, a `deps:report` command, Dependabot alerts and secret scanning, and the rules and dated monthly reminder in AGENTS.md. Spec and plan are in `docs/superpowers/`.
 
 ## Next
 
+- **`dependency-refresh`: bring SDK 57 packages up to date.** A dependency release (see AGENTS.md).
+  - `npx expo install --fix` for the 10 Expo packages behind SDK 57's expected versions.
+  - `npm audit fix` without `--force`, then `npx expo install --check` must be clean.
+  - Write down which remaining `npm audit --omit=dev` findings are accepted because they're only in build tools.
+- **`expo-sdk-58`: upgrade to Expo SDK 58** (`latest` since before Nov 27; supports Node 26).
+  - Follow Expo's upgrade guide, with a plan doc. Clears findings that only SDK 58 fixes, such as `decode-uri-component` through `expo-router`'s `query-string`, which ships in the web bundle.
+  - Daniel tries the preview on his phone (home screen, sounds, rotation) before merging.
+  - **Must happen before** `ios-testflight`, since Expo Go and EAS follow the newest SDK.
 - **`analytics-privacy`: privacy and consent for analytics.**
   - **Why:** PostHog stores a lasting ID on each device and records sessions on a site aimed at kids. The site also serves the UK and Canada through colourchime.com, and UK and EU rules generally require consent for non-essential analytics IDs. US rules for child-directed sites (COPPA) treat a lasting ID as personal information. The only privacy statement today is in `public/llms.txt`.
   - **Decide:** run PostHog without cookies (cookieless or memory-only), ask for consent, or both. Whether to keep Vercel Web Analytics alongside PostHog.
@@ -30,10 +39,6 @@ Each item has a short **slug**. That slug is also the item's branch name and app
   - Missing asset files return the app page with a 200. Keep them out of the catch-all rewrite.
   - The old-address redirect is case-sensitive (`/Timer/...`). Add the `i` flag in `pages-redirect/index.html`.
   - `.gitignore` ignores every `.env*` file. Narrow it to `.env*.local`.
-  - Add a space after `&&` in the `vercel.json` build command.
-  - Run lint and typecheck in the Vercel build, not only tests.
-  - `bun.lock` is missing `@vercel/analytics` and `posthog-js`. Refresh it or remove it so there's one lockfile; CI and Vercel use npm.
-  - `npm test` in the main checkout also runs the tests inside `.claude/worktrees/`. Add `testPathIgnorePatterns`.
   - Check `dtkahn.github.io/timer/settings` in a real browser. It should land on `colorchime.com/settings`.
   - **Housekeeping:** remove merged worktrees (`vercel-hosting`, `pickers-survive-rotation`, `roadmap`). Delete merged remote branches (`posthog-analytics`, `seo-basics`, `unmask-duration-inputs`, `worktree-vercel-hosting`). Check the three `worktree-agent-*` branches against the `paper-*` branches before removing them.
 - **`staging-workflow`: decide how staging is used.**
@@ -50,6 +55,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 ## Later
 
 - **`ios-testflight`:** ship iOS through TestFlight with EAS.
+  - When `eas.json` is created, set each build profile's `node` version there too (EAS doesn't read `engines`), and extend `src/__tests__/node-version.test.ts` to check it matches.
 - **`android-play-store`:** ship Android on Google Play.
 - **`app-icon`:** design the real Color Chime icon.
   - The web uses a provisional icon from `seo-basics`: the app's red dial, in `assets/images/favicon.png`, `public/apple-touch-icon.png`, `public/icon-192.png`, `public/icon-512.png` and the link-preview image `public/og-image.png`.
