@@ -60,6 +60,9 @@
     "typecheck": "tsc --noEmit"
   },
   "private": true,
+  "engines": {
+    "node": "26.x"
+  },
   "jest": {
     "preset": "jest-expo",
     "setupFiles": [

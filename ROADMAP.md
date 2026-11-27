@@ -17,6 +17,10 @@ Each item has a short **slug**. That slug is also the item's branch name and app
   - Spikes on `paper-a-svg` (SVG paper pieces), `paper-b-skia` (Skia) and `paper-c-images` (pre-drawn images). `paper-collage` is ahead of them.
   - No spec yet.
   - **Paused since Oct 9:** decide whether to resume, and write the spec before building further.
+- **`node-version`: build with the same Node version everywhere.**
+  - Daniel's Mac ran Node 23, which is no longer supported, while Vercel builds on Node 26. Nothing recorded which one the project expects.
+  - **Approach (one obvious one, so no design doc):** set `engines.node` to `26.x` in `package.json`. Vercel reads that ahead of its project setting, so the file becomes the one place the version is set. A test fails when the tests run on a different major version, so drift shows up locally and in the Vercel build.
+  - The Mac was moved to Node 26 with `brew upgrade` on Nov 27.
 
 ## Next
 
