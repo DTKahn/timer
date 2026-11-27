@@ -12,7 +12,7 @@ export type Release = {
 export const RELEASES: Release[] = [
   {
     version: '0.14.2',
-    date: 'Nov 26, 2026',
+    date: 'Nov 26, 2026, 23:01',
     name: 'Analytics update',
     changes: ['Update to analytics to understand which colors and sounds are chosen.'],
   },

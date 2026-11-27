@@ -13,7 +13,6 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## In progress
 
-- **`picker-choice-analytics`: which colors and sounds people choose.** PostHog gets an event with the selected color or sound each time a picker closes, and two dashboard charts show the most common ones. Spec and plan are in `docs/superpowers/`.
 - **`paper-collage`: construction-paper look.** A hand-made, cut-paper style for the timer.
   - Spikes on `paper-a-svg` (SVG paper pieces), `paper-b-skia` (Skia) and `paper-c-images` (pre-drawn images). `paper-collage` is ahead of them.
   - No spec yet.
@@ -62,6 +61,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## Done
 
+- **`picker-choice-analytics`** (0.14.2, Nov 26, 2026): PostHog gets the color or sound selected each time a picker closes. Spec and plan are in `docs/superpowers/`.
 - **`unmask-duration-inputs`** (0.14.1, Nov 25, 2026): session recordings show timer lengths and hex colors.
 - **`seo-basics`** (0.14.0, Nov 24, 2026): link previews, the Color Chime name and icon on the web and the home screen, `robots.txt`, a sitemap, `llms.txt`.
 - **`posthog-analytics`** (0.13.0, Nov 24, 2026): PostHog on the production web app, with heatmaps and session recordings that hide typed text.
