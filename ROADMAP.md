@@ -36,11 +36,6 @@ Each item has a short **slug**. That slug is also the item's branch name and app
   - `npm test` in the main checkout also runs the tests inside `.claude/worktrees/`. Add `testPathIgnorePatterns`.
   - Check `dtkahn.github.io/timer/settings` in a real browser. It should land on `colorchime.com/settings`.
   - **Housekeeping:** remove merged worktrees (`vercel-hosting`, `pickers-survive-rotation`, `roadmap`). Delete merged remote branches (`posthog-analytics`, `seo-basics`, `unmask-duration-inputs`, `worktree-vercel-hosting`). Check the three `worktree-agent-*` branches against the `paper-*` branches before removing them.
-- **`search-registration`: register colorchime.com with Google and Bing.**
-  - Left over from `seo-basics`, which added the sitemap but didn't register the site.
-  - **Daniel:** add colorchime.com to Google Search Console and Bing Webmaster Tools, verifying each with a TXT record at Namecheap. Then submit `https://colorchime.com/sitemap.xml` to both. Bing matters because ChatGPT and Copilot search draw on it.
-  - Check a shared link's preview on colorchime.com (opengraph.xyz, or a message to yourself).
-  - **Decide:** whether `public/robots.txt` keeps AI *training* crawlers out (such as GPTBot) while letting AI *search* crawlers in (such as OAI-SearchBot). Today it allows all of them.
 - **`staging-workflow`: decide how staging is used.**
   - The `staging` branch is still at 0.12.10, and recent work went straight from feature branches to `main`.
   - Either make "merge to `staging`, try it, then merge to `main`" the routine, or drop `staging` and rely on each branch's preview link.
@@ -81,12 +76,14 @@ Each item has a short **slug**. That slug is also the item's branch name and app
   - Needs no sign-in. Does need a privacy page, a support contact, screenshots, and verification on the OpenAI Platform.
   - A timer inside a chat is weaker than the app, so it's mostly a way to be discovered.
 - **Voice assistants:** "Hey Siri, start a Color Chime timer" through App Intents, and Gemini on Android through AppFunctions (Android 16 and up). Both need native code added to the Expo app, so they come after the store apps ship.
+- **AI training crawlers:** decide whether `public/robots.txt` keeps AI *training* crawlers out (such as GPTBot) while letting AI *search* crawlers in (such as OAI-SearchBot), so assistants can still find and recommend the site. Today it allows all of them. Left open when `search-registration` finished.
 
 ## Done
 
+- **`search-registration`** (no release, Nov 27, 2026): colorchime.com is verified in Google Search Console and Bing Webmaster Tools, and the sitemap is submitted to both. Link previews checked: Facebook, X, WhatsApp and Slack get the title and image.
 - **`picker-choice-analytics`** (0.14.2, Nov 26, 2026): PostHog gets the color or sound selected each time a picker closes. Spec and plan are in `docs/superpowers/`.
 - **`unmask-duration-inputs`** (0.14.1, Nov 25, 2026): session recordings show timer lengths and hex colors.
-- **`seo-basics`** (0.14.0, Nov 24, 2026): link previews, the Color Chime name and a provisional dial icon on the web and the home screen, `robots.txt`, a sitemap, `llms.txt`. Registering with search engines is `search-registration`.
+- **`seo-basics`** (0.14.0, Nov 24, 2026): link previews, the Color Chime name and a provisional dial icon on the web and the home screen, `robots.txt`, a sitemap, `llms.txt`.
 - **`posthog-analytics`** (0.13.0, Nov 24, 2026): PostHog on the production web app, with heatmaps and session recordings that hide typed text.
 - **`vercel-hosting`** (0.12.10, Nov 23, 2026): moved from GitHub Pages to Vercel at colorchime.com, with production-only Vercel Web Analytics. Spec and plan are in `docs/superpowers/`.
 
