@@ -43,3 +43,6 @@ example
 /android
 .vercel
 .env*
+
+# Claude Code worktrees (other sessions' checkouts)
+.claude/worktrees/

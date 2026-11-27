@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "npm ci",
-  "buildCommand": "npm test -- --ci --testTimeout=30000 &&EXPO_PUBLIC_COMMIT=$VERCEL_GIT_COMMIT_SHA EXPO_PUBLIC_VERCEL_ENV=$VERCEL_ENV npx expo export -p web",
+  "buildCommand": "npm run check && EXPO_PUBLIC_COMMIT=$VERCEL_GIT_COMMIT_SHA EXPO_PUBLIC_VERCEL_ENV=$VERCEL_ENV npx expo export -p web",
   "outputDirectory": "dist",
   "cleanUrls": true,
   "rewrites": [{ "source": "/:path*", "destination": "/" }]
