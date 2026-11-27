@@ -17,11 +17,6 @@ Each item has a short **slug**. That slug is also the item's branch name and app
   - Spikes on `paper-a-svg` (SVG paper pieces), `paper-b-skia` (Skia) and `paper-c-images` (pre-drawn images). `paper-collage` is ahead of them.
   - No spec yet.
   - **Paused since Oct 9:** decide whether to resume, and write the spec before building further.
-- **`expo-sdk-58`: upgrade to Expo SDK 58** (`latest` since before Nov 27; supports Node 26).
-  - Follow Expo's upgrade guide; plan in `docs/superpowers/plans/2026-11-27-expo-sdk-58.md`. Clears findings that only SDK 58 fixes, such as `decode-uri-component` through `expo-router`'s `query-string`, which ships in the web bundle.
-  - Daniel tries the preview on his phone (home screen, sounds, rotation) before merging.
-  - **Must happen before** `ios-testflight`, since Expo Go and EAS follow the newest SDK.
-  - Afterwards `npm audit --omit=dev` should no longer list `decode-uri-component` (accepted in `dependency-refresh` until this upgrade). Check whether `minimatch` through `@expo/fingerprint` is still listed.
 
 ## Next
 
@@ -83,6 +78,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## Done
 
+- **`expo-sdk-58`** (0.14.6, Nov 27, 2026): Expo SDK 58 (React Native 0.88, React 19.3) with Jest 30 and Testing Library 14. Web safe-area insets kept by wrapping the app in the safe-area library's provider; async routes off on the web. Daniel confirmed on his phone: Safari and home screen, upright and sideways, pickers, Settings, History, and sounds after switching apps. `npm audit --omit=dev` has no high findings; `glob` and `minimatch` (moderate, build and test tooling only) are accepted. Plan is in `docs/superpowers/plans/`.
 - **`dependency-refresh`** (0.14.5, Nov 27, 2026): 10 Expo packages brought to SDK 57's expected versions and `npm audit fix` (no `--force`) applied; `expo-doctor` passes 21/21. `npm audit` went from 21 findings to 2, both accepted: `decode-uri-component` (high, ships in the web bundle through `expo-router`; only a crafted link freezing the visitor's own tab; fixed by `expo-sdk-58`, and an override isn't possible because the fixed version can't be loaded by `query-string` 7) and `minimatch` (moderate, only in Expo's native build tooling).
 - **`dependency-guardrails`** (0.14.4, Nov 27, 2026): Vercel runs `npm run check` (lint, typecheck, tests) before every build; `npm run deps:report`; one lockfile; install-script denials; other worktrees ignored; the dated monthly reminder and dependency rules in AGENTS.md. Spec and plan are in `docs/superpowers/`.
 - **`node-version`** (0.14.3, Nov 27, 2026): `package.json` sets Node to `26.x`, and Vercel builds with it. A test fails if the tests run on another major version. A fix with one obvious approach, so no design doc. Daniel's Mac moved from Node 23 to 26 the same day.
