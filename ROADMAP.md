@@ -39,6 +39,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
   - Missing asset files return the app page with a 200. Keep them out of the catch-all rewrite.
   - The old-address redirect is case-sensitive (`/Timer/...`). Add the `i` flag in `pages-redirect/index.html`.
   - `.gitignore` ignores every `.env*` file. Narrow it to `.env*.local`.
+  - Three lint warnings (`require()` imports) in `src/analytics/__tests__/start-analytics.web.test.ts`.
   - Check `dtkahn.github.io/timer/settings` in a real browser. It should land on `colorchime.com/settings`.
   - **Housekeeping:** remove merged worktrees (`vercel-hosting`, `pickers-survive-rotation`, `roadmap`). Delete merged remote branches (`posthog-analytics`, `seo-basics`, `unmask-duration-inputs`, `worktree-vercel-hosting`). Check the three `worktree-agent-*` branches against the `paper-*` branches before removing them.
 - **`staging-workflow`: decide how staging is used.**
@@ -96,6 +97,17 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 ## Decision log
 
 Newest first. Add an entry whenever an item's scope or approach changes after it's agreed, or the planning process in `AGENTS.md` changes.
+
+- **2026-11-27: how dependencies are kept current** (`dependency-guardrails`).
+  - AGENTS.md gains "Keeping up to date": a dated reminder, due every 30 days, that any session offers when the date has passed. It covers Daniel's Mac tools and `npm run deps:report`. Daniel chose this over a calendar reminder or automatic updates.
+  - AGENTS.md gains "Dependencies":
+    - packages only through `npx expo install`, never `npm audit fix --force`
+    - `overrides` only for code that ships to the browser
+    - install-script decisions recorded in `allowScripts`
+  - Dependency updates within an SDK are fix releases with standard release text and no design doc. SDK upgrades get a plan doc and a phone test of the preview.
+  - Vercel runs `npm run check` (lint, typecheck, tests) before every build. Roll back in Vercel first if a release breaks the site.
+  - Dependabot sends alerts only, no update pull requests, because merging one on GitHub would skip the release entry. `expo-doctor` stays out of the build, because it compares against Expo's newest online data and would fail releases whenever Expo publishes a patch.
+  - Shaped by an architect-style review of the first proposal, which also found that Expo SDK 58 was out.
 
 - **2026-11-27: AI crawlers are all allowed, including training crawlers.**
   - `public/robots.txt` lets every crawler in: search crawlers (such as OAI-SearchBot, Claude-SearchBot, Googlebot, Bingbot) and training crawlers (such as GPTBot, ClaudeBot, Google-Extended, CCBot).

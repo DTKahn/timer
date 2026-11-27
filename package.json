@@ -57,7 +57,9 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check": "expo lint && tsc --noEmit && jest --ci --testTimeout=30000",
+    "deps:report": "bash scripts/deps-report.sh"
   },
   "private": true,
   "engines": {
@@ -67,6 +69,18 @@
     "preset": "jest-expo",
     "setupFiles": [
       "<rootDir>/jest.setup.ts"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/.claude/"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/.claude/"
     ]
+  },
+  "allowScripts": {
+    "core-js": false,
+    "fsevents": false,
+    "unrs-resolver": false
   }
 }

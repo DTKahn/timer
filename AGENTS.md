@@ -10,18 +10,18 @@ Expo ships breaking changes every SDK release. APIs you remember are likely rena
 
 ## Commands
 
-Use `bunx` instead of `npx` if the project uses bun (`bun.lock` present).
+The project uses npm (`package-lock.json`). Don't add bun, yarn or pnpm lockfiles.
 
 ```bash
 npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add — resolves SDK-compatible versions
 npx expo start              # start the dev server
-npx expo lint               # lint
-npx tsc --noEmit            # typecheck
+npm run check               # lint, typecheck and tests (Vercel runs this before every build)
+npm run deps:report         # the monthly dependency report (see Keeping up to date)
 npx expo-doctor             # diagnose dependency and config issues
 npx expo install --fix      # fix incompatible package versions
 ```
 
-Run lint and typecheck before declaring any task done.
+Run `npm run check` before declaring any task done.
 
 ## Navigation & Routing
 
@@ -31,7 +31,7 @@ Run lint and typecheck before declaring any task done.
 
 ## Building with EAS
 
-Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
+Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `npx eas-cli@latest <command>`; substitute that for bare `eas` in docs examples.
 Docs: https://docs.expo.dev/eas/index.md
 
 ## Rules
@@ -48,7 +48,7 @@ Docs: https://docs.expo.dev/eas/index.md
 2. **Start.** Move the item to **In progress**, give it a slug if it doesn't have one, and work on a branch named after that slug, in a worktree.
 3. **Design.** For features, or anything with more than one reasonable approach, agree on the approach with Daniel and write a design doc at `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`. Daniel approves it before any code is written. For a fix with one obvious approach, a few lines in the roadmap item are enough. If the scope or approach needs to change after approval, check with Daniel first, then update the design doc and record the change in the **Decision log**.
 4. **Plan.** For work with more than a couple of steps, write `docs/superpowers/plans/YYYY-MM-DD-<slug>.md` from the design doc before building.
-5. **Build and check.** Write tests first. Run lint, typecheck and tests. Try the branch's Vercel preview link before merging.
+5. **Build and check.** Write tests first. Run `npm run check`. Try the branch's Vercel preview link before merging.
 6. **Release.** Follow **Releases** below. In the same branch, move the item to **Done** with its version and date.
 
 **Departing from this process.** These steps are the default for all work. Skipping one or doing it differently is a deliberate choice, never a shortcut taken silently:
@@ -62,3 +62,30 @@ Changes that only touch planning and docs (`ROADMAP.md`, `docs/`, `AGENTS.md`, `
 ## Releases
 
 Every merge to `main` deploys to production on Vercel (https://colorchime.com) and is a release. Try changes first on the branch's Vercel preview link, or on the `staging` branch's fixed link, before merging. Before merging, add an entry at the top of `src/constants/releases.ts` and set the same `version` in `app.json`: bump the middle number for new features, the last number for fixes only. Set `date` to the merge time. Write the name and changes in plain, non-technical language about what's different for the person using the app — the name is the most important change or changes, and each change is one sentence.
+
+If a release breaks the live site, roll back to the previous deployment in Vercel first (Instant Rollback), then fix on a branch. If something works locally but not on Vercel, redeploy without the build cache before digging further.
+
+## Keeping up to date
+
+**Last update:** 2026-11-27
+**Next due:** 2026-12-27
+
+When you start work on this project, compare today's date with **Next due**. If it has passed, tell Daniel before starting what he asked for, and offer to run the routine below first or right after. Ask once per session. After the routine, set **Last update** to the day it was done and **Next due** to 30 days later, in the same branch as any fixes (or as a docs-only change if nothing needed fixing). A test checks the two dates are 30 days apart.
+
+The routine:
+
+1. **Daniel's Mac** (Homebrew; nothing runs automatically):
+   - `brew update && brew upgrade && brew cleanup`, then `npm update -g`.
+   - Before upgrading, check `brew outdated node`. If it would move Node to a new major version (26 → 27), don't take it: install `node@<current major>` instead. Changing majors is a planned roadmap item, because `engines.node` in `package.json` and Vercel must change with it (a test fails when they disagree).
+   - Also check System Settings → Software Update for Apple's Command Line Tools.
+2. **The project:** run `npm run deps:report` and fix what it shows on a branch, as a dependency release (below). A new Expo SDK becomes its own roadmap item.
+
+## Dependencies
+
+- Add and update packages only with `npx expo install <package>` (or `npx expo install --fix`). It picks versions that match the Expo SDK. Never `npm install <package>@latest` for Expo or React Native packages.
+- Never run `npm audit fix --force`: it downgrades Expo to fix tooling findings. `npm audit fix` without `--force` is fine on a branch, as long as `npx expo install --check` is still clean afterwards.
+- Use `overrides` in `package.json` only for vulnerable code that ships to the browser. Note each one in the roadmap and remove it at the next SDK upgrade.
+- npm 12 blocks packages' install scripts unless they're approved. `allowScripts` in `package.json` records the decisions. If `npm install-scripts ls` lists a package, approve it only if it needs its script to work; otherwise deny it.
+- **Dependency releases.** Updating packages within the current SDK is a fix release: bump the last number, no design doc (a few lines in the roadmap item are enough). The release name is "Behind-the-scenes updates", with one change: "Nothing changes in the timer: its building blocks were updated to keep it secure and working smoothly."
+- **Expo SDK upgrades** are roadmap items with a plan doc that follows Expo's upgrade guide. Daniel tries the preview on his phone before merging.
+- GitHub sends Dependabot alerts for new vulnerabilities. Dependabot doesn't open update pull requests: merging one on GitHub would be a release without a release entry.
