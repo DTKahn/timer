@@ -79,6 +79,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## Done
 
+- **`node-version`** (0.14.3, Nov 27, 2026): `package.json` sets Node to `26.x`, and Vercel builds with it. A test fails if the tests run on another major version. A fix with one obvious approach, so no design doc. Daniel's Mac moved from Node 23 to 26 the same day.
 - **`search-registration`** (no release, Nov 27, 2026): colorchime.com is verified in Google Search Console and Bing Webmaster Tools, and the sitemap is submitted to both. Link previews checked: Facebook, X, WhatsApp and Slack get the title and image.
 - **`picker-choice-analytics`** (0.14.2, Nov 26, 2026): PostHog gets the color or sound selected each time a picker closes. Spec and plan are in `docs/superpowers/`.
 - **`unmask-duration-inputs`** (0.14.1, Nov 25, 2026): session recordings show timer lengths and hex colors.
