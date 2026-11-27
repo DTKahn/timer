@@ -66,6 +66,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## Ideas
 
+- **Dial drawn at size zero:** opening a picker briefly draws a dial with size 0, so `src/components/pie-dial.tsx` (`face = c - 1`) logs "<circle> attribute r: A negative value is not valid" twice in the browser console. Harmless; seen on the live site on Nov 27. Clamp the radius at 0 or skip drawing at size 0.
 - **Crayon Timer:** a crayon-themed look, or a brand for it. Kept separate from the main name so the app isn't tied to one style.
 - **Content pages for search (web):** separate, readable pages that people find through search, while the timer screen stays exactly as it is. Discussed Nov 24 as the step after `seo-basics`.
   - Use-case pages (bedtime, tidy-up, toothbrushing, screen time, classroom transitions) and a "Why Color Chime" page. Each has a button that opens the timer already set.

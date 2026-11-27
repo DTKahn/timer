@@ -2,7 +2,7 @@
   "expo": {
     "name": "Timer",
     "slug": "timer",
-    "version": "0.14.5",
+    "version": "0.14.6",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "timer",
@@ -24,7 +24,14 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "asyncRoutes": {
+            "web": false
+          }
+        }
+      ],
       [
         "expo-splash-screen",
         {

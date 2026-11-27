@@ -34,7 +34,7 @@ describe('timer screen pickers', () => {
         <TimerScreen />
       </SafeAreaProvider>,
     );
-    fireEvent.press(screen.getByLabelText(button));
+    await fireEvent.press(screen.getByLabelText(button));
     expect(screen.getByLabelText(backdrop)).toBeVisible();
 
     await rotate(SIDEWAYS);
