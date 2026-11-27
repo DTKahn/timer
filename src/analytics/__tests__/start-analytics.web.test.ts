@@ -2,8 +2,9 @@
 // explicitly. Each test loads a fresh copy so the once-per-page guard resets.
 jest.mock('@vercel/analytics', () => ({ inject: jest.fn() }));
 const mockPosthogInit = jest.fn();
+const mockPosthogCapture = jest.fn();
 jest.mock('../load-posthog', () => ({
-  loadPosthog: () => Promise.resolve({ init: mockPosthogInit }),
+  loadPosthog: () => Promise.resolve({ init: mockPosthogInit, capture: mockPosthogCapture }),
 }));
 
 function load() {
@@ -16,6 +17,15 @@ function load() {
   inject.mockClear();
   mockPosthogInit.mockClear();
   return { startAnalytics: mod.startAnalytics, inject, posthogInit: mockPosthogInit };
+}
+
+function loadWithCapture() {
+  let mod!: typeof import('../start-analytics.web');
+  jest.isolateModules(() => {
+    mod = require('../start-analytics.web');
+  });
+  mockPosthogCapture.mockClear();
+  return mod;
 }
 
 test('starts both in production', async () => {
@@ -63,4 +73,17 @@ test('hides typed text in recordings, except in marked inputs', async () => {
   expect(maskInput('05', element({ phUnmask: 'true' }))).toBe('05');
   expect(maskInput('secret', element({}))).toBe('******');
   expect(maskInput('secret', undefined)).toBe('******');
+});
+
+test('track sends nothing before PostHog starts', async () => {
+  const mod = loadWithCapture();
+  mod.track('sound picker closed', { sound: 'Bell' });
+  expect(mockPosthogCapture).not.toHaveBeenCalled();
+});
+
+test('track sends events once PostHog has started', async () => {
+  const mod = loadWithCapture();
+  await mod.startAnalytics('production');
+  mod.track('sound picker closed', { sound: 'Bell' });
+  expect(mockPosthogCapture).toHaveBeenCalledWith('sound picker closed', { sound: 'Bell' });
 });

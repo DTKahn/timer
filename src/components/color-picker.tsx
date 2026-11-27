@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
+import { colorChoice } from '@/analytics/picker-choices';
+import { track } from '@/analytics/start-analytics';
 import {
   ColorModeSwitch,
   ColorSwatches,
@@ -36,6 +38,11 @@ export function ColorButton({ size = 52 }: { size?: number }) {
     ? PICKER_HEADER_INLINE_HEIGHT + PICKER_GAP
     : PICKER_TITLE_HEIGHT + MODE_SWITCH_HEIGHT + 2 * PICKER_GAP + (multiColor ? PICKER_GAP + PICKER_DONE_HEIGHT : 0);
   const layout = useSwatchLayout(swatchOptions(value).length, reserved);
+  // Every way of closing comes through here, so analytics sees what was chosen.
+  const close = () => {
+    setOpen(false);
+    track('color picker closed', colorChoice(useSettings.getState()));
+  };
 
   return (
     <>
@@ -56,10 +63,10 @@ export function ColorButton({ size = 52 }: { size?: number }) {
         visible={open}
         title="Color"
         label="color picker"
-        onClose={() => setOpen(false)}
+        onClose={close}
         accessory={<ColorModeSwitch multi={multiColor} accent={color} onChange={setMultiColor} />}
         // Picking several colors takes several taps, so closing is explicit.
-        onDone={multiColor ? () => setOpen(false) : undefined}
+        onDone={multiColor ? close : undefined}
         contentWidth={gridWidth(layout)}>
         <ColorSwatches
           value={value}
@@ -68,7 +75,7 @@ export function ColorButton({ size = 52 }: { size?: number }) {
           onPress={(c) => {
             if (multiColor) return toggleColor(c);
             setColor(c);
-            setOpen(false);
+            close();
           }}
         />
       </PickerOverlay>
