@@ -3,6 +3,8 @@ import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { startAnalytics } from '@/analytics/start-analytics';
 import { Colors } from '@/constants/theme';
@@ -36,14 +38,27 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <ThemeProvider value={themes[scheme]}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="history" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="releases" options={{ presentation: 'modal' }} />
-      </Stack>
-      <TimerEffects />
-    </ThemeProvider>
+    <WebSafeArea>
+      <ThemeProvider value={themes[scheme]}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="history" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="releases" options={{ presentation: 'modal' }} />
+        </Stack>
+        <TimerEffects />
+      </ThemeProvider>
+    </WebSafeArea>
   );
+}
+
+/**
+ * On the web, Expo Router (from SDK 58) reports zero safe-area insets, so the timer would sit under
+ * the iPhone's notch and home bar when opened from the home screen. The library's own provider
+ * measures them from the browser's CSS `env(safe-area-inset-*)` values, as SDK 57 did. On iOS and
+ * Android, Expo Router already provides the real insets.
+ */
+function WebSafeArea({ children }: { children: React.ReactNode }) {
+  if (Platform.OS !== 'web') return children;
+  return <SafeAreaProvider>{children}</SafeAreaProvider>;
 }

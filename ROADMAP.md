@@ -20,11 +20,6 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## Next
 
-- **`expo-sdk-58`: upgrade to Expo SDK 58** (`latest` since before Nov 27; supports Node 26).
-  - Follow Expo's upgrade guide, with a plan doc. Clears findings that only SDK 58 fixes, such as `decode-uri-component` through `expo-router`'s `query-string`, which ships in the web bundle.
-  - Daniel tries the preview on his phone (home screen, sounds, rotation) before merging.
-  - **Must happen before** `ios-testflight`, since Expo Go and EAS follow the newest SDK.
-  - Afterwards `npm audit --omit=dev` should no longer list `decode-uri-component` (accepted in `dependency-refresh` until this upgrade). Check whether `minimatch` through `@expo/fingerprint` is still listed.
 - **`analytics-privacy`: privacy and consent for analytics.**
   - **Why:** PostHog stores a lasting ID on each device and records sessions on a site aimed at kids. The site also serves the UK and Canada through colourchime.com, and UK and EU rules generally require consent for non-essential analytics IDs. US rules for child-directed sites (COPPA) treat a lasting ID as personal information. The only privacy statement today is in `public/llms.txt`.
   - **Decide:** run PostHog without cookies (cookieless or memory-only), ask for consent, or both. Whether to keep Vercel Web Analytics alongside PostHog.
@@ -66,6 +61,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## Ideas
 
+- **Dial drawn at size zero:** opening a picker briefly draws a dial with size 0, so `src/components/pie-dial.tsx` (`face = c - 1`) logs "<circle> attribute r: A negative value is not valid" twice in the browser console. Harmless; seen on the live site on Nov 27. Clamp the radius at 0 or skip drawing at size 0.
 - **Crayon Timer:** a crayon-themed look, or a brand for it. Kept separate from the main name so the app isn't tied to one style.
 - **Content pages for search (web):** separate, readable pages that people find through search, while the timer screen stays exactly as it is. Discussed Nov 24 as the step after `seo-basics`.
   - Use-case pages (bedtime, tidy-up, toothbrushing, screen time, classroom transitions) and a "Why Color Chime" page. Each has a button that opens the timer already set.
@@ -82,6 +78,7 @@ Each item has a short **slug**. That slug is also the item's branch name and app
 
 ## Done
 
+- **`expo-sdk-58`** (0.14.6, Nov 27, 2026): Expo SDK 58 (React Native 0.88, React 19.3) with Jest 30 and Testing Library 14. Web safe-area insets kept by wrapping the app in the safe-area library's provider; async routes off on the web. Daniel confirmed on his phone: Safari and home screen, upright and sideways, pickers, Settings, History, and sounds after switching apps. `npm audit --omit=dev` has no high findings; `glob` and `minimatch` (moderate, build and test tooling only) are accepted. Plan is in `docs/superpowers/plans/`.
 - **`dependency-refresh`** (0.14.5, Nov 27, 2026): 10 Expo packages brought to SDK 57's expected versions and `npm audit fix` (no `--force`) applied; `expo-doctor` passes 21/21. `npm audit` went from 21 findings to 2, both accepted: `decode-uri-component` (high, ships in the web bundle through `expo-router`; only a crafted link freezing the visitor's own tab; fixed by `expo-sdk-58`, and an override isn't possible because the fixed version can't be loaded by `query-string` 7) and `minimatch` (moderate, only in Expo's native build tooling).
 - **`dependency-guardrails`** (0.14.4, Nov 27, 2026): Vercel runs `npm run check` (lint, typecheck, tests) before every build; `npm run deps:report`; one lockfile; install-script denials; other worktrees ignored; the dated monthly reminder and dependency rules in AGENTS.md. Spec and plan are in `docs/superpowers/`.
 - **`node-version`** (0.14.3, Nov 27, 2026): `package.json` sets Node to `26.x`, and Vercel builds with it. A test fails if the tests run on another major version. A fix with one obvious approach, so no design doc. Daniel's Mac moved from Node 23 to 26 the same day.

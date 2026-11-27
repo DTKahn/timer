@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useRef } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, type TextInputInstance, View } from 'react-native';
 
 import { SHOW_IN_REPLAYS } from '@/analytics/show-in-replays';
 import { ThemedText } from '@/components/themed-text';
@@ -81,7 +81,7 @@ function UnitField({
   sized: Sizes;
 }) {
   const theme = useTheme();
-  const input = useRef<TextInput>(null);
+  const input = useRef<TextInputInstance>(null);
   const step = (delta: number) => onChange((value + delta + max + 1) % (max + 1));
 
   return (
